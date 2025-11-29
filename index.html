@@ -25,6 +25,54 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
+      /* === СТИЛИ ДЛЯ ФОРМЫ ЗАЯВКИ === */
+        .contact-form-container {
+            background-color: var(--background-white);
+            padding: 30px;
+            border-radius: 8px;
+            border-top: 4px solid var(--accent-orange);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 30px auto 0; /* По центру */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1em;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 3px rgba(239, 108, 0, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-row { flex-direction: column; gap: 0; }
+        }
+
         /* ============================================
            ГЛОБАЛЬНЫЕ СТИЛИ И ПЕРЕМЕННЫЕ
            ============================================ */
@@ -1475,49 +1523,64 @@
             </div>
         </section>
 
-        <!-- РАЗДЕЛ 10: КОНТАКТНАЯ ИНФОРМАЦИЯ -->
+<!-- РАЗДЕЛ 10: КОНТАКТНАЯ ИНФОРМАЦИЯ И ЗАЯВКА -->
         <section id="contact" class="section">
-            <div class="section-number">9</div>
-            <h2>Свяжитесь с Нами</h2>
-            <p>
-                Готовы начать реализацию вашего проекта? Свяжитесь с нашим дилером для <strong>бесплатной консультации</strong> 
-                и расчёта стоимости вашего здания.
-            </p>
-
+            <div class="section-number">10</div>
+            <h2>Оставить заявку на расчёт</h2>
+            <p class="text-center">Свяжитесь с нами напрямую или заполните форму ниже. Мы подготовим расчёт в течение 24 часов.</p>
+            
+            <!-- Контакты (Только почта и телеграм, сайт убрали) -->
             <div class="contact-grid">
                 <div class="contact-card">
                     <div class="contact-icon">📧</div>
                     <h4>Электронная почта</h4>
-                    <a href="mailto:Grishats@mail.ru" style="text-decoration: none; color: inherit; font-weight: bold;">Grishats@mail.ru</a>
-                    <p style="margin-top: 10px; color: var(--text-secondary);">Ответим в течение 2 часов в рабочее время</p>
+                    <a href="mailto:Grishats@mail.ru">Grishats@mail.ru</a>
                 </div>
 
                 <div class="contact-card">
                     <div class="contact-icon">💬</div>
                     <h4>Telegram</h4>
                     <a href="https://t.me/Gringi" target="_blank">@Gringi</a>
-                    <p style="margin-top: 10px; color: var(--text-secondary);">Быстрая связь и консультации онлайн</p>
-                </div>
-
-                <div class="contact-card">
-                    <div class="contact-icon">🌐</div>
-                    <h4>Официальный сайт</h4>
-                    <a href="https://mk-l.ru/" target="_blank">mk-l.ru</a>
-                    <p style="margin-top: 10px; color: var(--text-secondary);">Полная информация о компании и услугах</p>
                 </div>
             </div>
 
-            <div class="cta-container mt-30">
-                <a href="/cdn-cgi/l/email-protection#accbdec5dfc4cdd8dfecc1cdc5c082ded9" class="cta-button">Отправить запрос</a>
-                <a href="https://t.me/Gringi" class="cta-button secondary" target="_blank">Написать в Telegram</a>
-            </div>
+            <!-- ФОРМА ОБРАТНОЙ СВЯЗИ -->
+            <div class="contact-form-container">
+                <!-- ВСТАВЬТЕ ВАШУ ССЫЛКУ НИЖЕ ВМЕСТО https://formspree.io/f/YOUR_ID -->
+                <form action="https://formspree.io/f/mgvjbval" method="POST">
+                    
+                    <!-- Имя и Телефон -->
+                    <div class="form-group">
+                        <label>Ваше имя</label>
+                        <input type="text" name="name" class="form-input" placeholder="Иван Иванов" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Телефон для связи (Обязательно)</label>
+                        <input type="tel" name="phone" class="form-input" placeholder="+7 (999) 000-00-00" required>
+                    </div>
 
-            <div class="info-box success mt-30">
-                <strong>Что вы получите при обращении:</strong><br>
-                ✓ Бесплатную консультацию специалиста<br>
-                ✓ Предварительный расчёт стоимости в течение 24 часов<br>
-                ✓ Варианты решений для вашей задачи<br>
-                ✓ Ответы на все ваши вопросы
+                    <!-- Габариты (в одну строку) -->
+                    <div class="form-group">
+                        <label>Желаемые габариты (Длина х Ширина х Высота)</label>
+                        <div class="form-row">
+                            <input type="number" name="length" class="form-input" placeholder="Длина (м)">
+                            <input type="number" name="width" class="form-input" placeholder="Ширина (м)">
+                            <input type="number" name="height" class="form-input" placeholder="Высота (м)">
+                        </div>
+                    </div>
+
+                    <!-- Комментарий -->
+                    <div class="form-group">
+                        <label>Дополнительные пожелания</label>
+                        <textarea name="message" class="form-input" rows="4" placeholder="Например: нужно теплое здание под автосервис..."></textarea>
+                    </div>
+
+                    <!-- Кнопка -->
+                    <button type="submit" class="cta-button" style="width: 100%; border: none; cursor: pointer;">
+                        Отправить заявку на расчёт
+                    </button>
+                </form>
             </div>
         </section>
 
