@@ -56,16 +56,27 @@
             overflow-x: hidden;
         }
 
-        /* ============================================
-           HEADER - ШАПКА САЙТА
+/* ============================================
+           HEADER - ШАПКА САЙТА (ОБНОВЛЕННАЯ)
            ============================================ */
         .header {
-            background-color: var(--primary-blue);
+            /* Здесь мы накладываем синий фильтр поверх картинки */
+            background: linear-gradient(rgba(13, 71, 161, 0.85), rgba(13, 71, 161, 0.9)), 
+                        url('https://60.img.avito.st/image/1/1.H49nlLa4s2ZRIzFrVeBrkH42sWDZNTFwUTixZNc9u2zR.Cy_hK--KIEdan2EtX_bkPf9zfAjdwoRW-SoGnO2RjIc');
+            
+            /* Настройки фона */
+            background-size: cover;    /* Растянуть картинку на всю ширину */
+            background-position: center; /* Центрировать картинку */
+            background-repeat: no-repeat;
+            
             color: var(--background-white);
-            padding: 60px 20px;
+            
+            /* УВЕЛИЧЕННЫЕ ОТСТУПЫ (было 60px, стало 120px) */
+            padding: 120px 20px; 
+            
             text-align: center;
             position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .header h1 {
