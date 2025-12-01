@@ -2109,38 +2109,3 @@
 
 </body>
 </html>
-    <!-- ============================================
-         JAVASCRIPT - ЛОГИКА КАЛЬКУЛЯТОРА И САЙТА
-         ============================================ -->
-    <script>
-        // ==========================================
-        // МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ
-        // ==========================================
-        function openModal(element) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            const img = element.querySelector('img');
-            modal.style.display = 'flex';
-            modalImg.src = img.src;
-        }
-
-        function closeModal() {
-            document.getElementById('imageModal').style.display = 'none';
-        }
-
-        // ==========================================
-        // ГРАФИКИ (Упрощенные для примера, чтобы код работал)
-        // ==========================================
-        const chartConfig = { type: 'bar', data: { labels: ['A','B'], datasets: [{ data: [10, 20] }] } };
-        
-        try {
-            new Chart(document.getElementById('advantagesChart'), { ...chartConfig, type: 'radar', data: { labels: ['Тепло', 'Скорость', 'Цена', 'Эко', 'Огонь'], datasets: [{ label: 'MKL', data: [90,95,85,80,90], backgroundColor: 'rgba(0,121,107,0.2)' }] } });
-            new Chart(document.getElementById('pricingChart'), { type: 'doughnut', data: { labels: ['Материал', 'Работа', 'Доставка'], datasets: [{ data: [60, 30, 10], backgroundColor: ['#0D47A1','#00796B','#EF6C00'] }] } });
-            new Chart(document.getElementById('timelineChart'), { type: 'bar', data: { labels: ['Проект','Завод','Монтаж'], datasets: [{ label: 'Дни', data: [5,15,30], backgroundColor: '#0D47A1' }] }, options: { indexAxis: 'y' } });
-            new Chart(document.getElementById('specificationChart'), { type: 'line', data: { labels: ['50','100','150','200'], datasets: [{ label: 'R (Тепло)', data: [1.2, 2.5, 3.8, 5.0], borderColor: '#EF6C00' }] } });
-            new Chart(document.getElementById('regionChart'), { type: 'bar', data: { labels: ['Центр','С-Запад','Юг'], datasets: [{ label: 'Проекты', data: [100,60,40], backgroundColor: '#00796B' }] } });
-        } catch(e) { console.log("Charts placeholder"); }
-
-    </script>
-</body>
-</html>
