@@ -1,0 +1,388 @@
+/* ============================================
+   КРИТИЧЕСКИЕ ИСПРАВЛЕНИЯ ДЛЯ МОБИЛЬНОЙ АДАПТАЦИИ
+   calc-angar.ru
+   ============================================ */
+
+/* 1. БАЗОВЫЕ НАСТРОЙКИ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Предотвращает горизонтальную прокрутку */
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 2. КОНТЕЙНЕРЫ */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 3. НАВИГАЦИЯ - МОБИЛЬНОЕ МЕНЮ */
+@media (max-width: 768px) {
+  header nav ul {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  header nav ul li {
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  /* Гамбургер меню */
+  .mobile-menu-toggle {
+    display: block;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+    z-index: 1000;
+  }
+  
+  .mobile-menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: #2c5aa0;
+    margin: 5px 0;
+    transition: 0.3s;
+  }
+  
+  nav.mobile-hidden {
+    display: none;
+  }
+}
+
+/* 4. КАЛЬКУЛЯТОР */
+@media (max-width: 768px) {
+  #calculator {
+    padding: 20px 15px;
+  }
+  
+  .calculator-inputs {
+    flex-direction: column;
+  }
+  
+  .calculator-inputs > div {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  input[type="number"],
+  select {
+    width: 100%;
+    font-size: 16px; /* Предотвращает зум на iOS */
+    padding: 12px;
+  }
+  
+  button {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+  }
+}
+
+/* 5. ТАБЛИЦЫ - АДАПТИВНАЯ ПРОКРУТКА */
+@media (max-width: 768px) {
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  table {
+    min-width: 600px;
+    font-size: 14px;
+  }
+  
+  table th,
+  table td {
+    padding: 8px 5px;
+    white-space: nowrap;
+  }
+  
+  /* Альтернатива: карточки вместо таблиц */
+  .table-card-view {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    .table-wrapper table {
+      display: none;
+    }
+    
+    .table-card-view {
+      display: block;
+    }
+    
+    .table-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .table-card-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .table-card-label {
+      font-weight: 600;
+      color: #666;
+    }
+    
+    .table-card-value {
+      text-align: right;
+      color: #333;
+    }
+  }
+}
+
+/* 6. СЕКЦИИ И ОТСТУПЫ */
+@media (max-width: 768px) {
+  section {
+    padding: 40px 0;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+  
+  p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+}
+
+/* 7. КАРТОЧКИ УСЛУГ */
+@media (max-width: 768px) {
+  .services-grid,
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .service-card,
+  .feature-card {
+    margin-bottom: 20px;
+  }
+}
+
+/* 8. ФОРМЫ */
+@media (max-width: 768px) {
+  form {
+    padding: 20px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+  }
+  
+  .form-group {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  textarea {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px;
+  }
+}
+
+/* 9. ФУТЕР */
+@media (max-width: 768px) {
+  footer .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  footer .footer-column {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+}
+
+/* 10. FAQ */
+@media (max-width: 768px) {
+  .faq-item {
+    padding: 15px;
+  }
+  
+  .faq-question {
+    font-size: 16px;
+    padding-right: 40px;
+  }
+  
+  .faq-answer {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+/* 11. КНОПКИ */
+@media (max-width: 768px) {
+  .btn {
+    width: 100%;
+    padding: 15px 20px;
+    margin: 10px 0;
+    font-size: 16px;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+  }
+}
+
+/* 12. МОДАЛЬНЫЕ ОКНА */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 5% auto;
+    padding: 20px;
+  }
+}
+
+/* 13. ИЗОБРАЖЕНИЯ И МЕДИА */
+@media (max-width: 768px) {
+  .image-gallery {
+    grid-template-columns: 1fr;
+  }
+  
+  .video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    height: 0;
+    overflow: hidden;
+  }
+  
+  .video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* 14. ПРОКРУТКА И ФИКСИРОВАННЫЕ ЭЛЕМЕНТЫ */
+@media (max-width: 768px) {
+  .fixed-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 999;
+  }
+}
+
+/* 15. ТЕКСТ И ЧИТАЕМОСТЬ */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  .text-small {
+    font-size: 14px;
+  }
+  
+  /* Увеличиваем отступы для лучшей кликабельности */
+  a, button {
+    min-height: 44px; /* Рекомендация Apple */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* 16. СКРЫТИЕ НА МОБИЛЬНЫХ */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  
+  .show-mobile {
+    display: block !important;
+  }
+}
+
+/* 17. ПЛАНШЕТЫ (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding: 0 30px;
+  }
+  
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+  }
+}
+
+/* 18. БОЛЬШИЕ ПЛАНШЕТЫ И МАЛЕНЬКИЕ НОУТБУКИ */
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .container {
+    max-width: 1000px;
+  }
+}
+
+/* 19. ОРИЕНТАЦИЯ УСТРОЙСТВА */
+@media (max-width: 768px) and (orientation: landscape) {
+  header {
+    height: 60px;
+  }
+  
+  section {
+    padding: 30px 0;
+  }
+}
+
+/* 20. TOUCH УСТРОЙСТВА */
+@media (hover: none) and (pointer: coarse) {
+  /* Убираем hover эффекты для touch */
+  .card:hover {
+    transform: none;
+  }
+  
+  /* Увеличиваем область клика */
+  button,
+  a {
+    padding: 15px 20px;
+  }
+}
