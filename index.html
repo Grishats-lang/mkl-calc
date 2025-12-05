@@ -29,6 +29,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
     <style>
+      /* Адаптивность для таблиц */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto; /* Включает горизонтальный скролл */
+    -webkit-overflow-scrolling: touch; /* Плавная прокрутка на айфонах */
+    margin-bottom: 20px;
+}
+
+/* Настройка самой таблицы внутри прокрутки */
+.table-responsive table {
+    min-width: 600px; /* Минимальная ширина, чтобы колонки не сплющивались */
+    width: 100%;
+}
+
+/* (Опционально) Уменьшаем отступы в ячейках на мобильных, чтобы влезало больше */
+@media (max-width: 768px) {
+    table th, table td {
+        padding: 8px 5px; /* Уменьшаем отступы: 8px сверху/снизу, 5px слева/справа */
+        font-size: 14px;  /* Можно немного уменьшить шрифт */
+    }
+}
       /* === СТИЛИ ДЛЯ ФОРМЫ ЗАЯВКИ === */
         .contact-form-container {
             background-color: var(--background-white);
@@ -1278,6 +1299,7 @@
             </p>
 
             <h3>Базовые цены на строительство</h3>
+          <div class="table-responsive">
             <table class="price-table">
                 <thead>
                     <tr>
@@ -1314,6 +1336,7 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
 
             <div class="info-box warning mt-30">
                 <strong>Обратите внимание:</strong> Минимальная сумма заказа составляет 500 000 рублей. 
@@ -1454,6 +1477,7 @@
             </p>
 
             <h3>Характеристики металлоконструкций</h3>
+          <div class="table-responsive">
             <table class="price-table">
                 <thead>
                     <tr>
@@ -1490,8 +1514,10 @@
                     </tr>
                 </tbody>
             </table>
+          </div>
 
             <h3>Характеристики сэндвич-панелей</h3>
+          <div class="table-responsive">
             <table class="price-table">
                 <thead>
                     <tr>
@@ -1533,6 +1559,7 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
 
             <div class="info-box success mt-30">
                 <strong>Энергоэффективность:</strong> Здания из наших сэндвич-панелей соответствуют классу 
