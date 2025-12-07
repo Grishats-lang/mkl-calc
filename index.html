@@ -877,6 +877,37 @@
         .calc-result-box strong {
             color: #FFFFFF !important;
         }
+/* === УМНАЯ ШАПКА (SMART HEADER) === */
+        
+        /* Добавляем плавность перемещения для меню */
+        .navigation {
+            transition: transform 0.3s ease-in-out;
+            will-change: transform;
+        }
+
+        /* Настройки только для МОБИЛЬНЫХ (планшетов и телефонов) */
+        @media (max-width: 768px) {
+            .navigation {
+                position: fixed; /* Меняем sticky на fixed, чтобы жестко привязать к экрану */
+                top: 0;
+                left: 0;
+                width: 100%;
+                background-color: rgba(255, 255, 255, 0.98); /* Чуть прозрачный фон */
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }
+
+            /* Этот класс мы будем добавлять через JS, чтобы скрыть меню */
+            .navigation.nav-hidden {
+                transform: translateY(-100%); /* Уводит меню вверх за пределы экрана */
+                box-shadow: none;
+            }
+            
+            /* Компенсация высоты меню, чтобы контент не прыгал под него, 
+               так как fixed вырывает элемент из потока */
+            .container {
+                padding-top: 60px; 
+            }
+        }
     </style>
 </head>
 <body>
@@ -2370,6 +2401,42 @@
         console.log('%c🏗️ MKL - Быстровозводимые Здания', 'color: #0D47A1; font-size: 20px; font-weight: bold;');
         console.log('%c10+ лет опыта | 500+ проектов | 5 лет гарантии', 'color: #00796B; font-size: 14px;');
         console.log('%cСвязаться: grishats@mail.ru | https://t.me/MKLcompany', 'color: #546E7A; font-size: 12px;');
+// ==========================================
+        // УМНАЯ ШАПКА ДЛЯ МОБИЛЬНЫХ
+        // ==========================================
+        let lastScrollTop = 0;
+        const navBar = document.querySelector('.navigation');
+        const scrollThreshold = 5; // Чувствительность к скроллу (чтобы не дёргалось от 1 пикселя)
+
+        window.addEventListener('scroll', function() {
+            // Проверяем ширину экрана. Если больше 768px (ПК), ничего не делаем
+            if (window.innerWidth > 768) {
+                navBar.classList.remove('nav-hidden');
+                return;
+            }
+
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            // Защита от отрицательного скролла (например, при оттягивании страницы вверх на iPhone)
+            if (scrollTop < 0) {
+                scrollTop = 0;
+            }
+
+            // Логика скрытия/показа
+            if (Math.abs(lastScrollTop - scrollTop) <= scrollThreshold) {
+                return; // Если прокрутили совсем чуть-чуть, ничего не делаем
+            }
+
+            if (scrollTop > lastScrollTop && scrollTop > 60) {
+                // Если крутим ВНИЗ и мы не в самом верху страницы -> СКРЫВАЕМ
+                navBar.classList.add('nav-hidden');
+            } else {
+                // Если крутим ВВЕРХ -> ПОКАЗЫВАЕМ
+                navBar.classList.remove('nav-hidden');
+            }
+
+            lastScrollTop = scrollTop;
+        }, { passive: true }); // passive: true улучшает производительность скролла на мобильных
     </script>
 
     <!-- THREE.JS БИБЛИОТЕКА -->
