@@ -1,41 +1,41 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7NQ5RFMMJ5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+      <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-7NQ5RFMMJ5"></script>
+      <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
 
-  gtag('config', 'G-7NQ5RFMMJ5');
-</script>
+          gtag('config', 'G-7NQ5RFMMJ5');
+      </script>
 
-<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- НОВЫЙ SEO ЗАГОЛОВОК -->
-    <title>Калькулятор ангара онлайн: расчет стоимости ЛСТК под ключ | МК-Л</title>
- 
-  <!-- FAVICON (ЛОГОТИП) -->
-    <link rel="icon" href="img/favicon.png" type="image/png">
-    <link rel="apple-touch-icon" href="img/favicon.png">
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    
-    <!-- НОВОЕ ОПИСАНИЕ ДЛЯ ЯНДЕКСА И GOOGLE -->
-    <meta name="description" content="Онлайн расчет стоимости быстровозводимого здания за 1 минуту. Узнайте цену ангара, склада или цеха с монтажом. Собственное производство, работаем по всей России.">
-  
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <!-- НОВЫЙ SEO ЗАГОЛОВОК -->
+      <title>Калькулятор ангара онлайн: расчет стоимости ЛСТК под ключ | МК-Л</title>
+      
+      <!-- FAVICON (ЛОГОТИП) -->
+      <link rel="icon" href="img/favicon.png" type="image/png">
+      <link rel="apple-touch-icon" href="img/favicon.png">
+      <link rel="icon" href="/favicon.ico" type="image/x-icon">
+      
+      <!-- НОВОЕ ОПИСАНИЕ ДЛЯ ЯНДЕКСА И GOOGLE -->
+      <meta name="description" content="Онлайн расчет стоимости быстровозводимого здания за 1 минуту. Узнайте цену ангара, склада или цеха с монтажом. Собственное производство, работаем по всей России.">
+      
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
-    <style>
-      /* Адаптивность для таблиц */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto; /* Включает горизонтальный скролл */
-    -webkit-overflow-scrolling: touch; /* Плавная прокрутка на айфонах */
-    margin-bottom: 20px;
-}
+      <style>
+          /* Адаптивность для таблиц */
+          .table-responsive {
+            width: 100%;
+            overflow-x: auto; /* Включает горизонтальный скролл */
+            -webkit-overflow-scrolling: touch; /* Плавная прокрутка на айфонах */
+            margin-bottom: 20px;
+        }
 
 /* Настройка самой таблицы внутри прокрутки */
 .table-responsive table {
@@ -50,58 +50,58 @@
         font-size: 14px;  /* Можно немного уменьшить шрифт */
     }
 }
-      /* === СТИЛИ ДЛЯ ФОРМЫ ЗАЯВКИ === */
-        .contact-form-container {
-            background-color: var(--background-white);
-            padding: 30px;
-            border-radius: 8px;
-            border-top: 4px solid var(--accent-orange);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: 30px auto 0; /* По центру */
-        }
+/* === СТИЛИ ДЛЯ ФОРМЫ ЗАЯВКИ === */
+.contact-form-container {
+    background-color: var(--background-white);
+    padding: 30px;
+    border-radius: 8px;
+    border-top: 4px solid var(--accent-orange);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 30px auto 0; /* По центру */
+}
 
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--primary-blue);
-        }
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--primary-blue);
+}
 
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 1em;
-            font-family: 'Inter', sans-serif;
-            transition: border-color 0.3s;
-        }
+.form-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1em;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.3s;
+}
 
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-orange);
-            box-shadow: 0 0 0 3px rgba(239, 108, 0, 0.1);
-        }
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(239, 108, 0, 0.1);
+}
 
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-        
-        @media (max-width: 600px) {
-            .form-row { flex-direction: column; gap: 0; }
-        }
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+@media (max-width: 600px) {
+    .form-row { flex-direction: column; gap: 0; }
+}
 
         /* ============================================
            ГЛОБАЛЬНЫЕ СТИЛИ И ПЕРЕМЕННЫЕ
            ============================================ */
-        :root {
+           :root {
             --primary-blue: #0D47A1;
             --accent-teal: #00796B;
             --accent-orange: #EF6C00;
@@ -132,10 +132,10 @@
 /* ============================================
            HEADER - ШАПКА САЙТА (ОБНОВЛЕННАЯ)
            ============================================ */
-        .header {
+           .header {
             /* Здесь мы накладываем синий фильтр поверх картинки */
             background: linear-gradient(rgba(13, 71, 161, 0.85), rgba(13, 71, 161, 0.9)), 
-                        url('img/header-bg.jpg');
+            url('img/header-bg.jpg');
             
             /* Настройки фона */
             background-size: cover;    /* Растянуть картинку на всю ширину */
@@ -195,7 +195,7 @@
         /* ============================================
            НАВИГАЦИЯ
            ============================================ */
-        .navigation {
+           .navigation {
             background-color: var(--background-white);
             padding: 0;
             position: sticky;
@@ -231,7 +231,7 @@
         /* ============================================
            КОНТЕЙНЕР И СЕКЦИИ
            ============================================ */
-        .container {
+           .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
@@ -287,7 +287,7 @@
         /* ============================================
            КАЛЬКУЛЯТОР (НОВЫЕ СТИЛИ)
            ============================================ */
-        .calc-wrapper {
+           .calc-wrapper {
             display: grid;
             grid-template-columns: 1fr 350px;
             gap: 30px;
@@ -461,7 +461,7 @@
         /* ============================================
            ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ
            ============================================ */
-        .gallery {
+           .gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
@@ -504,7 +504,7 @@
         /* ============================================
            КАРТОЧКИ СПЕЦИФИКАЦИЙ
            ============================================ */
-        .specs-grid {
+           .specs-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
@@ -547,7 +547,7 @@
         /* ============================================
            ТАБЛИЦА ЦЕН
            ============================================ */
-        .price-table {
+           .price-table {
             width: 100%;
             border-collapse: collapse;
             margin: 30px 0;
@@ -594,7 +594,7 @@
         /* ============================================
            ПРЕИМУЩЕСТВА (FEATURES LIST)
            ============================================ */
-        .features-list {
+           .features-list {
             list-style: none;
             margin: 20px 0;
         }
@@ -626,7 +626,7 @@
         /* ============================================
            ГРАФИК (CANVAS)
            ============================================ */
-        .chart-container {
+           .chart-container {
             position: relative;
             height: 400px;
             margin: 30px 0;
@@ -639,7 +639,7 @@
         /* ============================================
            КНОПКИ ПРИЗЫВА К ДЕЙСТВИЮ
            ============================================ */
-        .cta-container {
+           .cta-container {
             text-align: center;
             margin: 40px 0;
         }
@@ -676,7 +676,7 @@
         /* ============================================
            КОНТАКТНАЯ ИНФОРМАЦИЯ
            ============================================ */
-        .contact-grid {
+           .contact-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
@@ -717,7 +717,7 @@
         /* ============================================
            ФУТЕР
            ============================================ */
-        .footer {
+           .footer {
             background-color: var(--gray-dark);
             color: var(--gray-light);
             padding: 40px 20px;
@@ -742,7 +742,7 @@
         /* ============================================
            МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ
            ============================================ */
-        .modal {
+           .modal {
             display: none;
             position: fixed;
             z-index: 2000;
@@ -778,7 +778,7 @@
         /* ============================================
            ИНФОРМАЦИОННЫЕ БОКСЫ
            ============================================ */
-        .info-box {
+           .info-box {
             background-color: var(--background-light);
             border-left: 4px solid var(--primary-blue);
             padding: 20px;
@@ -797,7 +797,7 @@
         /* ============================================
            АДАПТИВНОСТЬ
            ============================================ */
-        @media (max-width: 768px) {
+           @media (max-width: 768px) {
             .header h1 {
                 font-size: 2em;
             }
@@ -831,7 +831,7 @@
         /* ============================================
            АНИМАЦИИ
            ============================================ */
-        @keyframes fadeIn {
+           @keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -849,7 +849,7 @@
         /* ============================================
            ДОПОЛНИТЕЛЬНЫЕ УТИЛИТЫ
            ============================================ */
-        .text-center {
+           .text-center {
             text-align: center;
         }
 
@@ -873,40 +873,96 @@
             color: var(--accent-teal);
             font-weight: 500;
         }
-      /* === ИСПРАВЛЕНИЕ ЦВЕТА ЦИФР В КАЛЬКУЛЯТОРЕ === */
+        /* === ИСПРАВЛЕНИЕ ЦВЕТА ЦИФР В КАЛЬКУЛЯТОРЕ === */
         .calc-result-box strong {
             color: #FFFFFF !important;
         }
+
 /* === УМНАЯ ШАПКА (SMART HEADER) === */
-        
-        /* Добавляем плавность перемещения для меню */
-        .navigation {
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
 
-        /* Настройки только для МОБИЛЬНЫХ (планшетов и телефонов) */
-        @media (max-width: 768px) {
-            .navigation {
-                position: fixed; /* Меняем sticky на fixed, чтобы жестко привязать к экрану */
-                top: 0;
-                left: 0;
-                width: 100%;
-                background-color: rgba(255, 255, 255, 0.98); /* Чуть прозрачный фон */
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            }
+/* Добавляем плавность перемещения для меню */
+.navigation {
+    transition: transform 0.3s ease-in-out;
+    will-change: transform;
+}
 
-            /* Этот класс мы будем добавлять через JS, чтобы скрыть меню */
-            .navigation.nav-hidden {
-                transform: translateY(-100%); /* Уводит меню вверх за пределы экрана */
-                box-shadow: none;
-            }
-            
+/* Настройки только для МОБИЛЬНЫХ (планшетов и телефонов) */
+@media (max-width: 768px) {
+    .navigation {
+        position: fixed; /* Меняем sticky на fixed, чтобы жестко привязать к экрану */
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.98); /* Чуть прозрачный фон */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Этот класс мы будем добавлять через JS, чтобы скрыть меню */
+    .navigation.nav-hidden {
+        transform: translateY(-100%); /* Уводит меню вверх за пределы экрана */
+        box-shadow: none;
+    }
+    
             /* Компенсация высоты меню, чтобы контент не прыгал под него, 
                так как fixed вырывает элемент из потока */
-            .container {
+               .container {
                 padding-top: 60px; 
             }
+        }
+        /* === СТИЛИ ДЛЯ РАЗДЕЛА 1 (КАРТИНКА + ТЕКСТ) === */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Две колонки */
+            gap: 40px;
+            align-items: center; /* Центрирование по вертикали */
+            margin-top: 30px;
+        }
+
+        .about-img-wrapper img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            object-fit: cover;
+            height: 100%;
+            min-height: 300px;
+        }
+
+        /* На мобильных делаем одну колонку */
+        @media (max-width: 768px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+            .about-img-wrapper {
+                order: -1; /* Картинка сверху */
+                margin-bottom: 20px;
+            }
+        }
+
+        /* === СТИЛИ ДЛЯ СТРЕЛОК ГАЛЕРЕИ === */
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 20px;
+            user-select: none;
+            transition: color 0.3s;
+            z-index: 2001;
+        }
+
+        .modal-nav:hover {
+            color: var(--accent-orange);
+        }
+
+        .modal-prev { left: 10px; }
+        .modal-next { right: 10px; }
+        
+        /* Чтобы картинка не перекрывала стрелки, ограничим её ширину */
+        .modal-content {
+            max-width: 80%; 
         }
     </style>
 </head>
@@ -918,7 +974,7 @@
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
         m[i].l=1*new Date();
         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
     })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105596286', 'ym');
 
     ym(105596286, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
@@ -930,68 +986,68 @@
     <!-- ============================================
          ШАПКА САЙТА
          ============================================ -->
-    <header class="header">
-        <h1>MKL - Быстровозводимые здания</h1>
-        <p>Официальный партнер завода. Расчет стоимости онлайн, цены производителя, скидки на монтаж.</p>
-        
-        <div class="header-stats">
-            <div class="stat-item">
-                <span class="stat-number">10+</span>
-                <span class="stat-label">лет опыта</span>
+         <header class="header">
+            <h1>MKL - Быстровозводимые здания</h1>
+            <p>Официальный партнер завода. Расчет стоимости онлайн, цены производителя, скидки на монтаж.</p>
+            
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span class="stat-number">10+</span>
+                    <span class="stat-label">лет опыта</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">реализованных проектов</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">5</span>
+                    <span class="stat-label">лет гарантии</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">200+</span>
+                    <span class="stat-label">м² минимальная площадь</span>
+                </div>
             </div>
-            <div class="stat-item">
-                <span class="stat-number">500+</span>
-                <span class="stat-label">реализованных проектов</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">5</span>
-                <span class="stat-label">лет гарантии</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">200+</span>
-                <span class="stat-label">м² минимальная площадь</span>
-            </div>
-        </div>
-    </header>
+        </header>
 
     <!-- ============================================
          НАВИГАЦИЯ
          ============================================ -->
-    <nav class="navigation">
-        <div class="nav-container">
-            <a href="#services">Услуги</a>
-            <a href="#advantages">Преимущества</a>
-            <a href="#calculator" style="color: var(--accent-orange);">Калькулятор</a>
-            <a href="#projects">Наши проекты</a>
-            <a href="#pricing">Цены</a>
-            <a href="#process">Процесс работы</a>
-            <a href="#contact">Контакты</a>
-        </div>
-    </nav>
+         <nav class="navigation">
+            <div class="nav-container">
+                <a href="#services">Услуги</a>
+                <a href="#advantages">Преимущества</a>
+                <a href="#calculator" style="color: var(--accent-orange);">Калькулятор</a>
+                <a href="#projects">Наши проекты</a>
+                <a href="#pricing">Цены</a>
+                <a href="#process">Процесс работы</a>
+                <a href="#contact">Контакты</a>
+            </div>
+        </nav>
 
     <!-- ============================================
          ОСНОВНОЙ КОНТЕНТ
          ============================================ -->
-    <div class="container">
+         <div class="container">
 
-        <!-- РАЗДЕЛ 1: О КОМПАНИИ -->
-        <section id="about" class="section">
-            <div class="section-number">1</div>
-            <h2>Официальный партнер MKL</h2>
-            <p>Мы представляем завод металлоконструкций <strong>MKL</strong>. Наша задача — обеспечить вам быстрый расчет, 
-            зафиксировать стоимость металла и организовать производство без наценок.</p>
-          
-            <ul style="list-style: none; padding-left: 0; margin-top: 20px;">
-                <li style="padding: 10px 15px; border-left: 4px solid #00796B; background: #f4f4f4; margin-bottom: 10px; border-radius: 0 4px 4px 0;">
-                    🚀 <strong>Скорость:</strong> Расчет онлайн.
-                </li>
-                <li style="padding: 10px 15px; border-left: 4px solid #00796B; background: #f4f4f4; margin-bottom: 10px; border-radius: 0 4px 4px 0;">
-                    💰 <strong>Цена:</strong> Строго по прайсу завода.
-                </li>
-                <li style="padding: 10px 15px; border-left: 4px solid #00796B; background: #f4f4f4; margin-bottom: 10px; border-radius: 0 4px 4px 0;">
-                    🛡 <strong>Гарантия:</strong> Договор напрямую с производителем.
-                </li>
-            </ul>
+            <!-- РАЗДЕЛ 1: О КОМПАНИИ -->
+            <section id="about" class="section">
+                <div class="section-number">1</div>
+                <h2>Официальный партнер MKL</h2>
+                <p>Мы представляем завод металлоконструкций <strong>MKL</strong>. Наша задача — обеспечить вам быстрый расчет, 
+                зафиксировать стоимость металла и организовать производство без наценок.</p>
+                
+                <ul style="list-style: none; padding-left: 0; margin-top: 20px;">
+                    <li style="padding: 10px 15px; border-left: 4px solid #00796B; background: #f4f4f4; margin-bottom: 10px; border-radius: 0 4px 4px 0;">
+                        🚀 <strong>Скорость:</strong> Расчет онлайн.
+                    </li>
+                    <li style="padding: 10px 15px; border-left: 4px solid #00796B; background: #f4f4f4; margin-bottom: 10px; border-radius: 0 4px 4px 0;">
+                        💰 <strong>Цена:</strong> Строго по прайсу завода.
+                    </li>
+                    <li style="padding: 10px 15px; border-left: 4px solid #00796B; background: #f4f4f4; margin-bottom: 10px; border-radius: 0 4px 4px 0;">
+                        🛡 <strong>Гарантия:</strong> Договор напрямую с производителем.
+                    </li>
+                </ul>
             </p>
             <p>
                 Компания <strong>MKL</strong> — ведущий производитель быстровозводимых зданий с <span class="highlight">10-летним опытом</span> 
@@ -1011,645 +1067,658 @@
             </div>
 
             <h3>Почему выбирают MKL?</h3>
-            <ul class="features-list">
-                <li>Собственное производство сэндвич-панелей высшего качества</li>
-                <li>Использование стали марки Ст3 производства ПАО "СеверСталь"</li>
-                <li>Команда из 20+ квалифицированных специалистов</li>
-                <li>Индивидуальное проектирование с учётом всех климатических нагрузок</li>
-                <li>Работа по договору с полным пакетом документов</li>
-                <li>Соблюдение сроков и бюджета проекта</li>
-            </ul>
-        </section>
+<!-- НАЧАЛО ЗАМЕНЫ -->
+<div class="about-grid">
 
-        <!-- РАЗДЕЛ 2: НАШИ УСЛУГИ -->
-        <section id="services" class="section">
-            <div class="section-number">2</div>
-            <h2>Наши Услуги</h2>
-            <p>
-                Компания MKL предлагает <strong>комплексные решения</strong> для строительства быстровозводимых зданий 
-                различного назначения. Мы реализуем проекты любой сложности площадью от 200 м² и выше.
-            </p>
+    <!-- Правая колонка: Список -->
+    <div class="about-text-content">
+        <ul class="features-list">
+            <li>Собственное производство сэндвич-панелей высшего качества</li>
+            <li>Использование стали марки Ст3 производства ПАО "СеверСталь"</li>
+            <li>Команда из 20+ квалифицированных специалистов</li>
+            <li>Индивидуальное проектирование с учётом всех климатических нагрузок</li>
+            <li>Работа по договору с полным пакетом документов</li>
+            <li>Соблюдение сроков и бюджета проекта</li>
+        </ul>
+    </div>
+        <!-- Левая колонка: Фото -->
+    <div class="about-img-wrapper">
+        <img src="img/1.jpg" alt="Производство MKL">
+    </div>
 
-            <div class="specs-grid">
-                <div class="spec-card">
-                    <div class="spec-icon">🏭</div>
-                    <h4>Производственные помещения</h4>
-                    <p>Цеха, заводы, производственные линии с учётом технологических требований</p>
+</div>
+<!-- КОНЕЦ ЗАМЕНЫ -->
+</section>
+
+<!-- РАЗДЕЛ 2: НАШИ УСЛУГИ -->
+<section id="services" class="section">
+    <div class="section-number">2</div>
+    <h2>Наши Услуги</h2>
+    <p>
+        Компания MKL предлагает <strong>комплексные решения</strong> для строительства быстровозводимых зданий 
+        различного назначения. Мы реализуем проекты любой сложности площадью от 200 м² и выше.
+    </p>
+
+    <div class="specs-grid">
+        <div class="spec-card">
+            <div class="spec-icon">🏭</div>
+            <h4>Производственные помещения</h4>
+            <p>Цеха, заводы, производственные линии с учётом технологических требований</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">📦</div>
+            <h4>Складские комплексы</h4>
+            <p>Современные склады с оптимальной системой хранения и логистики</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🏢</div>
+            <h4>Ангары и павильоны</h4>
+            <p>Многофункциональные пространства для различных видов деятельности</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🛒</div>
+            <h4>Торговые помещения</h4>
+            <p>Магазины, торговые павильоны с современным дизайном</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🚗</div>
+            <h4>Автосервисы и СТО</h4>
+            <p>Специализированные помещения для обслуживания автомобилей</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🚙</div>
+            <h4>Автомойки и боксы</h4>
+            <p>Современные комплексы с системами водоочистки</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🌲</div>
+            <h4>Пилорамы</h4>
+            <p>Специализированные здания для деревообрабатывающего производства</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🐟</div>
+            <h4>Рыбные фермы</h4>
+            <p>Комплексы для аквакультуры с контролем микроклимата</p>
+        </div>
+    </div>
+</section>
+
+<!-- РАЗДЕЛ 3: НАШИ ПРОЕКТЫ (ГАЛЕРЕЯ) -->
+<section id="projects" class="section">
+    <div class="section-number">3</div>
+    <h2>Реализованные Проекты</h2>
+    <p>
+        За <strong>10 лет работы</strong> мы реализовали более 500 проектов по всей России. Ниже представлены 
+        примеры наших работ — от компактных автосервисов до крупных промышленных комплексов.
+    </p>
+
+    <div class="gallery">
+        <div class="gallery-item" onclick="openModal(this)">
+            <img src="img/19.jpg" alt="Производственное здание">
+            <div class="gallery-caption">Производственный комплекс 1200 м²</div>
+        </div>
+
+        <div class="gallery-item" onclick="openModal(this)">
+            <img src="img/header-bg.jpg" alt="Производственный цех">
+            <div class="gallery-caption">Производственный цех 2000 м²</div>
+        </div>
+
+        <div class="gallery-item" onclick="openModal(this)">
+            <img src="img/angar1.jpg" alt="Автосервис">
+            <div class="gallery-caption">Автосервис с мойкой 600 м²</div>
+        </div>
+
+        <div class="gallery-item" onclick="openModal(this)">
+            <img src="img/angar2.jpg" alt="Ангар">
+            <div class="gallery-caption">Ангар для хранения 1500 м²</div>
+        </div>
+
+        <div class="gallery-item" onclick="openModal(this)">
+            <img src="img/angar3.jpg" alt="Торговый павильон">
+            <div class="gallery-caption">Торговый павильон 350 м²</div>
+        </div>
+
+        <div class="gallery-item" onclick="openModal(this)">
+            <img src="img/sklad.jpg" alt="Складской комплекс">
+            <div class="gallery-caption">Складской комплекс 1800 м²</div>
+        </div>
+    </div>
+</section>
+
+<!-- РАЗДЕЛ 4: ПРЕИМУЩЕСТВА -->
+<section id="advantages" class="section">
+    <div class="section-number">4</div>
+    <h2>Наши Конкурентные Преимущества</h2>
+    <p>
+        Компания MKL выделяется на рынке благодаря <strong>комплексному подходу</strong> к каждому проекту 
+        и непревзойдённому качеству материалов и работ.
+    </p>
+
+    <h3>🔵 Непревзойдённое качество материалов</h3>
+    <p>
+        Для производства наших конструкций мы используем исключительно <strong>сталь марки Ст3</strong> 
+        производства ПАО "СеверСталь" — одного из крупнейших металлургических комбинатов России. Это гарантирует:
+    </p>
+    <ul class="features-list">
+        <li>Высокую прочность и устойчивость к механическим нагрузкам</li>
+        <li>Долговечность конструкции (расчётный срок службы 50+ лет)</li>
+        <li>Устойчивость к коррозии благодаря качественному защитному покрытию</li>
+        <li>Соответствие всем российским и международным стандартам качества</li>
+    </ul>
+
+    <h3>🔵 Собственное производство сэндвич-панелей</h3>
+    <p>
+        На нашем производстве выпускаются <strong>стеновые и кровельные сэндвич-панели</strong> последнего поколения:
+    </p>
+    <ul class="features-list">
+        <li>Толщина панелей от 50 до 250 мм в зависимости от требований теплоизоляции</li>
+        <li>Утеплитель — минеральная вата или пенополистирол высокой плотности</li>
+        <li>Коэффициент теплопроводности от 0,035 Вт/(м·К)</li>
+        <li>Класс горючести НГ (негорючие) для минераловатных панелей</li>
+        <li>Широкая цветовая гамма по каталогу RAL (более 200 оттенков)</li>
+    </ul>
+
+    <h3>🔵 Индивидуальное проектирование</h3>
+    <p>
+        Наш проектный отдел разрабатывает <strong>уникальные решения</strong> с учётом специфики вашего бизнеса:
+    </p>
+    <ul class="features-list">
+        <li>Расчёт снеговых нагрузок в соответствии с климатической зоной (СП 20.13330.2016)</li>
+        <li>Расчёт ветровых нагрузок с учётом местных условий</li>
+        <li>Оптимизация планировки для максимальной функциональности</li>
+        <li>Проектирование инженерных систем (отопление, вентиляция, электроснабжение)</li>
+        <li>3D-визуализация проекта для наглядного представления результата</li>
+    </ul>
+
+    <h3>🔵 Универсальность фундамента</h3>
+    <p>
+        Наши конструкции совместимы с любым типом фундамента:
+    </p>
+    <div class="specs-grid">
+        <div class="spec-card">
+            <h4>Ленточный фундамент</h4>
+            <p>Классическое решение для стабильных грунтов</p>
+        </div>
+        <div class="spec-card">
+            <h4>Свайный фундамент</h4>
+            <p>Оптимально для слабых и пучинистых грунтов</p>
+        </div>
+        <div class="spec-card">
+            <h4>Монолитная плита</h4>
+            <p>Идеально для больших нагрузок и складских комплексов</p>
+        </div>
+        <div class="spec-card">
+            <h4>Столбчатый фундамент</h4>
+            <p>Экономичный вариант для лёгких конструкций</p>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="advantagesChart"></canvas>
+    </div>
+</section>
+
+<!-- РАЗДЕЛ 5: КАЛЬКУЛЯТОР -->
+<section id="calculator" class="section">
+    <div class="section-number">5</div>
+    <h2>Онлайн Калькулятор</h2>
+    <p>Рассчитайте предварительную стоимость строительства вашего здания. Изменяйте параметры, чтобы увидеть, как меняется цена.</p>
+
+    <!-- 3D ВИЗУАЛИЗАЦИЯ -->
+    <div style="margin: 30px 0; background-color: var(--background-light); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <div style="padding: 20px; background-color: var(--primary-blue); color: white;">
+            <h3 style="margin: 0; font-size: 1.2em; color: white;">🏛️ 3D Предпросмотр</h3>
+            <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.9; color: white;">Интерактивная модель вашего здания / Крутите мышкой / пальцем / удерживая Ctrl</p>
+        </div>
+        <div id="scene3d" style="width: 100%; height: 500px; background: linear-gradient(to bottom, #e0e0e0, #90A4AE);"></div>
+        <div style="padding: 15px; background-color: white; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <button onclick="changeColor(0x0D47A1)" style="width: 20px; height: 20px; background: #0D47A1; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Синий"></button>
+            <button onclick="changeColor(0xD32F2F)" style="width: 20px; height: 20px; background: #D32F2F; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Красный"></button>
+            <button onclick="changeColor(0x388E3C)" style="width: 20px; height: 20px; background: #388E3C; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Зеленый"></button>
+            <button onclick="changeColor(0xF57C00)" style="width: 20px; height: 20px; background: #F57C00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Оранжевый"></button>
+            <button onclick="changeColor(0x5D4037)" style="width: 20px; height: 20px; background: #5D4037; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Коричневый"></button>
+            <button onclick="changeColor(0x546E7A)" style="width: 20px; height: 20px; background: #546E7A; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Серый"></button>
+        </div>
+    </div>
+
+    <div class="calc-wrapper">
+        <!-- БЛОК УПРАВЛЕНИЯ -->
+        <div class="calc-controls">
+
+            <!-- Ширина -->
+            <div class="calc-control-group">
+                <div class="calc-label">
+                    <span>Ширина здания</span>
+                    <span class="calc-value"><span id="val-width">12</span> м</span>
                 </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">📦</div>
-                    <h4>Складские комплексы</h4>
-                    <p>Современные склады с оптимальной системой хранения и логистики</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🏢</div>
-                    <h4>Ангары и павильоны</h4>
-                    <p>Многофункциональные пространства для различных видов деятельности</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🛒</div>
-                    <h4>Торговые помещения</h4>
-                    <p>Магазины, торговые павильоны с современным дизайном</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🚗</div>
-                    <h4>Автосервисы и СТО</h4>
-                    <p>Специализированные помещения для обслуживания автомобилей</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🚙</div>
-                    <h4>Автомойки и боксы</h4>
-                    <p>Современные комплексы с системами водоочистки</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🌲</div>
-                    <h4>Пилорамы</h4>
-                    <p>Специализированные здания для деревообрабатывающего производства</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🐟</div>
-                    <h4>Рыбные фермы</h4>
-                    <p>Комплексы для аквакультуры с контролем микроклимата</p>
-                </div>
+                <input type="range" id="input-width" min="6" max="60" value="12" step="1">
             </div>
-        </section>
 
-        <!-- РАЗДЕЛ 3: НАШИ ПРОЕКТЫ (ГАЛЕРЕЯ) -->
-        <section id="projects" class="section">
-            <div class="section-number">3</div>
-            <h2>Реализованные Проекты</h2>
-            <p>
-                За <strong>10 лет работы</strong> мы реализовали более 500 проектов по всей России. Ниже представлены 
-                примеры наших работ — от компактных автосервисов до крупных промышленных комплексов.
-            </p>
-
-            <div class="gallery">
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="img/1.jpg" alt="Производственное здание">
-                    <div class="gallery-caption">Производственный комплекс 1200 м²</div>
+            <!-- Длина -->
+            <div class="calc-control-group">
+                <div class="calc-label">
+                    <span>Длина здания</span>
+                    <span class="calc-value"><span id="val-length">30</span> м</span>
                 </div>
-
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="img/header-bg.jpg" alt="Производственный цех">
-                    <div class="gallery-caption">Производственный цех 2000 м²</div>
-                </div>
-
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="img/angar1.jpg" alt="Автосервис">
-                    <div class="gallery-caption">Автосервис с мойкой 600 м²</div>
-                </div>
-
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="img/angar2.jpg" alt="Ангар">
-                    <div class="gallery-caption">Ангар для хранения 1500 м²</div>
-                </div>
-
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="img/angar3.jpg" alt="Торговый павильон">
-                    <div class="gallery-caption">Торговый павильон 350 м²</div>
-                </div>
-
-<div class="gallery-item" onclick="openModal(this)">
-                    <img src="img/sklad.jpg" alt="Складской комплекс">
-                    <div class="gallery-caption">Складской комплекс 1800 м²</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- РАЗДЕЛ 4: ПРЕИМУЩЕСТВА -->
-        <section id="advantages" class="section">
-            <div class="section-number">4</div>
-            <h2>Наши Конкурентные Преимущества</h2>
-            <p>
-                Компания MKL выделяется на рынке благодаря <strong>комплексному подходу</strong> к каждому проекту 
-                и непревзойдённому качеству материалов и работ.
-            </p>
-
-            <h3>🔵 Непревзойдённое качество материалов</h3>
-            <p>
-                Для производства наших конструкций мы используем исключительно <strong>сталь марки Ст3</strong> 
-                производства ПАО "СеверСталь" — одного из крупнейших металлургических комбинатов России. Это гарантирует:
-            </p>
-            <ul class="features-list">
-                <li>Высокую прочность и устойчивость к механическим нагрузкам</li>
-                <li>Долговечность конструкции (расчётный срок службы 50+ лет)</li>
-                <li>Устойчивость к коррозии благодаря качественному защитному покрытию</li>
-                <li>Соответствие всем российским и международным стандартам качества</li>
-            </ul>
-
-            <h3>🔵 Собственное производство сэндвич-панелей</h3>
-            <p>
-                На нашем производстве выпускаются <strong>стеновые и кровельные сэндвич-панели</strong> последнего поколения:
-            </p>
-            <ul class="features-list">
-                <li>Толщина панелей от 50 до 250 мм в зависимости от требований теплоизоляции</li>
-                <li>Утеплитель — минеральная вата или пенополистирол высокой плотности</li>
-                <li>Коэффициент теплопроводности от 0,035 Вт/(м·К)</li>
-                <li>Класс горючести НГ (негорючие) для минераловатных панелей</li>
-                <li>Широкая цветовая гамма по каталогу RAL (более 200 оттенков)</li>
-            </ul>
-
-            <h3>🔵 Индивидуальное проектирование</h3>
-            <p>
-                Наш проектный отдел разрабатывает <strong>уникальные решения</strong> с учётом специфики вашего бизнеса:
-            </p>
-            <ul class="features-list">
-                <li>Расчёт снеговых нагрузок в соответствии с климатической зоной (СП 20.13330.2016)</li>
-                <li>Расчёт ветровых нагрузок с учётом местных условий</li>
-                <li>Оптимизация планировки для максимальной функциональности</li>
-                <li>Проектирование инженерных систем (отопление, вентиляция, электроснабжение)</li>
-                <li>3D-визуализация проекта для наглядного представления результата</li>
-            </ul>
-
-            <h3>🔵 Универсальность фундамента</h3>
-            <p>
-                Наши конструкции совместимы с любым типом фундамента:
-            </p>
-            <div class="specs-grid">
-                <div class="spec-card">
-                    <h4>Ленточный фундамент</h4>
-                    <p>Классическое решение для стабильных грунтов</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Свайный фундамент</h4>
-                    <p>Оптимально для слабых и пучинистых грунтов</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Монолитная плита</h4>
-                    <p>Идеально для больших нагрузок и складских комплексов</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Столбчатый фундамент</h4>
-                    <p>Экономичный вариант для лёгких конструкций</p>
-                </div>
+                <input type="range" id="input-length" min="10" max="200" value="30" step="1">
             </div>
 
-            <div class="chart-container">
-                <canvas id="advantagesChart"></canvas>
+            <!-- Высота -->
+            <div class="calc-control-group">
+                <div class="calc-label">
+                    <span>Высота (по стене)</span>
+                    <span class="calc-value"><span id="val-height">6</span> м</span>
+                </div>
+                <input type="range" id="input-height" min="3" max="12" value="6" step="0.5">
             </div>
-        </section>
 
-        <!-- РАЗДЕЛ 5: КАЛЬКУЛЯТОР -->
-        <section id="calculator" class="section">
-            <div class="section-number">5</div>
-            <h2>Онлайн Калькулятор</h2>
-            <p>Рассчитайте предварительную стоимость строительства вашего здания. Изменяйте параметры, чтобы увидеть, как меняется цена.</p>
-            
-            <!-- 3D ВИЗУАЛИЗАЦИЯ -->
-            <div style="margin: 30px 0; background-color: var(--background-light); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
-                <div style="padding: 20px; background-color: var(--primary-blue); color: white;">
-                    <h3 style="margin: 0; font-size: 1.2em; color: white;">🏛️ 3D Предпросмотр</h3>
-                    <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.9; color: white;">Интерактивная модель вашего здания / Крутите мышкой / пальцем / удерживая Ctrl</p>
-                </div>
-                <div id="scene3d" style="width: 100%; height: 500px; background: linear-gradient(to bottom, #e0e0e0, #90A4AE);"></div>
-                <div style="padding: 15px; background-color: white; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                    <button onclick="changeColor(0x0D47A1)" style="width: 20px; height: 20px; background: #0D47A1; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Синий"></button>
-                    <button onclick="changeColor(0xD32F2F)" style="width: 20px; height: 20px; background: #D32F2F; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Красный"></button>
-                    <button onclick="changeColor(0x388E3C)" style="width: 20px; height: 20px; background: #388E3C; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Зеленый"></button>
-                    <button onclick="changeColor(0xF57C00)" style="width: 20px; height: 20px; background: #F57C00; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Оранжевый"></button>
-                    <button onclick="changeColor(0x5D4037)" style="width: 20px; height: 20px; background: #5D4037; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Коричневый"></button>
-                    <button onclick="changeColor(0x546E7A)" style="width: 20px; height: 20px; background: #546E7A; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;" title="Серый"></button>
-                </div>
-            </div>
-            
-            <div class="calc-wrapper">
-                <!-- БЛОК УПРАВЛЕНИЯ -->
-                <div class="calc-controls">
-                    
-                    <!-- Ширина -->
-                    <div class="calc-control-group">
-                        <div class="calc-label">
-                            <span>Ширина здания</span>
-                            <span class="calc-value"><span id="val-width">12</span> м</span>
+            <!-- Тип здания -->
+            <div class="calc-control-group">
+                <div class="calc-label"><span>Тип исполнения</span></div>
+                <div class="calc-radio-group">
+                    <label class="calc-radio-label">
+                        <input type="radio" name="build-type" value="cold" class="calc-radio-input">
+                        <div class="calc-radio-tile">
+                            <div style="font-size: 24px;">❄️</div>
+                            <div>Холодное<br>(Профлист)</div>
                         </div>
-                        <input type="range" id="input-width" min="6" max="60" value="12" step="1">
-                    </div>
-
-                    <!-- Длина -->
-                    <div class="calc-control-group">
-                        <div class="calc-label">
-                            <span>Длина здания</span>
-                            <span class="calc-value"><span id="val-length">30</span> м</span>
+                    </label>
+                    <label class="calc-radio-label">
+                        <input type="radio" name="build-type" value="warm" class="calc-radio-input" checked>
+                        <div class="calc-radio-tile">
+                            <div style="font-size: 24px;">🔥</div>
+                            <div>Тёплое<br>(Сэндвич)</div>
                         </div>
-                        <input type="range" id="input-length" min="10" max="200" value="30" step="1">
-                    </div>
-
-                    <!-- Высота -->
-                    <div class="calc-control-group">
-                        <div class="calc-label">
-                            <span>Высота (по стене)</span>
-                            <span class="calc-value"><span id="val-height">6</span> м</span>
-                        </div>
-                        <input type="range" id="input-height" min="3" max="12" value="6" step="0.5">
-                    </div>
-
-                    <!-- Тип здания -->
-                    <div class="calc-control-group">
-                        <div class="calc-label"><span>Тип исполнения</span></div>
-                        <div class="calc-radio-group">
-                            <label class="calc-radio-label">
-                                <input type="radio" name="build-type" value="cold" class="calc-radio-input">
-                                <div class="calc-radio-tile">
-                                    <div style="font-size: 24px;">❄️</div>
-                                    <div>Холодное<br>(Профлист)</div>
-                                </div>
-                            </label>
-                            <label class="calc-radio-label">
-                                <input type="radio" name="build-type" value="warm" class="calc-radio-input" checked>
-                                <div class="calc-radio-tile">
-                                    <div style="font-size: 24px;">🔥</div>
-                                    <div>Тёплое<br>(Сэндвич)</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Толщина панелей (показывается только для теплого) -->
-                    <div class="calc-control-group" id="panel-thickness-group">
-                        <div class="calc-label">
-                            <span>Толщина панелей</span>
-                            <span class="calc-value"><span id="val-thickness">100</span> мм</span>
-                        </div>
-                        <input type="range" id="input-thickness" min="50" max="250" value="100" step="10">
-                    </div>
-
-                    <!-- Вторые ворота (новый элемент) -->
-                    <div class="calc-control-group">
-                        <div class="calc-label">
-                            <span>Дополнительные опции</span>
-                        </div>
-                        <label style="display: flex; align-items: center; gap: 10px; padding: 12px; background-color: var(--background-light); border-radius: 4px; cursor: pointer;">
-                            <input type="checkbox" id="input-second-door" style="width: 20px; height: 20px; cursor: pointer;">
-                            <span style="flex: 1;">Вторые ворота (сзади)</span>
-                            <span style="color: var(--accent-orange); font-weight: 600;">+45 000 ₽</span>
-                        </label>
-                    </div>
-
-                </div>
-
-                <!-- БЛОК РЕЗУЛЬТАТА -->
-                <div class="calc-result-box">
-                    <div class="calc-result-title">Ориентировочная стоимость</div>
-                    <div class="calc-total-price" id="total-price">3 420 000 ₽</div>
-                    <div class="calc-price-note">*Цена "под ключ" с монтажом</div>
-
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
-                        <div class="calc-detail-row">
-                            <span>Площадь по полу:</span>
-                            <span><strong id="res-area">360</strong> м²</span>
-                        </div>
-                        <div class="calc-detail-row">
-                            <span>Стоимость за м²:</span>
-                            <span><strong id="res-price-m2">9 500</strong> ₽</span>
-                        </div>
-                        <div class="calc-detail-row">
-                            <span>Срок монтажа:</span>
-                            <span>~<strong id="res-time">35</strong> дней</span>
-                        </div>
-                    </div>
-
-                    <button onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="calc-btn">Заказать расчёт</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- РАЗДЕЛ 6: ЦЕНООБРАЗОВАНИЕ -->
-        <section id="pricing" class="section">
-            <div class="section-number">6</div>
-            <h2>Прозрачное Ценообразование</h2>
-            <p>
-                Мы придерживаемся политики <strong>прозрачного ценообразования</strong>. Стоимость проекта зависит 
-                от площади объекта, типа конструкции, используемых материалов и дополнительных опций.
-            </p>
-
-            <h3>Базовые цены на строительство</h3>
-          <div class="table-responsive">
-            <table class="price-table">
-                <thead>
-                    <tr>
-                        <th>Тип здания</th>
-                        <th>Тип панелей</th>
-                        <th>Цена за м²</th>
-                        <th>Срок монтажа</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Тёплое здание</td>
-                        <td>Сэндвич-панели 120-150 мм</td>
-                        <td><span class="price-highlight">от 9 500 ₽</span></td>
-                        <td>30-45 дней</td>
-                    </tr>
-                    <tr>
-                        <td>Холодное здание</td>
-                        <td>Профнастил + утеплитель 50 мм</td>
-                        <td><span class="price-highlight">от 6 800 ₽</span></td>
-                        <td>25-35 дней</td>
-                    </tr>
-                    <tr>
-                        <td>Производственный цех</td>
-                        <td>Сэндвич-панели 200 мм + усиленный каркас</td>
-                        <td><span class="price-highlight">от 11 200 ₽</span></td>
-                        <td>40-60 дней</td>
-                    </tr>
-                    <tr>
-                        <td>Ангар без утепления</td>
-                        <td>Металлопрофиль</td>
-                        <td><span class="price-highlight">от 4 500 ₽</span></td>
-                        <td>20-30 дней</td>
-                    </tr>
-                </tbody>
-            </table>
-            </div>
-
-            <div class="info-box warning mt-30">
-                <strong>Обратите внимание:</strong> Минимальная сумма заказа составляет 500 000 рублей. 
-                Указанные цены актуальны для проектов площадью от 200 м². Точная стоимость рассчитывается индивидуально 
-                после выезда специалиста на объект и разработки проекта.
-            </div>
-
-            <h3>Что входит в стоимость</h3>
-            <ul class="features-list">
-                <li>Разработка индивидуального проекта с расчётом нагрузок</li>
-                <li>Производство металлоконструкций и сэндвич-панелей</li>
-                <li>Доставка материалов на объект (в пределах европейской части РФ)</li>
-                <li>Профессиональный монтаж конструкции</li>
-                <li>Гарантия 5 лет на все работы и материалы</li>
-                <li>Полный пакет документов (договор, акты, расписки)</li>
-            </ul>
-
-            <h3>Дополнительные опции</h3>
-            <div class="specs-grid">
-                <div class="spec-card">
-                    <h4>Ворота секционные</h4>
-                    <p>От 45 000 ₽ за единицу</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Окна ПВХ</h4>
-                    <p>От 8 500 ₽ за м²</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Система отопления</h4>
-                    <p>От 1 200 ₽ за м²</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Вентиляция</h4>
-                    <p>От 800 ₽ за м²</p>
+                    </label>
                 </div>
             </div>
 
-            <div class="chart-container">
-                <canvas id="pricingChart"></canvas>
+            <!-- Толщина панелей (показывается только для теплого) -->
+            <div class="calc-control-group" id="panel-thickness-group">
+                <div class="calc-label">
+                    <span>Толщина панелей</span>
+                    <span class="calc-value"><span id="val-thickness">100</span> мм</span>
+                </div>
+                <input type="range" id="input-thickness" min="50" max="250" value="100" step="10">
             </div>
 
-            <div class="cta-container mt-30">
-                <a href="#contact" class="cta-button">Запросить расчёт стоимости</a>
+            <!-- Вторые ворота (новый элемент) -->
+            <div class="calc-control-group">
+                <div class="calc-label">
+                    <span>Дополнительные опции</span>
+                </div>
+                <label style="display: flex; align-items: center; gap: 10px; padding: 12px; background-color: var(--background-light); border-radius: 4px; cursor: pointer;">
+                    <input type="checkbox" id="input-second-door" style="width: 20px; height: 20px; cursor: pointer;">
+                    <span style="flex: 1;">Вторые ворота (сзади)</span>
+                    <span style="color: var(--accent-orange); font-weight: 600;">+45 000 ₽</span>
+                </label>
             </div>
-        </section>
 
-        <!-- РАЗДЕЛ 7: ПРОЦЕСС РАБОТЫ -->
-        <section id="process" class="section">
-            <div class="section-number">7</div>
-            <h2>Процесс Работы: От Заявки до Сдачи Объекта</h2>
-            <p>
-                Мы разработали <strong>чёткий и прозрачный алгоритм</strong> реализации проектов, который гарантирует 
-                высокое качество работ и соблюдение сроков.
-            </p>
+        </div>
 
-            <div class="specs-grid">
-                <div class="spec-card">
-                    <div class="spec-icon">📞</div>
-                    <h4>Этап 1: Консультация</h4>
-                    <p>Вы оставляете заявку, наш специалист связывается с вами в течение 2 часов для уточнения деталей</p>
+        <!-- БЛОК РЕЗУЛЬТАТА -->
+        <div class="calc-result-box">
+            <div class="calc-result-title">Ориентировочная стоимость</div>
+            <div class="calc-total-price" id="total-price">3 420 000 ₽</div>
+            <div class="calc-price-note">*Цена "под ключ" с монтажом</div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                <div class="calc-detail-row">
+                    <span>Площадь по полу:</span>
+                    <span><strong id="res-area">360</strong> м²</span>
                 </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">📐</div>
-                    <h4>Этап 2: Выезд на объект</h4>
-                    <p>Бесплатный выезд инженера на объект, замеры, оценка состояния фундамента и грунта</p>
+                <div class="calc-detail-row">
+                    <span>Стоимость за м²:</span>
+                    <span><strong id="res-price-m2">9 500</strong> ₽</span>
                 </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">💼</div>
-                    <h4>Этап 3: Проектирование</h4>
-                    <p>Разработка индивидуального проекта (3-5 дней), расчёт сметы, согласование с заказчиком</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">📝</div>
-                    <h4>Этап 4: Договор</h4>
-                    <p>Подписание договора, предоплата 30%, начало производства конструкций</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🏗️</div>
-                    <h4>Этап 5: Производство</h4>
-                    <p>Изготовление металлоконструкций и сэндвич-панелей на собственном производстве (10-15 дней)</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🚚</div>
-                    <h4>Этап 6: Доставка</h4>
-                    <p>Логистика и доставка материалов на объект, разгрузка спецтехникой</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">🔧</div>
-                    <h4>Этап 7: Монтаж</h4>
-                    <p>Профессиональный монтаж конструкции силами бригады из 5-8 человек (20-40 дней)</p>
-                </div>
-
-                <div class="spec-card">
-                    <div class="spec-icon">✅</div>
-                    <h4>Этап 8: Сдача объекта</h4>
-                    <p>Приёмка работ, подписание актов, окончательный расчёт, передача гарантийных документов</p>
+                <div class="calc-detail-row">
+                    <span>Срок монтажа:</span>
+                    <span>~<strong id="res-time">35</strong> дней</span>
                 </div>
             </div>
 
-            <h3>График работы</h3>
-            <div class="info-box">
-                Наша команда работает <strong>с понедельника по пятницу с 09:00 до 17:00</strong>. 
-                Заявки, полученные в выходные дни, обрабатываются в первый рабочий день.
-            </div>
+            <button onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="calc-btn">Заказать расчёт</button>
+        </div>
+    </div>
+</section>
 
-            <div class="chart-container">
-                <canvas id="timelineChart"></canvas>
-            </div>
+<!-- РАЗДЕЛ 6: ЦЕНООБРАЗОВАНИЕ -->
+<section id="pricing" class="section">
+    <div class="section-number">6</div>
+    <h2>Прозрачное Ценообразование</h2>
+    <p>
+        Мы придерживаемся политики <strong>прозрачного ценообразования</strong>. Стоимость проекта зависит 
+        от площади объекта, типа конструкции, используемых материалов и дополнительных опций.
+    </p>
 
-            <h3>Гарантийные обязательства</h3>
-            <p>
-                После сдачи объекта вы получаете <strong>полный пакет документов</strong>:
-            </p>
-            <ul class="features-list">
-                <li>Договор подряда с приложениями</li>
-                <li>Акт выполненных работ (форма КС-2)</li>
-                <li>Справка о стоимости работ (форма КС-3)</li>
-                <li>Расписка о получении оплаты</li>
-                <li>Гарантийный талон на 5 лет</li>
-                <li>Паспорта на сэндвич-панели и металлоконструкции</li>
-                <li>Инструкция по эксплуатации</li>
-            </ul>
-        </section>
+    <h3>Базовые цены на строительство</h3>
+    <div class="table-responsive">
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th>Тип здания</th>
+                    <th>Тип панелей</th>
+                    <th>Цена за м²</th>
+                    <th>Срок монтажа</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Тёплое здание</td>
+                    <td>Сэндвич-панели 120-150 мм</td>
+                    <td><span class="price-highlight">от 9 500 ₽</span></td>
+                    <td>30-45 дней</td>
+                </tr>
+                <tr>
+                    <td>Холодное здание</td>
+                    <td>Профнастил + утеплитель 50 мм</td>
+                    <td><span class="price-highlight">от 6 800 ₽</span></td>
+                    <td>25-35 дней</td>
+                </tr>
+                <tr>
+                    <td>Производственный цех</td>
+                    <td>Сэндвич-панели 200 мм + усиленный каркас</td>
+                    <td><span class="price-highlight">от 11 200 ₽</span></td>
+                    <td>40-60 дней</td>
+                </tr>
+                <tr>
+                    <td>Ангар без утепления</td>
+                    <td>Металлопрофиль</td>
+                    <td><span class="price-highlight">от 4 500 ₽</span></td>
+                    <td>20-30 дней</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-        <!-- РАЗДЕЛ 8: ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ -->
-        <section id="specifications" class="section">
-            <div class="section-number">8</div>
-            <h2>Технические Характеристики и Стандарты</h2>
-            <p>
-                Все наши конструкции соответствуют действующим строительным нормам и правилам РФ, 
-                включая <strong>СП 16.13330.2017</strong> (металлические конструкции) и <strong>СП 20.13330.2016</strong> (нагрузки и воздействия).
-            </p>
+    <div class="info-box warning mt-30">
+        <strong>Обратите внимание:</strong> Минимальная сумма заказа составляет 500 000 рублей. 
+        Указанные цены актуальны для проектов площадью от 200 м². Точная стоимость рассчитывается индивидуально 
+        после выезда специалиста на объект и разработки проекта.
+    </div>
 
-            <h3>Характеристики металлоконструкций</h3>
-          <div class="table-responsive">
-            <table class="price-table">
-                <thead>
-                    <tr>
-                        <th>Параметр</th>
-                        <th>Значение</th>
-                        <th>Стандарт</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Марка стали</td>
-                        <td>Ст3 (ПАО "СеверСталь")</td>
-                        <td>ГОСТ 380-2005</td>
-                    </tr>
-                    <tr>
-                        <td>Предел прочности</td>
-                        <td>380-490 МПа</td>
-                        <td>ГОСТ 380-2005</td>
-                    </tr>
-                    <tr>
-                        <td>Защитное покрытие</td>
-                        <td>Грунт + полимерная краска</td>
-                        <td>ГОСТ 31993-2013</td>
-                    </tr>
-                    <tr>
-                        <td>Толщина металла</td>
-                        <td>3-6 мм (в зависимости от узла)</td>
-                        <td>СП 16.13330.2017</td>
-                    </tr>
-                    <tr>
-                        <td>Расчётный срок службы</td>
-                        <td>50+ лет</td>
-                        <td>СП 16.13330.2017</td>
-                    </tr>
-                </tbody>
-            </table>
-          </div>
+    <h3>Что входит в стоимость</h3>
+    <ul class="features-list">
+        <li>Разработка индивидуального проекта с расчётом нагрузок</li>
+        <li>Производство металлоконструкций и сэндвич-панелей</li>
+        <li>Доставка материалов на объект (в пределах европейской части РФ)</li>
+        <li>Профессиональный монтаж конструкции</li>
+        <li>Гарантия 5 лет на все работы и материалы</li>
+        <li>Полный пакет документов (договор, акты, расписки)</li>
+    </ul>
 
-            <h3>Характеристики сэндвич-панелей</h3>
-          <div class="table-responsive">
-            <table class="price-table">
-                <thead>
-                    <tr>
-                        <th>Параметр</th>
-                        <th>Стеновые панели</th>
-                        <th>Кровельные панели</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Толщина панели</td>
-                        <td>80-200 мм</td>
-                        <td>120-250 мм</td>
-                    </tr>
-                    <tr>
-                        <td>Утеплитель</td>
-                        <td>Минвата / PIR / ППС</td>
-                        <td>Минвата / PIR</td>
-                    </tr>
-                    <tr>
-                        <td>Плотность утеплителя</td>
-                        <td>100-120 кг/м³ (минвата)</td>
-                        <td>120-140 кг/м³ (минвата)</td>
-                    </tr>
-                    <tr>
-                        <td>Коэф. теплопроводности</td>
-                        <td>0,035-0,041 Вт/(м·К)</td>
-                        <td>0,035-0,041 Вт/(м·К)</td>
-                    </tr>
-                    <tr>
-                        <td>Класс горючести</td>
-                        <td>НГ (минвата), Г1-Г4 (ППС)</td>
-                        <td>НГ (минвата)</td>
-                    </tr>
-                    <tr>
-                        <td>Рабочая температура</td>
-                        <td>от -60°C до +80°C</td>
-                        <td>от -60°C до +80°C</td>
-                    </tr>
-                </tbody>
-            </table>
-            </div>
+    <h3>Дополнительные опции</h3>
+    <div class="specs-grid">
+        <div class="spec-card">
+            <h4>Ворота секционные</h4>
+            <p>От 45 000 ₽ за единицу</p>
+        </div>
+        <div class="spec-card">
+            <h4>Окна ПВХ</h4>
+            <p>От 8 500 ₽ за м²</p>
+        </div>
+        <div class="spec-card">
+            <h4>Система отопления</h4>
+            <p>От 1 200 ₽ за м²</p>
+        </div>
+        <div class="spec-card">
+            <h4>Вентиляция</h4>
+            <p>От 800 ₽ за м²</p>
+        </div>
+    </div>
 
-            <div class="info-box success mt-30">
-                <strong>Энергоэффективность:</strong> Здания из наших сэндвич-панелей соответствуют классу 
-                энергоэффективности B и выше согласно СП 50.13330.2012. Затраты на отопление на 40-50% ниже 
-                по сравнению с традиционными кирпичными зданиями.
-            </div>
+    <div class="chart-container">
+        <canvas id="pricingChart"></canvas>
+    </div>
 
-            <div class="chart-container">
-                <canvas id="specificationChart"></canvas>
-            </div>
-        </section>
+    <div class="cta-container mt-30">
+        <a href="#contact" class="cta-button">Запросить расчёт стоимости</a>
+    </div>
+</section>
 
-        <!-- РАЗДЕЛ 9: ТЕРРИТОРИЯ РАБОТЫ -->
-        <section id="coverage" class="section">
-            <div class="section-number">9</div>
-            <h2>География Деятельности</h2>
-            <p>
-                Компания MKL реализует проекты <strong>по всей европейской части России</strong>. Наша логистическая 
-                сеть позволяет эффективно доставлять материалы и организовывать монтажные работы в удалённых регионах.
-            </p>
+<!-- РАЗДЕЛ 7: ПРОЦЕСС РАБОТЫ -->
+<section id="process" class="section">
+    <div class="section-number">7</div>
+    <h2>Процесс Работы: От Заявки до Сдачи Объекта</h2>
+    <p>
+        Мы разработали <strong>чёткий и прозрачный алгоритм</strong> реализации проектов, который гарантирует 
+        высокое качество работ и соблюдение сроков.
+    </p>
 
-            <h3>Основные регионы работы</h3>
-            <div class="specs-grid">
-                <div class="spec-card">
-                    <h4>Центральный ФО</h4>
-                    <p>Москва, Московская обл., Тула, Рязань, Калуга, Ярославль, Владимир и другие</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Северо-Западный ФО</h4>
-                    <p>Санкт-Петербург, Ленинградская обл., Новгород, Псков, Вологда</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Приволжский ФО</h4>
-                    <p>Нижний Новгород, Казань, Самара, Пермь, Уфа, Саратов</p>
-                </div>
-                <div class="spec-card">
-                    <h4>Южный ФО</h4>
-                    <p>Ростов-на-Дону, Краснодар, Волгоград, Астрахань</p>
-                </div>
-            </div>
+    <div class="specs-grid">
+        <div class="spec-card">
+            <div class="spec-icon">📞</div>
+            <h4>Этап 1: Консультация</h4>
+            <p>Вы оставляете заявку, наш специалист связывается с вами в течение 2 часов для уточнения деталей</p>
+        </div>
 
-            <div class="info-box mt-30">
-                <strong>Доставка материалов:</strong> Осуществляется собственным и привлечённым транспортом. 
-                Средний срок доставки в пределах 500 км — 1-2 дня, свыше 500 км — 3-5 дней. 
-                Стоимость доставки рассчитывается индивидуально и включается в общую смету проекта.
-            </div>
+        <div class="spec-card">
+            <div class="spec-icon">📐</div>
+            <h4>Этап 2: Выезд на объект</h4>
+            <p>Бесплатный выезд инженера на объект, замеры, оценка состояния фундамента и грунта</p>
+        </div>
 
-            <h3>Статистика по регионам (2023-2024)</h3>
-            <div class="chart-container">
-                <canvas id="regionChart"></canvas>
-            </div>
-        </section>
+        <div class="spec-card">
+            <div class="spec-icon">💼</div>
+            <h4>Этап 3: Проектирование</h4>
+            <p>Разработка индивидуального проекта (3-5 дней), расчёт сметы, согласование с заказчиком</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">📝</div>
+            <h4>Этап 4: Договор</h4>
+            <p>Подписание договора, предоплата 30%, начало производства конструкций</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🏗️</div>
+            <h4>Этап 5: Производство</h4>
+            <p>Изготовление металлоконструкций и сэндвич-панелей на собственном производстве (10-15 дней)</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🚚</div>
+            <h4>Этап 6: Доставка</h4>
+            <p>Логистика и доставка материалов на объект, разгрузка спецтехникой</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">🔧</div>
+            <h4>Этап 7: Монтаж</h4>
+            <p>Профессиональный монтаж конструкции силами бригады из 5-8 человек (20-40 дней)</p>
+        </div>
+
+        <div class="spec-card">
+            <div class="spec-icon">✅</div>
+            <h4>Этап 8: Сдача объекта</h4>
+            <p>Приёмка работ, подписание актов, окончательный расчёт, передача гарантийных документов</p>
+        </div>
+    </div>
+
+    <h3>График работы</h3>
+    <div class="info-box">
+        Наша команда работает <strong>с понедельника по пятницу с 09:00 до 17:00</strong>. 
+        Заявки, полученные в выходные дни, обрабатываются в первый рабочий день.
+    </div>
+
+    <div class="chart-container">
+        <canvas id="timelineChart"></canvas>
+    </div>
+
+    <h3>Гарантийные обязательства</h3>
+    <p>
+        После сдачи объекта вы получаете <strong>полный пакет документов</strong>:
+    </p>
+    <ul class="features-list">
+        <li>Договор подряда с приложениями</li>
+        <li>Акт выполненных работ (форма КС-2)</li>
+        <li>Справка о стоимости работ (форма КС-3)</li>
+        <li>Расписка о получении оплаты</li>
+        <li>Гарантийный талон на 5 лет</li>
+        <li>Паспорта на сэндвич-панели и металлоконструкции</li>
+        <li>Инструкция по эксплуатации</li>
+    </ul>
+</section>
+
+<!-- РАЗДЕЛ 8: ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ -->
+<section id="specifications" class="section">
+    <div class="section-number">8</div>
+    <h2>Технические Характеристики и Стандарты</h2>
+    <p>
+        Все наши конструкции соответствуют действующим строительным нормам и правилам РФ, 
+        включая <strong>СП 16.13330.2017</strong> (металлические конструкции) и <strong>СП 20.13330.2016</strong> (нагрузки и воздействия).
+    </p>
+
+    <h3>Характеристики металлоконструкций</h3>
+    <div class="table-responsive">
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th>Параметр</th>
+                    <th>Значение</th>
+                    <th>Стандарт</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Марка стали</td>
+                    <td>Ст3 (ПАО "СеверСталь")</td>
+                    <td>ГОСТ 380-2005</td>
+                </tr>
+                <tr>
+                    <td>Предел прочности</td>
+                    <td>380-490 МПа</td>
+                    <td>ГОСТ 380-2005</td>
+                </tr>
+                <tr>
+                    <td>Защитное покрытие</td>
+                    <td>Грунт + полимерная краска</td>
+                    <td>ГОСТ 31993-2013</td>
+                </tr>
+                <tr>
+                    <td>Толщина металла</td>
+                    <td>3-6 мм (в зависимости от узла)</td>
+                    <td>СП 16.13330.2017</td>
+                </tr>
+                <tr>
+                    <td>Расчётный срок службы</td>
+                    <td>50+ лет</td>
+                    <td>СП 16.13330.2017</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Характеристики сэндвич-панелей</h3>
+    <div class="table-responsive">
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th>Параметр</th>
+                    <th>Стеновые панели</th>
+                    <th>Кровельные панели</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Толщина панели</td>
+                    <td>80-200 мм</td>
+                    <td>120-250 мм</td>
+                </tr>
+                <tr>
+                    <td>Утеплитель</td>
+                    <td>Минвата / PIR / ППС</td>
+                    <td>Минвата / PIR</td>
+                </tr>
+                <tr>
+                    <td>Плотность утеплителя</td>
+                    <td>100-120 кг/м³ (минвата)</td>
+                    <td>120-140 кг/м³ (минвата)</td>
+                </tr>
+                <tr>
+                    <td>Коэф. теплопроводности</td>
+                    <td>0,035-0,041 Вт/(м·К)</td>
+                    <td>0,035-0,041 Вт/(м·К)</td>
+                </tr>
+                <tr>
+                    <td>Класс горючести</td>
+                    <td>НГ (минвата), Г1-Г4 (ППС)</td>
+                    <td>НГ (минвата)</td>
+                </tr>
+                <tr>
+                    <td>Рабочая температура</td>
+                    <td>от -60°C до +80°C</td>
+                    <td>от -60°C до +80°C</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-box success mt-30">
+        <strong>Энергоэффективность:</strong> Здания из наших сэндвич-панелей соответствуют классу 
+        энергоэффективности B и выше согласно СП 50.13330.2012. Затраты на отопление на 40-50% ниже 
+        по сравнению с традиционными кирпичными зданиями.
+    </div>
+
+    <div class="chart-container">
+        <canvas id="specificationChart"></canvas>
+    </div>
+</section>
+
+<!-- РАЗДЕЛ 9: ТЕРРИТОРИЯ РАБОТЫ -->
+<section id="coverage" class="section">
+    <div class="section-number">9</div>
+    <h2>География Деятельности</h2>
+    <p>
+        Компания MKL реализует проекты <strong>по всей европейской части России</strong>. Наша логистическая 
+        сеть позволяет эффективно доставлять материалы и организовывать монтажные работы в удалённых регионах.
+    </p>
+
+    <h3>Основные регионы работы</h3>
+    <div class="specs-grid">
+        <div class="spec-card">
+            <h4>Центральный ФО</h4>
+            <p>Москва, Московская обл., Тула, Рязань, Калуга, Ярославль, Владимир и другие</p>
+        </div>
+        <div class="spec-card">
+            <h4>Северо-Западный ФО</h4>
+            <p>Санкт-Петербург, Ленинградская обл., Новгород, Псков, Вологда</p>
+        </div>
+        <div class="spec-card">
+            <h4>Приволжский ФО</h4>
+            <p>Нижний Новгород, Казань, Самара, Пермь, Уфа, Саратов</p>
+        </div>
+        <div class="spec-card">
+            <h4>Южный ФО</h4>
+            <p>Ростов-на-Дону, Краснодар, Волгоград, Астрахань</p>
+        </div>
+    </div>
+
+    <div class="info-box mt-30">
+        <strong>Доставка материалов:</strong> Осуществляется собственным и привлечённым транспортом. 
+        Средний срок доставки в пределах 500 км — 1-2 дня, свыше 500 км — 3-5 дней. 
+        Стоимость доставки рассчитывается индивидуально и включается в общую смету проекта.
+    </div>
+
+    <h3>Статистика по регионам (2023-2024)</h3>
+    <div class="chart-container">
+        <canvas id="regionChart"></canvas>
+    </div>
+</section>
 
 <!-- РАЗДЕЛ 10: КОНТАКТНАЯ ИНФОРМАЦИЯ И ЗАЯВКА -->
-        <section id="contact" class="section">
-            <div class="section-number">10</div>
-            <h2>Оставить заявку на расчёт</h2>
-            <p class="text-center">Заполните форму ниже. Мы подготовим предварительный расчет и свяжемся с вами в ближайшее время для согласования деталей и <strong>зафиксировать стоимость</strong>.</p>
-            
+<section id="contact" class="section">
+    <div class="section-number">10</div>
+    <h2>Оставить заявку на расчёт</h2>
+    <p class="text-center">Заполните форму ниже. Мы подготовим предварительный расчет и свяжемся с вами в ближайшее время для согласования деталей и <strong>зафиксировать стоимость</strong>.</p>
+    
             <!-- Контакты (Только почта и телеграм, сайт убрали) 
             <div class="contact-grid">
                 <div class="contact-card">
@@ -1664,392 +1733,443 @@
                     <a href="https://t.me/Gringi" target="_blank">@Gringi</a>
                 </div>
             </div>
-            -->
-          
-            <!-- ФОРМА ОБРАТНОЙ СВЯЗИ -->
-            <div class="contact-form-container">
-                <!-- ВСТАВЬТЕ ВАШУ ССЫЛКУ НИЖЕ ВМЕСТО https://formspree.io/f/YOUR_ID -->
-                <form action="https://formspree.io/f/mgvjbval" method="POST">
-                    
-                    <!-- Имя и Телефон -->
-                    <div class="form-group">
-                        <label>Ваше имя</label>
-                        <input type="text" name="name" class="form-input" placeholder="Иван Иванов" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Телефон для связи (Обязательно)</label>
-                        <input type="tel" name="phone" class="form-input" placeholder="+7 (999) 000-00-00" required>
-                    </div>
+    -->
+    
+    <!-- ФОРМА ОБРАТНОЙ СВЯЗИ -->
+    <div class="contact-form-container">
+        <!-- ВСТАВЬТЕ ВАШУ ССЫЛКУ НИЖЕ ВМЕСТО https://formspree.io/f/YOUR_ID -->
+        <form action="https://formspree.io/f/mgvjbval" method="POST">
 
-                    <!-- Габариты (в одну строку) -->
-                    <div class="form-group">
-                        <label>Желаемые габариты (Длина х Ширина х Высота)</label>
-                        <div class="form-row">
-                            <input type="number" name="length" class="form-input" placeholder="Длина (м)">
-                            <input type="number" name="width" class="form-input" placeholder="Ширина (м)">
-                            <input type="number" name="height" class="form-input" placeholder="Высота (м)">
-                        </div>
-                    </div>
-
-                    <!-- Комментарий -->
-                    <div class="form-group">
-                        <label>Дополнительные пожелания</label>
-                        <textarea name="message" class="form-input" rows="4" placeholder="Например: нужно теплое здание под автосервис..."></textarea>
-                    </div>
-
-                    <!-- Кнопка -->
-                    <button type="submit" class="cta-button" style="width: 100%; border: none; cursor: pointer;">
-                        Отправить заявку на расчёт
-                    </button>
-                </form>
+            <!-- Имя и Телефон -->
+            <div class="form-group">
+                <label>Ваше имя</label>
+                <input type="text" name="name" class="form-input" placeholder="Иван Иванов" required>
             </div>
-        </section>
+            
+            <div class="form-group">
+                <label>Телефон для связи (Обязательно)</label>
+                <input type="tel" name="phone" class="form-input" placeholder="+7 (999) 000-00-00" required>
+            </div>
 
-        <!-- РАЗДЕЛ 11: ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ -->
-        <section id="faq" class="section">
-            <div class="section-number">FAQ</div>
-            <h2>Часто Задаваемые Вопросы</h2>
+            <!-- Габариты (в одну строку) -->
+            <div class="form-group">
+                <label>Желаемые габариты (Длина х Ширина х Высота)</label>
+                <div class="form-row">
+                    <input type="number" name="length" class="form-input" placeholder="Длина (м)">
+                    <input type="number" name="width" class="form-input" placeholder="Ширина (м)">
+                    <input type="number" name="height" class="form-input" placeholder="Высота (м)">
+                </div>
+            </div>
 
-            <h3>Какой минимальный размер проекта вы берёте в работу?</h3>
-            <p>
-                Мы работаем с проектами <strong>от 200 м²</strong> площади. Минимальная сумма заказа — 500 000 рублей. 
-                Это связано с тем, что для небольших объектов накладные расходы на проектирование и логистику 
-                становятся непропорционально высокими.
-            </p>
+            <!-- Комментарий -->
+            <div class="form-group">
+                <label>Дополнительные пожелания</label>
+                <textarea name="message" class="form-input" rows="4" placeholder="Например: нужно теплое здание под автосервис..."></textarea>
+            </div>
 
-            <h3>Сколько времени занимает реализация проекта?</h3>
-            <p>
-                Средний срок от подписания договора до сдачи объекта составляет <strong>45-60 дней</strong> 
-                для объектов площадью 500-1000 м². Для более крупных проектов сроки рассчитываются индивидуально. 
-                На производство уходит 10-15 дней, на монтаж — 20-40 дней.
-            </p>
-
-            <h3>Нужно ли мне готовить фундамент заранее?</h3>
-            <p>
-                Да, наличие готового фундамента — обязательное условие для начала монтажа. Мы работаем с любым типом 
-                фундамента (ленточный, свайный, плитный, столбчатый). Если фундамента нет, мы можем порекомендовать 
-                проверенных подрядчиков или включить его устройство в общий проект.
-            </p>
-
-            <h3>Какая гарантия предоставляется?</h3>
-            <p>
-                Мы предоставляем <strong>официальную гарантию 5 лет</strong> на все конструкции и выполненные работы. 
-                Гарантия распространяется на металлоконструкции, сэндвич-панели и качество монтажа. Дополнительное 
-                оборудование (ворота, окна) имеет гарантию производителя.
-            </p>
-
-            <h3>Возможно ли строительство зимой?</h3>
-            <p>
-                Да, монтаж металлоконструкций и сэндвич-панелей возможен круглогодично при температуре до <strong>-15°C</strong>. 
-                При более низких температурах монтаж приостанавливается. Зимнее строительство имеет даже некоторые 
-                преимущества: более плотный график подрядчиков и возможность получения скидки.
-            </p>
-
-            <h3>Какие документы нужны для начала работы?</h3>
-            <p>
-                Для начала проектирования нам потребуются: <strong>топографическая съёмка участка</strong>, 
-                информация о типе грунта (если есть), ваши пожелания по планировке и функционалу. 
-                Для юридических лиц дополнительно нужны реквизиты компании.
-            </p>
-
-            <h3>Можно ли расширить здание в будущем?</h3>
-            <p>
-                Да, одно из главных преимуществ быстровозводимых зданий — <strong>модульность конструкции</strong>. 
-                При проектировании мы можем заложить возможность будущего расширения. Пристройка дополнительных 
-                секций не требует демонтажа существующих конструкций.
-            </p>
-
-            <h3>Какие способы оплаты вы принимаете?</h3>
-            <p>
-                Работаем по стандартной схеме: <strong>30% предоплаты</strong> после подписания договора, 
-                60% после доставки материалов на объект, 10% после завершения монтажа и подписания акта приёмки. 
-                Принимаем безналичный расчёт (для юр. лиц) и наличные (для физ. лиц).
-            </p>
-        </section>
-
+            <!-- Кнопка -->
+            <button type="submit" class="cta-button" style="width: 100%; border: none; cursor: pointer;">
+                Отправить заявку на расчёт
+            </button>
+        </form>
     </div>
+</section>
 
-    <!-- ============================================
-         МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ
+<!-- РАЗДЕЛ 11: ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ -->
+<section id="faq" class="section">
+    <div class="section-number">FAQ</div>
+    <h2>Часто Задаваемые Вопросы</h2>
+
+    <h3>Какой минимальный размер проекта вы берёте в работу?</h3>
+    <p>
+        Мы работаем с проектами <strong>от 200 м²</strong> площади. Минимальная сумма заказа — 500 000 рублей. 
+        Это связано с тем, что для небольших объектов накладные расходы на проектирование и логистику 
+        становятся непропорционально высокими.
+    </p>
+
+    <h3>Сколько времени занимает реализация проекта?</h3>
+    <p>
+        Средний срок от подписания договора до сдачи объекта составляет <strong>45-60 дней</strong> 
+        для объектов площадью 500-1000 м². Для более крупных проектов сроки рассчитываются индивидуально. 
+        На производство уходит 10-15 дней, на монтаж — 20-40 дней.
+    </p>
+
+    <h3>Нужно ли мне готовить фундамент заранее?</h3>
+    <p>
+        Да, наличие готового фундамента — обязательное условие для начала монтажа. Мы работаем с любым типом 
+        фундамента (ленточный, свайный, плитный, столбчатый). Если фундамента нет, мы можем порекомендовать 
+        проверенных подрядчиков или включить его устройство в общий проект.
+    </p>
+
+    <h3>Какая гарантия предоставляется?</h3>
+    <p>
+        Мы предоставляем <strong>официальную гарантию 5 лет</strong> на все конструкции и выполненные работы. 
+        Гарантия распространяется на металлоконструкции, сэндвич-панели и качество монтажа. Дополнительное 
+        оборудование (ворота, окна) имеет гарантию производителя.
+    </p>
+
+    <h3>Возможно ли строительство зимой?</h3>
+    <p>
+        Да, монтаж металлоконструкций и сэндвич-панелей возможен круглогодично при температуре до <strong>-15°C</strong>. 
+        При более низких температурах монтаж приостанавливается. Зимнее строительство имеет даже некоторые 
+        преимущества: более плотный график подрядчиков и возможность получения скидки.
+    </p>
+
+    <h3>Какие документы нужны для начала работы?</h3>
+    <p>
+        Для начала проектирования нам потребуются: <strong>топографическая съёмка участка</strong>, 
+        информация о типе грунта (если есть), ваши пожелания по планировке и функционалу. 
+        Для юридических лиц дополнительно нужны реквизиты компании.
+    </p>
+
+    <h3>Можно ли расширить здание в будущем?</h3>
+    <p>
+        Да, одно из главных преимуществ быстровозводимых зданий — <strong>модульность конструкции</strong>. 
+        При проектировании мы можем заложить возможность будущего расширения. Пристройка дополнительных 
+        секций не требует демонтажа существующих конструкций.
+    </p>
+
+    <h3>Какие способы оплаты вы принимаете?</h3>
+    <p>
+        Работаем по стандартной схеме: <strong>30% предоплаты</strong> после подписания договора, 
+        60% после доставки материалов на объект, 10% после завершения монтажа и подписания акта приёмки. 
+        Принимаем безналичный расчёт (для юр. лиц) и наличные (для физ. лиц).
+    </p>
+</section>
+
+</div>
+
+<!-- ============================================
+         МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ (ОБНОВЛЕННОЕ)
          ============================================ -->
-    <div id="imageModal" class="modal" onclick="closeModal()">
-        <span class="modal-close">&times;</span>
-        <img class="modal-content" id="modalImage">
-    </div>
+         <div id="imageModal" class="modal" onclick="closeModal(event)">
+            <span class="modal-close" onclick="closeModalForce()">&times;</span>
+
+            <!-- Стрелка ВЛЕВО -->
+            <div class="modal-nav modal-prev" onclick="changeSlide(-1, event)">&#10094;</div>
+
+            <img class="modal-content" id="modalImage">
+
+            <!-- Стрелка ВПРАВО -->
+            <div class="modal-nav modal-next" onclick="changeSlide(1, event)">&#10095;</div>
+        </div>
 
     <!-- ============================================
          ФУТЕР
          ============================================ -->
-    <footer style="background: #212121; color: #fff; text-align: center; padding: 30px; margin-top: 50px;">
-        <p>© 2024 Партнер МК-Л. Все права защищены.</p>
-    </footer>
+         <footer style="background: #212121; color: #fff; text-align: center; padding: 30px; margin-top: 50px;">
+            <p>© 2024 Партнер МК-Л. Все права защищены.</p>
+        </footer>
 
     <!-- ============================================
          JAVASCRIPT - ИНТЕРАКТИВНОСТЬ
          ============================================ -->
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+         <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ==========================================
+        // МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ (С ЛИСТАНИЕМ)
         // ==========================================
-        // МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ
-        // ==========================================
-        function openModal(element) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            const img = element.querySelector('img');
-            
-            modal.style.display = 'flex';
-            modalImg.src = img.src;
-        }
+            let currentImageIndex = 0;
+            const galleryImages = document.querySelectorAll('.gallery-item img');
+        // Собираем массив всех путей к картинкам
+            const imageUrls = Array.from(galleryImages).map(img => img.src);
 
-        function closeModal() {
-            document.getElementById('imageModal').style.display = 'none';
-        }
+            function openModal(element) {
+                const modal = document.getElementById('imageModal');
+                const modalImg = document.getElementById('modalImage');
+                const imgClicked = element.querySelector('img');
+
+            // Находим индекс нажатой картинки
+                currentImageIndex = imageUrls.indexOf(imgClicked.src);
+
+                modal.style.display = 'flex';
+                modalImg.src = imageUrls[currentImageIndex];
+            }
+
+            function closeModal(event) {
+            // Закрываем только если кликнули по темному фону, а не по картинке или стрелке
+                if (event.target.id === 'imageModal') {
+                    document.getElementById('imageModal').style.display = 'none';
+                }
+            }
+
+            function closeModalForce() {
+                document.getElementById('imageModal').style.display = 'none';
+            }
+
+            function changeSlide(direction, event) {
+            // Остановка всплытия, чтобы клик по стрелке не закрывал модалку
+                if(event) event.stopPropagation();
+
+                currentImageIndex += direction;
+
+            // Если ушли меньше 0 -> идем в конец
+                if (currentImageIndex < 0) {
+                    currentImageIndex = imageUrls.length - 1;
+                }
+            // Если ушли дальше конца -> идем в начало
+                else if (currentImageIndex >= imageUrls.length) {
+                    currentImageIndex = 0;
+                }
+
+            // Обновляем картинку
+                document.getElementById('modalImage').src = imageUrls[currentImageIndex];
+            }
+
+        // Управление клавишами (стрелки на клавиатуре)
+            document.addEventListener('keydown', function(e) {
+                const modal = document.getElementById('imageModal');
+                if (modal.style.display === 'flex') {
+                    if (e.key === 'ArrowLeft') changeSlide(-1);
+                    if (e.key === 'ArrowRight') changeSlide(1);
+                    if (e.key === 'Escape') closeModalForce();
+                }
+            });
 
         // ==========================================
         // 3D ВИЗУАЛИЗАЦИЯ
         // ==========================================
-        let scene, camera, renderer, controls;
-        let hangarGroup;
-        let wallMaterial, frameMaterial, roofMaterial;
-        let currentColor = 0x0D47A1;
+            let scene, camera, renderer, controls;
+            let hangarGroup;
+            let wallMaterial, frameMaterial, roofMaterial;
+            let currentColor = 0x0D47A1;
 
         // Угол наклона стен (в радианах)
-        const WALL_TILT = 0.05; 
+            const WALL_TILT = 0.05; 
 
-        function init3D() {
-            const container = document.getElementById('scene3d');
-            if (!container) return;
-            
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xe0e0e0);
-            scene.fog = new THREE.Fog(0xe0e0e0, 20, 150);
+            function init3D() {
+                const container = document.getElementById('scene3d');
+                if (!container) return;
+                
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xe0e0e0);
+                scene.fog = new THREE.Fog(0xe0e0e0, 20, 150);
 
-            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(25, 15, 45);
+                camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+                camera.position.set(25, 15, 45);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            container.appendChild(renderer.domElement);
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                container.appendChild(renderer.domElement);
 
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.maxPolarAngle = Math.PI / 2 - 0.05;
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.maxPolarAngle = Math.PI / 2 - 0.05;
 
             // Свет
-            const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambLight);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            dirLight.position.set(30, 50, 20);
-            dirLight.castShadow = true;
-            scene.add(dirLight);
+                const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
+                scene.add(ambLight);
+                const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                dirLight.position.set(30, 50, 20);
+                dirLight.castShadow = true;
+                scene.add(dirLight);
 
             // Пол
-            const ground = new THREE.Mesh(
-                new THREE.PlaneGeometry(300, 300),
-                new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
-            );
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            scene.add(ground);
+                const ground = new THREE.Mesh(
+                    new THREE.PlaneGeometry(300, 300),
+                    new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
+                    );
+                ground.rotation.x = -Math.PI / 2;
+                ground.receiveShadow = true;
+                scene.add(ground);
 
             // Материалы
-            wallMaterial = new THREE.MeshStandardMaterial({ color: currentColor, roughness: 0.5, side: THREE.DoubleSide });
-            frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
-            roofMaterial = new THREE.MeshStandardMaterial({ color: 0x455A64, roughness: 0.6, side: THREE.DoubleSide });
+                wallMaterial = new THREE.MeshStandardMaterial({ color: currentColor, roughness: 0.5, side: THREE.DoubleSide });
+                frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
+                roofMaterial = new THREE.MeshStandardMaterial({ color: 0x455A64, roughness: 0.6, side: THREE.DoubleSide });
 
-            hangarGroup = new THREE.Group();
-            scene.add(hangarGroup);
+                hangarGroup = new THREE.Group();
+                scene.add(hangarGroup);
 
-            animate();
-            
-            window.addEventListener('resize', () => {
-                camera.aspect = container.clientWidth / container.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(container.clientWidth, container.clientHeight);
-            });
-        }
+                animate();
+                
+                window.addEventListener('resize', () => {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                });
+            }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            if (controls) controls.update();
-            if (renderer && scene && camera) renderer.render(scene, camera);
-        }
+            function animate() {
+                requestAnimationFrame(animate);
+                if (controls) controls.update();
+                if (renderer && scene && camera) renderer.render(scene, camera);
+            }
 
-        function update3DModel(width, length, height, hasSecondDoor) {
-            if (!hangarGroup) return;
+            function update3DModel(width, length, height, hasSecondDoor) {
+                if (!hangarGroup) return;
 
             // Очистка
-            while(hangarGroup.children.length > 0){ 
-                hangarGroup.remove(hangarGroup.children[0]); 
-            }
+                while(hangarGroup.children.length > 0){ 
+                    hangarGroup.remove(hangarGroup.children[0]); 
+                }
 
             // РАСЧЕТ ГЕОМЕТРИИ ТРАПЕЦИИ
-            const tiltOffset = height * Math.tan(WALL_TILT);
-            const topWidth = width - (tiltOffset * 2); 
-            const roofHeight = width * 0.2;
-            const roofHalfWidth = topWidth / 2;
-            const angle = Math.atan(roofHeight / roofHalfWidth);
-            const roofSlopeLen = Math.sqrt(Math.pow(roofHalfWidth, 2) + Math.pow(roofHeight, 2));
+                const tiltOffset = height * Math.tan(WALL_TILT);
+                const topWidth = width - (tiltOffset * 2); 
+                const roofHeight = width * 0.2;
+                const roofHalfWidth = topWidth / 2;
+                const angle = Math.atan(roofHeight / roofHalfWidth);
+                const roofSlopeLen = Math.sqrt(Math.pow(roofHalfWidth, 2) + Math.pow(roofHeight, 2));
 
             // 1. КАРКАС
-            const frameStep = 3; 
-            const numFrames = Math.floor(length / frameStep);
-            
-            for (let i = 0; i <= numFrames; i++) {
-                const zPos = (i * (length / numFrames)) - (length / 2);
-                createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen);
-            }
+                const frameStep = 3; 
+                const numFrames = Math.floor(length / frameStep);
+                
+                for (let i = 0; i <= numFrames; i++) {
+                    const zPos = (i * (length / numFrames)) - (length / 2);
+                    createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen);
+                }
 
             // 2. БОКОВЫЕ СТЕНЫ
-            const sideGeo = new THREE.BoxGeometry(0.1, height, length);
-            
-            const leftW = new THREE.Mesh(sideGeo, wallMaterial);
-            leftW.rotation.z = -WALL_TILT;
-            leftW.position.set(-width/2 + (tiltOffset/2), height/2, 0);
-            hangarGroup.add(leftW);
+                const sideGeo = new THREE.BoxGeometry(0.1, height, length);
+                
+                const leftW = new THREE.Mesh(sideGeo, wallMaterial);
+                leftW.rotation.z = -WALL_TILT;
+                leftW.position.set(-width/2 + (tiltOffset/2), height/2, 0);
+                hangarGroup.add(leftW);
 
-            const rightW = new THREE.Mesh(sideGeo, wallMaterial);
-            rightW.rotation.z = WALL_TILT;
-            rightW.position.set(width/2 - (tiltOffset/2), height/2, 0);
-            hangarGroup.add(rightW);
+                const rightW = new THREE.Mesh(sideGeo, wallMaterial);
+                rightW.rotation.z = WALL_TILT;
+                rightW.position.set(width/2 - (tiltOffset/2), height/2, 0);
+                hangarGroup.add(rightW);
 
             // 3. ТОРЦЕВЫЕ СТЕНЫ
-            createPolygonWall(-length/2, width, height, tiltOffset, roofHeight, hasSecondDoor); 
-            createPolygonWall(length/2, width, height, tiltOffset, roofHeight, true); 
+                createPolygonWall(-length/2, width, height, tiltOffset, roofHeight, hasSecondDoor); 
+                createPolygonWall(length/2, width, height, tiltOffset, roofHeight, true); 
 
             // 4. КРЫША
-            const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4); 
+                const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4); 
 
-            const roofL = new THREE.Mesh(roofGeo, roofMaterial);
-            roofL.rotation.z = angle; 
-            roofL.position.set(-(width/2 - tiltOffset)/2, height + roofHeight/2, 0);
-            hangarGroup.add(roofL);
+                const roofL = new THREE.Mesh(roofGeo, roofMaterial);
+                roofL.rotation.z = angle; 
+                roofL.position.set(-(width/2 - tiltOffset)/2, height + roofHeight/2, 0);
+                hangarGroup.add(roofL);
 
-            const roofR = new THREE.Mesh(roofGeo, roofMaterial);
-            roofR.rotation.z = -angle;
-            roofR.position.set((width/2 - tiltOffset)/2, height + roofHeight/2, 0);
-            hangarGroup.add(roofR);
-        }
-
-        function createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen) {
-            const bT = 0.25;
-
-            const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-            colL.rotation.z = -WALL_TILT;
-            colL.position.set(-width/2 + tiltOffset/2, height/2, zPos);
-            hangarGroup.add(colL);
-
-            const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-            colR.rotation.z = WALL_TILT;
-            colR.position.set(width/2 - tiltOffset/2, height/2, zPos);
-            hangarGroup.add(colR);
-
-            const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
-            
-            const beamL = new THREE.Mesh(beamGeo, frameMaterial);
-            beamL.rotation.z = angle;
-            beamL.position.set(-(width/2 - tiltOffset)/2, height + roofHeight/2, zPos);
-            hangarGroup.add(beamL);
-
-            const beamR = new THREE.Mesh(beamGeo, frameMaterial);
-            beamR.rotation.z = -angle;
-            beamR.position.set((width/2 - tiltOffset)/2, height + roofHeight/2, zPos);
-            hangarGroup.add(beamR);
-        }
-
-        function createPolygonWall(zPos, width, height, tiltOffset, roofHeight, hasDoor) {
-            const shape = new THREE.Shape();
-
-            const halfBottom = width / 2;
-            const halfTop = width / 2 - tiltOffset;
-
-            shape.moveTo(-halfBottom, 0);
-            shape.lineTo(halfBottom, 0);
-            shape.lineTo(halfTop, height);
-            shape.lineTo(0, height + roofHeight);
-            shape.lineTo(-halfTop, height);
-            shape.lineTo(-halfBottom, 0);
-
-            const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
-            const wall = new THREE.Mesh(geom, wallMaterial);
-            const offset = (zPos > 0) ? -0.1 : 0; 
-            wall.position.set(0, 0, zPos + offset);
-            hangarGroup.add(wall);
-
-            if (hasDoor) {
-                const dW = Math.min(4, width * 0.5);
-                const dH = Math.min(4.5, height * 0.85);
-                
-                const door = new THREE.Mesh(
-                    new THREE.BoxGeometry(dW, dH, 0.2),
-                    new THREE.MeshStandardMaterial({ color: 0x222222 })
-                );
-                const doorOffset = (zPos > 0) ? 0.05 : -0.05;
-                door.position.set(0, dH/2, zPos + doorOffset);
-                hangarGroup.add(door);
+                const roofR = new THREE.Mesh(roofGeo, roofMaterial);
+                roofR.rotation.z = -angle;
+                roofR.position.set((width/2 - tiltOffset)/2, height + roofHeight/2, 0);
+                hangarGroup.add(roofR);
             }
-        }
 
-        window.changeColor = function(c) {
-            currentColor = c;
-            if(wallMaterial) wallMaterial.color.setHex(c);
-        }
+            function createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen) {
+                const bT = 0.25;
+
+                const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
+                colL.rotation.z = -WALL_TILT;
+                colL.position.set(-width/2 + tiltOffset/2, height/2, zPos);
+                hangarGroup.add(colL);
+
+                const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
+                colR.rotation.z = WALL_TILT;
+                colR.position.set(width/2 - tiltOffset/2, height/2, zPos);
+                hangarGroup.add(colR);
+
+                const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
+                
+                const beamL = new THREE.Mesh(beamGeo, frameMaterial);
+                beamL.rotation.z = angle;
+                beamL.position.set(-(width/2 - tiltOffset)/2, height + roofHeight/2, zPos);
+                hangarGroup.add(beamL);
+
+                const beamR = new THREE.Mesh(beamGeo, frameMaterial);
+                beamR.rotation.z = -angle;
+                beamR.position.set((width/2 - tiltOffset)/2, height + roofHeight/2, zPos);
+                hangarGroup.add(beamR);
+            }
+
+            function createPolygonWall(zPos, width, height, tiltOffset, roofHeight, hasDoor) {
+                const shape = new THREE.Shape();
+
+                const halfBottom = width / 2;
+                const halfTop = width / 2 - tiltOffset;
+
+                shape.moveTo(-halfBottom, 0);
+                shape.lineTo(halfBottom, 0);
+                shape.lineTo(halfTop, height);
+                shape.lineTo(0, height + roofHeight);
+                shape.lineTo(-halfTop, height);
+                shape.lineTo(-halfBottom, 0);
+
+                const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
+                const wall = new THREE.Mesh(geom, wallMaterial);
+                const offset = (zPos > 0) ? -0.1 : 0; 
+                wall.position.set(0, 0, zPos + offset);
+                hangarGroup.add(wall);
+
+                if (hasDoor) {
+                    const dW = Math.min(4, width * 0.5);
+                    const dH = Math.min(4.5, height * 0.85);
+                    
+                    const door = new THREE.Mesh(
+                        new THREE.BoxGeometry(dW, dH, 0.2),
+                        new THREE.MeshStandardMaterial({ color: 0x222222 })
+                        );
+                    const doorOffset = (zPos > 0) ? 0.05 : -0.05;
+                    door.position.set(0, dH/2, zPos + doorOffset);
+                    hangarGroup.add(door);
+                }
+            }
+
+            window.changeColor = function(c) {
+                currentColor = c;
+                if(wallMaterial) wallMaterial.color.setHex(c);
+            }
 
         // ==========================================
         // ЛОГиКА КАЛЬКУЛЯТОРА
         // ==========================================
-        function initCalculator() {
-            const widthInput = document.getElementById('input-width');
-            const lengthInput = document.getElementById('input-length');
-            const heightInput = document.getElementById('input-height');
-            const thicknessInput = document.getElementById('input-thickness');
-            const typeInputs = document.getElementsByName('build-type');
-            const secondDoorInput = document.getElementById('input-second-door');
-            
+            function initCalculator() {
+                const widthInput = document.getElementById('input-width');
+                const lengthInput = document.getElementById('input-length');
+                const heightInput = document.getElementById('input-height');
+                const thicknessInput = document.getElementById('input-thickness');
+                const typeInputs = document.getElementsByName('build-type');
+                const secondDoorInput = document.getElementById('input-second-door');
+                
             // Елементы для отображения значений
-            const valWidth = document.getElementById('val-width');
-            const valLength = document.getElementById('val-length');
-            const valHeight = document.getElementById('val-height');
-            const valThickness = document.getElementById('val-thickness');
-            
+                const valWidth = document.getElementById('val-width');
+                const valLength = document.getElementById('val-length');
+                const valHeight = document.getElementById('val-height');
+                const valThickness = document.getElementById('val-thickness');
+                
             // Элементы результата
-            const totalPriceEl = document.getElementById('total-price');
-            const resAreaEl = document.getElementById('res-area');
-            const resPriceM2El = document.getElementById('res-price-m2');
-            const resTimeEl = document.getElementById('res-time');
-            const thicknessGroup = document.getElementById('panel-thickness-group');
+                const totalPriceEl = document.getElementById('total-price');
+                const resAreaEl = document.getElementById('res-area');
+                const resPriceM2El = document.getElementById('res-price-m2');
+                const resTimeEl = document.getElementById('res-time');
+                const thicknessGroup = document.getElementById('panel-thickness-group');
 
-            function calculate() {
+                function calculate() {
                 // Получаем значения
-                let w = parseFloat(widthInput.value);
-                let l = parseFloat(lengthInput.value);
-                let h = parseFloat(heightInput.value);
-                let thickness = parseFloat(thicknessInput.value);
-                let type = document.querySelector('input[name="build-type"]:checked').value;
-                let hasSecondDoor = secondDoorInput ? secondDoorInput.checked : false;
+                    let w = parseFloat(widthInput.value);
+                    let l = parseFloat(lengthInput.value);
+                    let h = parseFloat(heightInput.value);
+                    let thickness = parseFloat(thicknessInput.value);
+                    let type = document.querySelector('input[name="build-type"]:checked').value;
+                    let hasSecondDoor = secondDoorInput ? secondDoorInput.checked : false;
 
                 // Обновляем текст значений ползунков
-                valWidth.textContent = w;
-                valLength.textContent = l;
-                valHeight.textContent = h;
-                valThickness.textContent = thickness;
+                    valWidth.textContent = w;
+                    valLength.textContent = l;
+                    valHeight.textContent = h;
+                    valThickness.textContent = thickness;
 
                 // Логика отображения толщины панели
-                if (type === 'cold') {
-                    thicknessGroup.style.opacity = '0.3';
-                    thicknessGroup.style.pointerEvents = 'none';
-                } else {
-                    thicknessGroup.style.opacity = '1';
-                    thicknessGroup.style.pointerEvents = 'auto';
-                }
+                    if (type === 'cold') {
+                        thicknessGroup.style.opacity = '0.3';
+                        thicknessGroup.style.pointerEvents = 'none';
+                    } else {
+                        thicknessGroup.style.opacity = '1';
+                        thicknessGroup.style.pointerEvents = 'auto';
+                    }
 
                 // === ФОРМУЛА РАСЧЕТА (Примерная) ===
-                let area = w * l;
-                
+                    let area = w * l;
+                    
                 // Базовая цена за м2 каркаса и работ
-                let basePricePerM2 = 4500; 
+                    let basePricePerM2 = 4500; 
 
                 // Коэффициент типа здания
                 let typeCost = (type === 'warm') ? 3500 : 1800; // Цена за обшивку м2
