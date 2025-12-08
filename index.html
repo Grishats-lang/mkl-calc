@@ -936,6 +936,14 @@
                 order: -1; /* Картинка сверху */
                 margin-bottom: 20px;
             }
+            
+            /* --- ИСПРАВЛЕНИЕ ОБРЕЗКИ ФОТО --- */
+            .about-img-wrapper img {
+                min-height: auto;    /* Отменяем обязательную высоту 300px */
+                height: auto;        /* Высота будет зависеть от ширины экрана */
+                object-fit: contain; /* Показываем картинку целиком, без обрезки */
+                border-radius: 8px;  /* Чуть уменьшаем скругление углов, чтобы не резало текст */
+            }
         }
 
         /* === СТИЛИ ДЛЯ СТРЕЛОК ГАЛЕРЕИ === */
@@ -1172,7 +1180,7 @@
 
         <div class="gallery-item" onclick="openModal(this)">
             <img src="img/angar1.jpg" alt="Автосервис">
-            <div class="gallery-caption">Автосервис с мойкой 600 м²</div>
+            <div class="gallery-caption">Автосервис с мойкой 1600 м²</div>
         </div>
 
         <div class="gallery-item" onclick="openModal(this)">
@@ -1182,7 +1190,7 @@
 
         <div class="gallery-item" onclick="openModal(this)">
             <img src="img/angar3.jpg" alt="Торговый павильон">
-            <div class="gallery-caption">Торговый павильон 350 м²</div>
+            <div class="gallery-caption">Торговый павильон 1150 м²</div>
         </div>
 
         <div class="gallery-item" onclick="openModal(this)">
