@@ -2,14 +2,24 @@
     <html lang="ru">
     <head>
       <!-- Google tag (gtag.js) -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=G-7NQ5RFMMJ5"></script>
-      <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', 'G-7NQ5RFMMJ5');
-      </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7NQ5RFMMJ5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      // Создаем переменную для настроек
+      var ga_settings = {};
+    
+      // Проверяем, есть ли в ссылке секретное слово dev_mode
+      if (window.location.href.indexOf('dev_mode') > -1) {
+          // Если есть, добавляем метку "внутренний трафик"
+          ga_settings = { 'traffic_type': 'internal' };
+      }
+    
+      // Запускаем счетчик с вашим ID и (возможно) добавленной меткой
+      gtag('config', 'G-7NQ5RFMMJ5', ga_settings);
+    </script>
 
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
