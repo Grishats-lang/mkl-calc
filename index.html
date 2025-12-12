@@ -1819,31 +1819,51 @@
             </div>
     -->
     
-    <!-- ФОРМА ОБРАТНОЙ СВЯЗИ -->
-    <div class="contact-form-container">
-        <!-- ВСТАВЬТЕ ВАШУ ССЫЛКУ НИЖЕ ВМЕСТО https://formspree.io/f/YOUR_ID -->
-        <form action="https://formspree.io/f/mgvjbval" method="POST">
+<!-- ФОРМА ОБРАТНОЙ СВЯЗИ -->
+<div class="contact-form-container">
+    <!-- ВСТАВЬТЕ ВАШУ ССЫЛКУ НИЖЕ ВМЕСТО https://formspree.io/f/YOUR_ID -->
+    <form action="https://formspree.io/f/mgvjbval" method="POST">
 
-            <!-- Имя и Телефон -->
-            <div class="form-group">
-                <label>Ваше имя</label>
-                <input type="text" name="name" class="form-input" placeholder="Иван Иванов" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Телефон для связи (Обязательно)</label>
-                <input type="tel" name="phone" class="form-input" placeholder="+7 (999) 000-00-00" required>
-            </div>
+        <!-- Имя и Телефон -->
+        <div class="form-group">
+            <label>Ваше имя</label>
+            <input type="text" name="name" class="form-input" placeholder="Иван Иванов" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Телефон для связи (Обязательно)</label>
+            <input type="tel" name="phone" class="form-input" placeholder="+7 (999) 000-00-00" required>
+        </div>
 
-            <!-- Габариты (в одну строку) -->
-            <div class="form-group">
-                <label>Желаемые габариты (Длина х Ширина х Высота)</label>
-                <div class="form-row">
-                    <input type="number" name="length" class="form-input" placeholder="Длина (м)">
-                    <input type="number" name="width" class="form-input" placeholder="Ширина (м)">
-                    <input type="number" name="height" class="form-input" placeholder="Высота (м)">
-                </div>
+        <!-- Габариты (в одну строку) -->
+        <div class="form-group">
+            <label>Желаемые габариты (Длина х Ширина х Высота)</label>
+            <div class="form-row">
+                <input type="number" name="length" class="form-input" placeholder="Длина (м)">
+                <input type="number" name="width" class="form-input" placeholder="Ширина (м)">
+                <input type="number" name="height" class="form-input" placeholder="Высота (м)">
             </div>
+        </div>
+
+        <!-- Согласие на обработку данных (НОВОЕ) -->
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 14px; line-height: 1.4;">
+                <!-- Сам чекбокс -->
+                <input type="checkbox" name="policy_agreement" required style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
+                
+                <!-- Текст согласия -->
+                <span>
+                    Я согласен на <a href="/policy.html" target="_blank" style="text-decoration: underline;">обработку персональных данных</a>
+                </span>
+            </label>
+        </div>
+
+        <!-- Кнопка отправки -->
+        <div class="form-group" style="margin-top: 20px;">
+            <button type="submit" class="form-input" style="background-color: #28a745; color: white; cursor: pointer; font-weight: bold; border: none;">
+                Отправить заявку
+            </button>
+        </div>
 
             <!-- Комментарий -->
             <div class="form-group">
