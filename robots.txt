@@ -1,4 +1,4 @@
 User-agent: *
+Disallow: /admin/  (закрыть админку от поиска)
 Allow: /
-
 Sitemap: https://calc-angar.ru/sitemap.xml
