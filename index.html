@@ -1,57 +1,147 @@
     <!DOCTYPE html>
     <html lang="ru">
     <head>
-      <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7NQ5RFMMJ5"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      // Создаем переменную для настроек
-      var ga_settings = {};
-    
-      // Проверяем, есть ли в ссылке секретное слово dev_mode
-      if (window.location.href.indexOf('dev_mode') > -1) {
-          // Если есть, добавляем метку "внутренний трафик"
-          ga_settings = { 'traffic_type': 'internal' };
-      }
-    
-      // Запускаем счетчик с вашим ID и (возможно) добавленной меткой
-      gtag('config', 'G-7NQ5RFMMJ5', ga_settings);
-    </script>
 
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       
-      <!-- НОВЫЙ SEO ЗАГОЛОВОК -->
-      <title>Калькулятор ангара онлайн: расчет стоимости ЛСТК под ключ | МК-Л</title>
-      
-      <!-- FAVICON (ЛОГОТИП) -->
+      <script>
+    // ==========================================
+    // COOKIE MANAGER - ДОЛЖЕН БЫТЬ ПЕРВЫМ В HEAD
+    // ==========================================
+        const CookieManager = {
+            init() {
+            // Проверяем, есть ли сохраненные настройки
+                const consent = this.getConsent();
+                
+                if (consent === null) {
+                // Показываем баннер, если нет решения
+                    setTimeout(() => {
+                        document.getElementById('cookieBanner').classList.add('show');
+                    }, 1000);
+                } else if (consent.analytics) {
+                // Если согласие дано, запускаем аналитику
+                    this.loadAnalytics();
+                }
+            },
+            
+            getConsent() {
+                const saved = localStorage.getItem('cookieConsent');
+                return saved ? JSON.parse(saved) : null;
+            },
+            
+            saveConsent(analytics) {
+                const consent = {
+                    analytics: analytics,
+                    date: new Date().toISOString()
+                };
+                localStorage.setItem('cookieConsent', JSON.stringify(consent));
+                
+                if (analytics) {
+                    this.loadAnalytics();
+                }
+            },
+            
+            loadAnalytics() {
+            // Загружаем Google Analytics только если дано согласие
+                (function() {
+                    var gaScript = document.createElement('script');
+                    gaScript.async = true;
+                    gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-7NQ5RFMMJ5';
+                    document.head.appendChild(gaScript);
+                    
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    
+                    var ga_settings = {};
+                    if (window.location.href.indexOf('dev_mode') > -1) {
+                        ga_settings = { 'traffic_type': 'internal' };
+                    }
+                    gtag('config', 'G-7NQ5RFMMJ5', ga_settings);
+                })();
+                
+            // Загружаем Яндекс.Метрику только если дано согласие
+                (function(m,e,t,r,i,k,a){
+                    m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                    m[i].l=1*new Date();
+                    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+                        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+
+                ym(105596286, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+                
+            // Добавляем noscript для Яндекс.Метрики
+                var noscript = document.createElement('noscript');
+                noscript.innerHTML = '<div><img src="https://mc.yandex.ru/watch/105596286" style="position:absolute; left:-9999px;" alt="" /></div>';
+                document.body.appendChild(noscript);
+            }
+        };
+
+    // Глобальные функции для вызова из HTML
+        window.acceptCookies = function() {
+            CookieManager.saveConsent(true);
+            document.getElementById('cookieBanner').classList.remove('show');
+        };
+
+        window.rejectCookies = function() {
+            CookieManager.saveConsent(false);
+            document.getElementById('cookieBanner').classList.remove('show');
+        };
+
+        window.showCookieSettings = function() {
+            const consent = CookieManager.getConsent();
+            if (consent) {
+                document.getElementById('analyticsToggle').checked = consent.analytics;
+            }
+            document.getElementById('cookieModal').classList.add('show');
+        };
+
+        window.closeCookieSettings = function() {
+            document.getElementById('cookieModal').classList.remove('show');
+        };
+
+        window.saveCookieSettings = function() {
+            const analytics = document.getElementById('analyticsToggle').checked;
+            CookieManager.saveConsent(analytics);
+            document.getElementById('cookieBanner').classList.remove('show');
+            document.getElementById('cookieModal').classList.remove('show');
+        };
+
+    // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            CookieManager.init();
+        });
+    </script>
+
+    <!-- НОВЫЙ SEO ЗАГОЛОВОК -->
+    <title>Калькулятор ангара онлайн: расчет стоимости ЛСТК под ключ | МК-Л</title>
+    
+    <!-- FAVICON (ЛОГОТИП) -->
     <!-- 1. Основная иконка (Специально для Яндекса - абсолютный путь) -->
     <link rel="icon" href="https://calc-angar.ru/favicon.ico" type="image/x-icon">
-        
+    
     <!-- 2. Для Google и современных браузеров (PNG) -->
     <link rel="icon" href="/img/favicon.png" type="image/png">
     
     <!-- 3. Для iPhone и iPad -->
     <link rel="apple-touch-icon" href="/img/favicon.png">
 
-      
-      <!-- НОВОЕ ОПИСАНИЕ ДЛЯ ЯНДЕКСА И GOOGLE -->
-      <meta name="description" content="Онлайн расчет стоимости быстровозводимого здания за 1 минуту. Узнайте цену ангара, склада или цеха с монтажом. Собственное производство, работаем по всей России.">
-      
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-      <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <!-- НОВОЕ ОПИСАНИЕ ДЛЯ ЯНДЕКСА И GOOGLE -->
+    <meta name="description" content="Онлайн расчет стоимости быстровозводимого здания за 1 минуту. Узнайте цену ангара, склада или цеха с монтажом. Собственное производство, работаем по всей России.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
-      <style>
-          /* Адаптивность для таблиц */
-          .table-responsive {
-            width: 100%;
-            overflow-x: auto; /* Включает горизонтальный скролл */
-            -webkit-overflow-scrolling: touch; /* Плавная прокрутка на айфонах */
-            margin-bottom: 20px;
-        }
+    <style>
+      /* Адаптивность для таблиц */
+      .table-responsive {
+        width: 100%;
+        overflow-x: auto; /* Включает горизонтальный скролл */
+        -webkit-overflow-scrolling: touch; /* Плавная прокрутка на айфонах */
+        margin-bottom: 20px;
+    }
 
 /* Настройка самой таблицы внутри прокрутки */
 .table-responsive table {
@@ -1015,23 +1105,243 @@
 @media (max-width: 600px) {
     .form-row { flex-direction: column; gap: 10px; }
 }
+
+/* ============================================
+   COOKIE БАННЕР
+   ============================================ */
+   .cookie-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: 500px;
+    background: var(--background-white);
+    padding: 20px 25px;
+    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    z-index: 9999;
+    display: none;
+    border: 2px solid var(--accent-teal);
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.cookie-banner.show {
+    display: block;
+}
+
+.cookie-banner h3 {
+    color: var(--primary-blue);
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.cookie-banner p {
+    color: var(--text-secondary);
+    font-size: 0.95em;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.cookie-banner a {
+    color: var(--accent-teal);
+    text-decoration: underline;
+}
+
+.cookie-banner a:hover {
+    color: var(--accent-orange);
+}
+
+.cookie-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cookie-btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+    font-size: 0.95em;
+}
+
+.cookie-btn.accept {
+    background-color: var(--accent-teal);
+    color: white;
+}
+
+.cookie-btn.accept:hover {
+    background-color: #00695C;
+    transform: translateY(-2px);
+}
+
+.cookie-btn.reject {
+    background-color: var(--gray-light);
+    color: var(--text-secondary);
+}
+
+.cookie-btn.reject:hover {
+    background-color: var(--gray-medium);
+    color: var(--gray-dark);
+}
+
+.cookie-btn.settings {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.cookie-btn.settings:hover {
+    background-color: var(--background-light);
+}
+
+/* Модальное окно настроек */
+.cookie-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+}
+
+.cookie-modal.show {
+    display: flex;
+}
+
+.cookie-modal-content {
+    background: white;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.cookie-modal h3 {
+    color: var(--primary-blue);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent-teal);
+}
+
+.cookie-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.cookie-option:last-child {
+    border-bottom: none;
+}
+
+.cookie-option-info h4 {
+    color: var(--gray-dark);
+    margin-bottom: 5px;
+    font-size: 1em;
+}
+
+.cookie-option-info p {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+/* Переключатель */
+.cookie-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.cookie-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cookie-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.cookie-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .cookie-slider {
+    background-color: var(--accent-teal);
+}
+
+input:checked + .cookie-slider:before {
+    transform: translateX(26px);
+}
+
+.cookie-modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 600px) {
+    .cookie-banner {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        padding: 15px;
+    }
+    
+    .cookie-buttons {
+        flex-direction: column;
+    }
+    
+    .cookie-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
 </style>
 </head>
 <body>
-
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105596286', 'ym');
-
-    ym(105596286, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/105596286" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
 
 
     <!-- ============================================
@@ -1871,18 +2181,18 @@
             </button>
         </div>
 
-            <!-- Комментарий -->
-            <div class="form-group">
-                <label>Дополнительные пожелания</label>
-                <textarea name="message" class="form-input" rows="4" placeholder="Например: нужно теплое здание под автосервис..."></textarea>
-            </div>
+        <!-- Комментарий -->
+        <div class="form-group">
+            <label>Дополнительные пожелания</label>
+            <textarea name="message" class="form-input" rows="4" placeholder="Например: нужно теплое здание под автосервис..."></textarea>
+        </div>
 
-            <!-- Кнопка -->
-            <button type="submit" class="cta-button" style="width: 100%; border: none; cursor: pointer;">
-                Отправить заявку на расчёт
-            </button>
-        </form>
-    </div>
+        <!-- Кнопка -->
+        <button type="submit" class="cta-button" style="width: 100%; border: none; cursor: pointer;">
+            Отправить заявку на расчёт
+        </button>
+    </form>
+</div>
 </section>
 
 <!-- РАЗДЕЛ 11: ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ -->
@@ -2729,6 +3039,56 @@
     <!-- THREE.JS БИБЛИОТЕКА -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<!-- ============================================
+     COOKIE БАННЕР
+     ============================================ -->
+     <div id="cookieBanner" class="cookie-banner">
+        <h3>🍪 Мы используем файлы cookie</h3>
+        <p>Мы используем файлы cookie для анализа посещений и улучшения работы сайта. 
+         Нажимая «Принять», вы соглашаетесь с нашей 
+         <a href="/policy.html" target="_blank">Политикой обработки данных</a>.
+     </p>
+     <div class="cookie-buttons">
+        <button class="cookie-btn accept" onclick="acceptCookies()">Принять</button>
+        <button class="cookie-btn reject" onclick="rejectCookies()">Отклонить</button>
+        <button class="cookie-btn settings" onclick="showCookieSettings()">Настройки</button>
+    </div>
+</div>
+
+<!-- Модальное окно настроек -->
+<div id="cookieModal" class="cookie-modal">
+    <div class="cookie-modal-content">
+        <h3>Настройки cookie</h3>
+        
+        <div class="cookie-option">
+            <div class="cookie-option-info">
+                <h4>Обязательные cookies</h4>
+                <p>Эти файлы необходимы для работы сайта. Их нельзя отключить.</p>
+            </div>
+            <label class="cookie-switch">
+                <input type="checkbox" checked disabled>
+                <span class="cookie-slider"></span>
+            </label>
+        </div>
+        
+        <div class="cookie-option">
+            <div class="cookie-option-info">
+                <h4>Аналитические cookies (Google Analytics, Яндекс.Метрика)</h4>
+                <p>Помогают анализировать посещения сайта, улучшать контент и пользовательский опыт.</p>
+            </div>
+            <label class="cookie-switch">
+                <input type="checkbox" id="analyticsToggle" checked>
+                <span class="cookie-slider"></span>
+            </label>
+        </div>
+        
+        <div class="cookie-modal-buttons">
+            <button class="cookie-btn accept" onclick="saveCookieSettings()">Сохранить настройки</button>
+            <button class="cookie-btn settings" onclick="closeCookieSettings()">Отмена</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
