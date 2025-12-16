@@ -1638,7 +1638,7 @@ input:checked + .cookie-slider:before {
         </div>
     </div>
 
-    <div class="chart-container">
+    <div class="chart-container" style="height: 500px;">
         <div id="advantagesHighchart" style="width: 100%; height: 100%;"></div>
     </div>
 </section>
@@ -1967,7 +1967,7 @@ input:checked + .cookie-slider:before {
     </div>
 
 <!-- ЗАМЕНА: Старый canvas удаляем, вставляем div для Highcharts -->
-<div class="chart-container" style="height: 400px; padding: 0; overflow: hidden;">
+<div class="chart-container" style="height: 500px; padding: 0; overflow: hidden;">
     <div id="timelineHighchart" style="width: 100%; height: 100%;"></div>
 </div>
 
@@ -2086,7 +2086,7 @@ input:checked + .cookie-slider:before {
         по сравнению с традиционными кирпичными зданиями.
     </div>
 
-    <div class="chart-container">
+    <div class="chart-container" style="height: 500px;">
         <div id="specificationHighchart" style="width: 100%; height: 100%;"></div>
     </div>
 </section>
@@ -2724,22 +2724,20 @@ input:checked + .cookie-slider:before {
             }
 
         // ==========================================
-        // ИНТЕРАКТИВНЫЙ ГРАФИК РАБОТЫ (TIMELINE) - ИСПРАВЛЕННЫЙ
+        // ИНТЕРАКТИВНЫЙ ГРАФИК РАБОТЫ (TIMELINE)
         // ==========================================
             let timelineChartInstance = null;
 
-        // Теперь функция принимает ОБЪЕКТ со всеми сроками
             function updateTimelineChart(times) {
                 if (typeof Highcharts === 'undefined') return;
 
                 const container = document.getElementById('timelineHighchart');
                 if (!container) return;
 
-            // Распаковываем сроки из переданного объекта
+            // Распаковываем сроки
                 const { t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays } = times;
 
-            // --- РАСЧЕТ СМЕЩЕНИЙ (OFFSET) ---
-            // Каждый этап начинается там, где закончился предыдущий
+            // Расчет смещений (Offset)
                 const start_consult = 0;
                 const start_design = start_consult + t_consult;
                 const start_prod = start_design + t_design;
@@ -2749,21 +2747,24 @@ input:checked + .cookie-slider:before {
 
                 const categories = ['Консультация', 'Проектирование', 'Производство', 'Доставка', 'Монтаж', 'Сдача'];
 
-            // Данные для графика
+            // Данные
                 const dataOffset = [start_consult, start_design, start_prod, start_delivery, start_install, start_handover];
                 const dataDuration = [t_consult, t_design, t_prod, t_delivery, t_install, t_handover];
 
-            // Обновляем или создаем график
+            // Если график уже есть -> обновляем данные
                 if (timelineChartInstance) {
                     timelineChartInstance.series[0].setData(dataOffset);
                     timelineChartInstance.series[1].setData(dataDuration);
                     timelineChartInstance.setTitle({ text: `Общий срок реализации: ~${totalDays} дней` });
                 } else {
+                // Создаем новый график
                     timelineChartInstance = Highcharts.chart('timelineHighchart', {
                         chart: {
                             type: 'bar',
                             backgroundColor: 'transparent',
-                            style: { fontFamily: "'Inter', sans-serif" }
+                            style: { fontFamily: "'Inter', sans-serif" },
+                        // ВАЖНО: Делаем отступ справа для подписей
+                            marginRight: 60 
                         },
                         title: {
                             text: `Общий срок реализации: ~${totalDays} дней`,
@@ -2787,41 +2788,59 @@ input:checked + .cookie-slider:before {
                         legend: { enabled: false },
                         plotOptions: {
                             series: {
-                                stacking: 'normal',
-                                borderWidth: 0,
-                                borderRadius: 3,
-                                groupPadding: 0.1
+                            stacking: 'normal', // Это создает эффект Гантта (смещение + длина)
+                            borderWidth: 0,
+                            borderRadius: 3,
+                            groupPadding: 0.1
+                        }
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            if (this.series.name === 'Placeholder') return false;
+                            return `<b>${this.x}</b><br/>Длительность: ${this.y} дн.`;
+                        }
+                    },
+                    responsive: {
+                        rules: [{
+                            condition: { maxWidth: 500 },
+                            chartOptions: {
+                                xAxis: { labels: { style: { fontSize: '11px' } } },
+                                yAxis: { title: { text: null } }
                             }
-                        },
-                        tooltip: {
-                            formatter: function () {
-                                if (this.series.name === 'Placeholder') return false;
-                                return `<b>${this.x}</b><br/>Длительность: ${this.y} дн.`;
+                        }]
+                    },
+                    series: [{
+                        // Невидимая серия для смещения
+                        name: 'Placeholder',
+                        data: dataOffset,
+                        color: 'rgba(0,0,0,0)',
+                        enableMouseTracking: false,
+                        showInLegend: false,
+                        dataLabels: { enabled: false } // Тут цифры не нужны
+                    }, {
+                        // Видимая серия (сама полоска)
+                        name: 'Длительность',
+                        data: dataDuration,
+                        colorByPoint: true,
+                        colors: ['#B0BEC5', '#546E7A', '#0D47A1', '#00796B', '#EF6C00', '#2E7D32'],
+                        dataLabels: {
+                            enabled: true,
+                            inside: false,    // Выносим наружу
+                            align: 'left',    // Ставим справа от конца полоски
+                            format: '{point.y} дн.', // Формат: "15 дн."
+                            crop: false,
+                            overflow: 'allow',
+                            x: 5,             // Небольшой отступ от полоски
+                            style: {
+                                fontWeight: '600',
+                                fontSize: '11px',
+                                color: '#212121',
+                                textOutline: 'none'
                             }
-                        },
-                        responsive: {
-                            rules: [{
-                                condition: { maxWidth: 500 },
-                                chartOptions: {
-                                    xAxis: { labels: { style: { fontSize: '11px' } } },
-                                    yAxis: { title: { text: null } }
-                                }
-                            }]
-                        },
-                        series: [{
-                            name: 'Placeholder',
-                            data: dataOffset,
-                            color: 'rgba(0,0,0,0)',
-                            enableMouseTracking: false,
-                            showInLegend: false
-                        }, {
-                            name: 'Длительность',
-                            data: dataDuration,
-                            colorByPoint: true,
-                            colors: ['#B0BEC5', '#546E7A', '#0D47A1', '#00796B', '#EF6C00', '#2E7D32']
-                        }],
-                        credits: { enabled: false }
-                    });
+                        }
+                    }],
+                    credits: { enabled: false }
+                });
                 }
             }
 
@@ -3112,10 +3131,10 @@ input:checked + .cookie-slider:before {
         // ==========================================
         // ГРАФИК 4: ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ (HIGHCHARTS DUAL AXIS)
         // ==========================================
-        document.addEventListener('DOMContentLoaded', function() {
-            
+    document.addEventListener('DOMContentLoaded', function() {
+
             // Данные (приближенные к реальности)
-            const thicknesses = ['50 мм', '80 мм', '100 мм', '120 мм', '150 мм', '200 мм', '250 мм'];
+        const thicknesses = ['50 мм', '80 мм', '100 мм', '120 мм', '150 мм', '200 мм', '250 мм'];
             const rValues = [1.2, 2.1, 2.6, 3.2, 3.9, 5.2, 6.4]; // Теплосопротивление
             const prices = [2500, 3200, 3800, 4500, 5500, 6800, 8200]; // Цена руб/м2
             
@@ -3188,33 +3207,33 @@ input:checked + .cookie-slider:before {
                         let s = `<div style="padding: 5px; min-width: 200px;">
                                  <strong style="font-size: 14px; color: #212121;">Панель ${this.x}</strong><br/>
                                  <span style="font-size: 11px; color: #546E7A;">Регион: ${rec}</span>
-                                 <hr style="margin: 8px 0; border: 0; border-top: 1px solid #eee;">`;
+                        <hr style="margin: 8px 0; border: 0; border-top: 1px solid #eee;">`;
                         
                         this.points.forEach(function (point) {
                             s += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                                     <span style="color: ${point.series.color}">● ${point.series.name}:</span>
                                     <span style="font-weight: bold">${point.y} ${point.series.name === 'Стоимость' ? '₽' : ''}</span>
-                                  </div>`;
-                        });
+                        </div>`;
+                    });
                         
                         // Добавляем "вердикт"
                         if (index >= 2 && index <= 4) {
-                             s += `<div style="margin-top: 8px; font-size: 11px; color: #00796B; font-weight: 600;">✅ Рекомендовано МК-Л</div>`;
-                        }
-                        
-                        s += '</div>';
-                        return s;
-                    }
-                },
-                legend: {
-                    layout: 'horizontal',
-                    align: 'center',
-                    verticalAlign: 'bottom',
-                    backgroundColor: 'transparent'
-                },
-                series: [{
-                    name: 'Стоимость',
-                    type: 'column',
+                         s += `<div style="margin-top: 8px; font-size: 11px; color: #00796B; font-weight: 600;">✅ Рекомендовано МК-Л</div>`;
+                     }
+
+                     s += '</div>';
+                     return s;
+                 }
+             },
+             legend: {
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom',
+                backgroundColor: 'transparent'
+            },
+            series: [{
+                name: 'Стоимость',
+                type: 'column',
                     yAxis: 0, // Привязка к левой оси
                     data: prices,
                     color: '#EF6C00', // Оранжевый (Акцент)
@@ -3241,28 +3260,35 @@ input:checked + .cookie-slider:before {
                         chartOptions: {
                             legend: { itemStyle: { fontSize: '10px' } },
                             yAxis: [{ labels: { style: { fontSize: '10px' } }, title: { text: null } },
-                                    { labels: { style: { fontSize: '10px' } }, title: { text: null } }]
-                        }
-                    }]
-                },
-                credits: { enabled: false }
-            });
-        });
+                                { labels: { style: { fontSize: '10px' } }, title: { text: null } }]
+                            }
+                        }]
+                    },
+                    credits: { enabled: false }
+                });
+});
 
     // ==========================================
-    // ГРАФИК 5: РЕГИОНЫ (HIGHCHARTS BASIC BAR)
+    // ГРАФИК 5: РЕГИОНЫ (ЧИСЛА СПРАВА)
     // ==========================================
     document.addEventListener('DOMContentLoaded', function() {
         Highcharts.chart('regionHighchart', {
             chart: {
-                type: 'bar', // Горизонтальные полосы
+                type: 'bar', 
                 backgroundColor: 'transparent',
-                style: { fontFamily: "'Inter', sans-serif" }
+                style: { fontFamily: "'Inter', sans-serif" },
+                // Увеличиваем отступ справа, чтобы цифры точно влезли
+                marginRight: 50 
             },
             title: {
-                text: 'География строительства',
+                text: 'География строительства (2023-2025)',
                 align: 'left',
                 style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+            },
+            subtitle: {
+                text: 'Кликните на год в легенде, чтобы скрыть/показать данные',
+                align: 'left',
+                style: { color: '#546E7A' }
             },
             xAxis: {
                 categories: [
@@ -3284,18 +3310,18 @@ input:checked + .cookie-slider:before {
             },
             yAxis: {
                 min: 0,
+                // Добавляем потолок, чтобы для самых длинных полосок оставалось место под цифру
+                // Если у вас макс. значение 48, ставим чуть больше, например 60
+                max: 60, 
                 title: {
                     text: 'Количество проектов',
                     align: 'high',
                     style: { color: '#546E7A' }
                 },
-                labels: {
-                    overflow: 'justify'
-                },
                 gridLineColor: '#eee'
             },
             tooltip: {
-                shared: true, // Показывает все годы в одной плашке
+                shared: true,
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 borderColor: '#CFD8DC',
                 borderRadius: 8,
@@ -3304,78 +3330,68 @@ input:checked + .cookie-slider:before {
             },
             plotOptions: {
                 bar: {
-                    dataLabels: {
-                        enabled: true, // Показываем цифры прямо на полосках
-                        style: {
-                            fontWeight: '500',
-                            fontSize: '11px',
-                            textOutline: 'none' // Убираем обводку текста для чистоты
-                        }
-                    },
-                    borderRadius: 4, // Скругленные концы полосок
+                    borderRadius: 4,
                     pointPadding: 0.1, 
-                    groupPadding: 0.15
+                    groupPadding: 0.15,
+                    dataLabels: {
+                        enabled: true,
+                        inside: false,    // <--- ВАЖНО: Выносит текст наружу
+                        align: 'left',    // Прижимает текст слева от точки привязки (сразу за баром)
+                        crop: false,      // Не обрезать текст краем графика
+                        overflow: 'allow',
+                        x: 5,             // Отступ в 5px от конца полоски
+                        style: {
+                            fontWeight: '600',
+                            fontSize: '11px',
+                            color: '#212121', // Темный цвет (так как теперь на белом фоне)
+                            textOutline: 'none' // Убираем белую обводку букв
+                        }
+                    }
                 },
                 series: {
                     cursor: 'pointer',
-                    // Настройка анимации при отключении
-                    animation: {
-                        duration: 500
-                    }
+                    animation: { duration: 500 }
                 }
             },
             legend: {
                 layout: 'horizontal',
                 align: 'center',
                 verticalAlign: 'bottom',
-                margin: 30, 
+                margin: 30, // Отступ легенды от графика
                 itemStyle: { 
                     fontSize: '14px', 
                     fontWeight: '500', 
                     color: '#212121',
                     cursor: 'pointer'
                 },
-                itemHoverStyle: {
-                    color: '#EF6C00'
-                }
+                itemHoverStyle: { color: '#EF6C00' }
             },
             credits: { enabled: false },
             series: [{
                 name: '2023',
                 data: [35, 18, 14, 10, 5],
-                color: '#B0BEC5', // Серый (прошлое) - для контраста
-                dataLabels: { color: '#455A64' }
+                color: '#B0BEC5' 
             }, {
                 name: '2024',
                 data: [42, 24, 18, 12, 7],
-                color: '#00796B', // Бирюзовый (недавнее)
-                dataLabels: { color: '#ffffff' } // Белый текст на темном фоне
+                color: '#00796B' 
             }, {
                 name: '2025 (План)',
                 data: [48, 28, 22, 15, 10],
-                color: '#EF6C00', // Оранжевый (актуальное)
-                dataLabels: { color: '#ffffff' }
+                color: '#EF6C00' 
             }],
             responsive: {
                 rules: [{
-                    condition: {
-                        maxWidth: 500
-                    },
+                    condition: { maxWidth: 500 },
                     chartOptions: {
-                        chart: { height: 400 }, // Чуть выше на мобильном
-                        legend: {
-                            itemStyle: { fontSize: '12px' }
-                        },
-                        xAxis: {
-                            labels: {
-                                style: { fontSize: '11px' }
-                            }
-                        }
+                        chart: { marginRight: 30 }, // На мобильном отступ поменьше
+                        legend: { itemStyle: { fontSize: '12px' } },
+                        xAxis: { labels: { style: { fontSize: '11px' } } }
                     }
                 }]
             }
         });
-    });
+});
 
         // ==========================================
         // АНИМАЦИЯ ПРИ СКРОЛЛЕ
