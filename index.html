@@ -1716,7 +1716,7 @@ input:checked + .cookie-slider:before {
                     <span>Дополнительные опции (Ворота)</span>
                 </div>
                 <div style="background-color: var(--background-light); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
-                    
+
                     <div class="form-row">
                         <!-- Левая колонка -->
                         <div class="form-col">
@@ -2664,7 +2664,7 @@ input:checked + .cookie-slider:before {
                             style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
                         },
                         tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
-                        
+
                     // Настройки самого "пирога"
                         plotOptions: {
                             pie: {
@@ -2747,7 +2747,7 @@ input:checked + .cookie-slider:before {
                 const start_handover = start_install + t_install;
 
                 const categories = ['Консультация', 'Проектирование', 'Производство', 'Доставка', 'Монтаж', 'Сдача'];
-                
+
             // Данные для графика
                 const dataOffset = [start_consult, start_design, start_prod, start_delivery, start_install, start_handover];
                 const dataDuration = [t_consult, t_design, t_prod, t_delivery, t_install, t_handover];
@@ -2857,7 +2857,6 @@ input:checked + .cookie-slider:before {
                     let thickness = parseFloat(document.getElementById('input-thickness').value);
                     let windowsCount = parseInt(document.getElementById('input-windows').value);
                     
-    // Получаем тип здания и определяем isWarm
                     let typeEl = document.querySelector('input[name="build-type"]:checked');
                     let type = typeEl ? typeEl.value : 'warm';
                     let isWarm = (type === 'warm');
@@ -2865,14 +2864,13 @@ input:checked + .cookie-slider:before {
                     let doorsFront = parseInt(document.getElementById('input-door-front').value);
                     let doorsRear = parseInt(document.getElementById('input-door-rear').value);
 
-    // 2. Обновляем текстовые значения ползунков
+    // 2. Обновляем UI текст
                     document.getElementById('val-width').textContent = w;
                     document.getElementById('val-length').textContent = l;
                     document.getElementById('val-height').textContent = h;
                     document.getElementById('val-thickness').textContent = thickness;
                     document.getElementById('val-windows').textContent = windowsCount;
 
-    // Логика UI (скрытие толщины для холодного)
                     const thicknessGroup = document.getElementById('panel-thickness-group');
                     if (!isWarm) {
                         thicknessGroup.style.opacity = '0.3';
@@ -2882,7 +2880,7 @@ input:checked + .cookie-slider:before {
                         thicknessGroup.style.pointerEvents = 'auto';
                     }
 
-    // === РАСЧЕТ СТОИМОСТИ ===
+    // 3. Расчет Цены
                     let area = w * l;
                     let basePricePerM2 = 4500; 
                     let typeCost = isWarm ? 3500 : 1800;
@@ -2891,9 +2889,7 @@ input:checked + .cookie-slider:before {
                     if (heightFactor < 1) heightFactor = 1;
 
                     let thicknessCost = 0;
-                    if (isWarm) {
-                        thicknessCost = (thickness - 100) * 15; 
-                    }
+                    if (isWarm) thicknessCost = (thickness - 100) * 15; 
 
                     let priceM2 = (basePricePerM2 + typeCost + thicknessCost) * heightFactor;
                     
@@ -2909,38 +2905,40 @@ input:checked + .cookie-slider:before {
                     let grandTotal = baseTotal + extraCosts;
                     let finalPriceM2 = Math.floor(grandTotal / area);
 
-    // === ЕДИНЫЙ РАСЧЕТ СРОКОВ (ДЛЯ ТЕКСТА И ГРАФИКА) ===
+    // 4. === ЕДИНЫЙ РАСЧЕТ СРОКОВ (Скорректированный) ===
                     const t_consult = 1;
-                    const t_design = 3 + Math.ceil(area / 200);
-    // Производство: база 7 + объем + утепление
-                    const t_prod = 7 + Math.ceil(area / 50) + (isWarm ? 5 : 0); 
+                    const t_design = 3 + Math.floor(area / 400); 
+                    
+    // Производство: 8-16 дней для средних зданий
+                    const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0); 
+                    
                     const t_delivery = 2;
-    // Монтаж: база 14 + объем + окна
-                    const t_install = 14 + Math.ceil(area / 30) + Math.ceil(windowsCount / 5); 
+                    
+    // Монтаж: 20-40 дней для 500-1000м2
+                    const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10); 
+                    
                     const t_handover = 2;
                     
                     const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
 
-    // === ОБНОВЛЕНИЕ DOM ===
+    // 5. Вывод
                     document.getElementById('total-price').textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
                     document.getElementById('res-area').textContent = area;
                     document.getElementById('res-price-m2').textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
                     document.getElementById('res-extra-cost').textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
                     
-    // ВАЖНО: В текстовое поле "Срок монтажа" пишем именно t_install, чтобы совпадало с графиком
-    // Если вы хотите там видеть "Общий срок", замените на totalDays и поменяйте подпись в HTML
+    // В поле "Срок монтажа" выводим именно время монтажа
                     document.getElementById('res-time').textContent = t_install; 
 
-    // === ОБНОВЛЕНИЕ ГРАФИКОВ ===
+    // 6. Графики
                     update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
                     updatePricingChart(grandTotal);
                     
-    // Передаем рассчитанные сроки в график
                     updateTimelineChart({
                         t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays
                     });
 
-    // Синхронизация с формой заявки
+    // 7. Форма
                     const formL = document.getElementById('form-length');
                     const formW = document.getElementById('form-width');
                     const formH = document.getElementById('form-height');
@@ -2956,20 +2954,20 @@ input:checked + .cookie-slider:before {
                 thicknessInput.addEventListener('input', calculate);
                 windowsInput.addEventListener('input', calculate);
                 typeInputs.forEach(radio => radio.addEventListener('change', calculate));
-                
+
                 doorFrontSelect.addEventListener('change', calculate);
                 doorRearSelect.addEventListener('change', calculate);
 
         // Инициализация 3D
                 init3D();
-                
+
         // Первый запуск
                 calculate();
             }
 
     // Запуск при загрузке
             document.addEventListener('DOMContentLoaded', initCalculator);
-            
+
         // ==========================================
         // ПЛАВНАЯ ПРОКРУТКА К ЯКОРЯМ
         // ==========================================
@@ -3216,10 +3214,10 @@ input:checked + .cookie-slider:before {
      <div id="cookieBanner" class="cookie-banner">
         <h3>🍪 Файлы cookie</h3>
         <p>Сайт использует cookie для корректной работы и сбора статистики. 
-         Нажатие «Принять» подтверждает согласие с   
-         <a href="/policy.html" target="_blank">Политике обработки данных</a>.
-     </p>
-     <div class="cookie-buttons">
+           Нажатие «Принять» подтверждает согласие с   
+           <a href="/policy.html" target="_blank">Политике обработки данных</a>.
+       </p>
+       <div class="cookie-buttons">
         <button class="cookie-btn accept" onclick="acceptCookies()">Принять</button>
         <button class="cookie-btn reject" onclick="rejectCookies()">Отклонить</button>
         <button class="cookie-btn settings" onclick="showCookieSettings()">Настройки</button>
