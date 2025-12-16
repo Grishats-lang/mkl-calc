@@ -67,7 +67,7 @@
                     m[i].l=1*new Date();
                     for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
                         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105596286','ym');
 
                 ym(105596286, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
                 
@@ -134,11 +134,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
-    <!-- Highcharts (для красивой 3D диаграммы) -->
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <style>
       /* Адаптивность для таблиц */
       .table-responsive {
@@ -1879,9 +1874,8 @@ input:checked + .cookie-slider:before {
         </div>
     </div>
 
-    <!-- Контейнер для новой 3D диаграммы -->
-    <div class="chart-container" style="height: 500px; padding: 0; overflow: hidden;">
-        <div id="costChart3D" style="width: 100%; height: 100%;"></div>
+    <div class="chart-container">
+        <canvas id="pricingChart"></canvas>
     </div>
 
     <div class="cta-container mt-30">
@@ -2290,644 +2284,770 @@ input:checked + .cookie-slider:before {
     <!-- ============================================
          JAVASCRIPT - ИНТЕРАКТИВНОСТЬ
          ============================================ -->
-         <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-
+         <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ==========================================
         // МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ (С ЛИСТАНИЕМ)
-<script>
-    // ==========================================
-    // 1. НАСТРОЙКА ГАЛЕРЕИ
-    // ==========================================
-    let currentImageIndex = 0;
-    const galleryImages = document.querySelectorAll('.gallery-item img');
-    const imageUrls = Array.from(galleryImages).map(img => img.src);
+        // ==========================================
+            let currentImageIndex = 0;
+            const galleryImages = document.querySelectorAll('.gallery-item img');
+        // Собираем массив всех путей к картинкам
+            const imageUrls = Array.from(galleryImages).map(img => img.src);
 
-    function openModal(element) {
-        const modal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImage');
-        const imgClicked = element.querySelector('img');
-        currentImageIndex = imageUrls.indexOf(imgClicked.src);
-        modal.style.display = 'flex';
-        modalImg.src = imageUrls[currentImageIndex];
-    }
+            function openModal(element) {
+                const modal = document.getElementById('imageModal');
+                const modalImg = document.getElementById('modalImage');
+                const imgClicked = element.querySelector('img');
 
-    function closeModal(event) {
-        if (event.target.id === 'imageModal') {
-            document.getElementById('imageModal').style.display = 'none';
-        }
-    }
+            // Находим индекс нажатой картинки
+                currentImageIndex = imageUrls.indexOf(imgClicked.src);
 
-    function closeModalForce() {
-        document.getElementById('imageModal').style.display = 'none';
-    }
-
-    function changeSlide(direction, event) {
-        if (event) event.stopPropagation();
-        currentImageIndex += direction;
-        if (currentImageIndex < 0) currentImageIndex = imageUrls.length - 1;
-        else if (currentImageIndex >= imageUrls.length) currentImageIndex = 0;
-        document.getElementById('modalImage').src = imageUrls[currentImageIndex];
-    }
-
-    document.addEventListener('keydown', function(e) {
-        const modal = document.getElementById('imageModal');
-        if (modal.style.display === 'flex') {
-            if (e.key === 'ArrowLeft') changeSlide(-1);
-            if (e.key === 'ArrowRight') changeSlide(1);
-            if (e.key === 'Escape') closeModalForce();
-        }
-    });
-
-    // ==========================================
-    // 2. НАСТРОЙКА 3D МОДЕЛИ (THREE.JS)
-    // ==========================================
-    let scene, camera, renderer, controls;
-    let hangarGroup;
-    let wallMaterial, frameMaterial, roofMaterial, glassMaterial;
-    let currentColor = 0x0D47A1;
-    const WALL_TILT = 0.05;
-
-    function init3D() {
-        const container = document.getElementById('scene3d');
-        if (!container) return;
-
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xe0e0e0);
-        scene.fog = new THREE.Fog(0xe0e0e0, 100, 500);
-
-        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(25, 15, 45);
-
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        container.appendChild(renderer.domElement);
-
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2 - 0.05;
-
-        const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(30, 50, 20);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
-
-        const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(1000, 1000),
-            new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
-        );
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        wallMaterial = new THREE.MeshStandardMaterial({ color: currentColor, roughness: 0.5, side: THREE.DoubleSide });
-        frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
-        roofMaterial = new THREE.MeshStandardMaterial({ color: 0x455A64, roughness: 0.6, side: THREE.DoubleSide });
-        glassMaterial = new THREE.MeshStandardMaterial({ color: 0x81D4FA, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.7 });
-
-        hangarGroup = new THREE.Group();
-        scene.add(hangarGroup);
-
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
-    }
-
-    function animate() {
-        requestAnimationFrame(animate);
-        if (controls) controls.update();
-        if (renderer && scene && camera) renderer.render(scene, camera);
-    }
-
-    function update3DModel(width, length, height, windowsCount, doorFrontCount, doorRearCount) {
-        if (!hangarGroup) return;
-        while (hangarGroup.children.length > 0) {
-            hangarGroup.remove(hangarGroup.children[0]);
-        }
-
-        const tiltOffset = height * Math.tan(WALL_TILT);
-        const topWidth = width - (tiltOffset * 2);
-        const roofHeight = width * 0.12;
-        const roofHalfWidth = topWidth / 2;
-        const angle = Math.atan(roofHeight / roofHalfWidth);
-        const roofSlopeLen = Math.sqrt(Math.pow(roofHalfWidth, 2) + Math.pow(roofHeight, 2));
-        const frameStep = 3;
-        const numFrames = Math.floor(length / frameStep);
-
-        for (let i = 0; i <= numFrames; i++) {
-            const zPos = (i * (length / numFrames)) - (length / 2);
-            createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen);
-        }
-
-        const sideGeo = new THREE.BoxGeometry(0.1, height, length);
-        const leftW = new THREE.Mesh(sideGeo, wallMaterial);
-        leftW.rotation.z = -WALL_TILT;
-        leftW.position.set(-width / 2 + (tiltOffset / 2), height / 2, 0);
-        hangarGroup.add(leftW);
-
-        const rightW = new THREE.Mesh(sideGeo, wallMaterial);
-        rightW.rotation.z = WALL_TILT;
-        rightW.position.set(width / 2 - (tiltOffset / 2), height / 2, 0);
-        hangarGroup.add(rightW);
-
-        if (windowsCount > 0) createWindows(width, length, height, tiltOffset, windowsCount, frameStep);
-
-        createPolygonWall(-length / 2, width, height, tiltOffset, roofHeight, doorRearCount);
-        createPolygonWall(length / 2, width, height, tiltOffset, roofHeight, doorFrontCount);
-
-        const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4);
-        const roofL = new THREE.Mesh(roofGeo, roofMaterial);
-        roofL.rotation.z = angle;
-        roofL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
-        hangarGroup.add(roofL);
-
-        const roofR = new THREE.Mesh(roofGeo, roofMaterial);
-        roofR.rotation.z = -angle;
-        roofR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
-        hangarGroup.add(roofR);
-    }
-
-    function createWindows(width, length, height, tiltOffset, totalWindows, frameStep) {
-        const windowsPerSide = Math.ceil(totalWindows / 2);
-        const winGeo = new THREE.BoxGeometry(0.15, 1.2, 1.5);
-        const numBays = Math.floor(length / frameStep);
-        if (numBays < 1) return;
-
-        for (let i = 0; i < windowsPerSide; i++) {
-            const ratio = numBays / windowsPerSide;
-            const bayIndex = Math.floor((i + 0.5) * ratio);
-            if (bayIndex >= numBays) continue;
-            const zPos = (-length / 2) + (bayIndex * frameStep) + (frameStep / 2);
-
-            const winL = new THREE.Mesh(winGeo, glassMaterial);
-            winL.rotation.z = -WALL_TILT;
-            winL.position.set((-width / 2 + (tiltOffset / 2)) - 0.12, height / 2 + 0.5, zPos);
-            hangarGroup.add(winL);
-
-            if ((i * 2) + 1 < totalWindows) {
-                const winR = new THREE.Mesh(winGeo, glassMaterial);
-                winR.rotation.z = WALL_TILT;
-                winR.position.set((width / 2 - (tiltOffset / 2)) + 0.12, height / 2 + 0.5, zPos);
-                hangarGroup.add(winR);
+                modal.style.display = 'flex';
+                modalImg.src = imageUrls[currentImageIndex];
             }
-        }
-    }
 
-    function createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen) {
-        const bT = 0.25;
-        const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-        colL.rotation.z = -WALL_TILT;
-        colL.position.set(-width / 2 + tiltOffset / 2, height / 2, zPos);
-        hangarGroup.add(colL);
-
-        const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-        colR.rotation.z = WALL_TILT;
-        colR.position.set(width / 2 - tiltOffset / 2, height / 2, zPos);
-        hangarGroup.add(colR);
-
-        const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
-        const beamL = new THREE.Mesh(beamGeo, frameMaterial);
-        beamL.rotation.z = angle;
-        beamL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
-        hangarGroup.add(beamL);
-
-        const beamR = new THREE.Mesh(beamGeo, frameMaterial);
-        beamR.rotation.z = -angle;
-        beamR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
-        hangarGroup.add(beamR);
-    }
-
-    function createPolygonWall(zPos, width, height, tiltOffset, roofHeight, doorsCount) {
-        const shape = new THREE.Shape();
-        const halfBottom = width / 2;
-        const halfTop = width / 2 - tiltOffset;
-        shape.moveTo(-halfBottom, 0);
-        shape.lineTo(halfBottom, 0);
-        shape.lineTo(halfTop, height);
-        shape.lineTo(0, height + roofHeight);
-        shape.lineTo(-halfTop, height);
-        shape.lineTo(-halfBottom, 0);
-
-        const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
-        const wall = new THREE.Mesh(geom, wallMaterial);
-        const offset = (zPos > 0) ? -0.1 : 0;
-        wall.position.set(0, 0, zPos + offset);
-        hangarGroup.add(wall);
-
-        if (doorsCount > 0) {
-            const dW = Math.min(4, width * 0.4);
-            const dH = Math.min(4.5, height * 0.85);
-            const doorGeo = new THREE.BoxGeometry(dW, dH, 0.2);
-            const doorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-            const doorZ = zPos + ((zPos > 0) ? 0.05 : -0.05);
-
-            if (doorsCount == 1) {
-                const door = new THREE.Mesh(doorGeo, doorMat);
-                door.position.set(0, dH / 2, doorZ);
-                hangarGroup.add(door);
-            } else if (doorsCount == 2) {
-                const offsetX = width / 4;
-                const door1 = new THREE.Mesh(doorGeo, doorMat);
-                door1.position.set(-offsetX, dH / 2, doorZ);
-                hangarGroup.add(door1);
-                const door2 = new THREE.Mesh(doorGeo, doorMat);
-                door2.position.set(offsetX, dH / 2, doorZ);
-                hangarGroup.add(door2);
+            function closeModal(event) {
+            // Закрываем только если кликнули по темному фону, а не по картинке или стрелке
+                if (event.target.id === 'imageModal') {
+                    document.getElementById('imageModal').style.display = 'none';
+                }
             }
-        }
-    }
 
-    window.changeColor = function(c) {
-        currentColor = c;
-        if (wallMaterial) wallMaterial.color.setHex(c);
-    }
+            function closeModalForce() {
+                document.getElementById('imageModal').style.display = 'none';
+            }
 
+            function changeSlide(direction, event) {
+            // Остановка всплытия, чтобы клик по стрелке не закрывал модалку
+                if(event) event.stopPropagation();
 
-    // ==========================================
-    // 3. ФУНКЦИЯ ОБНОВЛЕНИЯ ДИАГРАММЫ (HIGHCHARTS)
-    // ==========================================
-    let pricingChartInstance = null;
+                currentImageIndex += direction;
 
-    function updatePricingChart(totalPrice) {
-        // Проверка: загрузился ли Highcharts?
-        if (typeof Highcharts === 'undefined') {
-            console.warn('Highcharts еще не загружен');
-            return;
-        }
+            // Если ушли меньше 0 -> идем в конец
+                if (currentImageIndex < 0) {
+                    currentImageIndex = imageUrls.length - 1;
+                }
+            // Если ушли дальше конца -> идем в начало
+                else if (currentImageIndex >= imageUrls.length) {
+                    currentImageIndex = 0;
+                }
 
-        const distribution = {
-            materials: Math.round(totalPrice * 0.45),
-            montage: Math.round(totalPrice * 0.30),
-            delivery: Math.round(totalPrice * 0.10),
-            design: Math.round(totalPrice * 0.08),
-            overhead: Math.round(totalPrice * 0.07)
-        };
+            // Обновляем картинку
+                document.getElementById('modalImage').src = imageUrls[currentImageIndex];
+            }
 
-        const dataSeries = [
-            ['Материалы (45%)', distribution.materials],
-            ['Монтаж (30%)', distribution.montage],
-            ['Доставка (10%)', distribution.delivery],
-            ['Проектирование (8%)', distribution.design],
-            ['Накладные (7%)', distribution.overhead]
-        ];
-
-        const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
-
-        if (pricingChartInstance) {
-            pricingChartInstance.series[0].setData(dataSeries, true);
-            pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
-        } else {
-            // ВАЖНО: ID изменен на 'costChart3D' для защиты от AdBlock
-            const chartContainer = document.getElementById('costChart3D');
-            if (!chartContainer) return; // Если контейнер не найден, выходим
-
-            pricingChartInstance = Highcharts.chart('costChart3D', {
-                chart: {
-                    type: 'pie',
-                    options3d: { enabled: true, alpha: 45, beta: 0 },
-                    backgroundColor: 'transparent',
-                    style: { fontFamily: "'Inter', sans-serif" }
-                },
-                title: {
-                    text: `Итого: ${formatRub(totalPrice)} ₽`,
-                    style: { fontSize: '20px', fontWeight: 'bold', color: '#212121' }
-                },
-                tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        depth: 45,
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
-                        },
-                        colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
-                    }
-                },
-                series: [{
-                    type: 'pie',
-                    name: 'Сумма',
-                    data: dataSeries
-                }],
-                credits: { enabled: false }
+        // Управление клавишами (стрелки на клавиатуре)
+            document.addEventListener('keydown', function(e) {
+                const modal = document.getElementById('imageModal');
+                if (modal.style.display === 'flex') {
+                    if (e.key === 'ArrowLeft') changeSlide(-1);
+                    if (e.key === 'ArrowRight') changeSlide(1);
+                    if (e.key === 'Escape') closeModalForce();
+                }
             });
-        }
-    }
 
-
+// ==========================================
+    // 3D ВИЗУАЛИЗАЦИЯ
     // ==========================================
-    // 4. ГЛАВНАЯ ЛОГИКА КАЛЬКУЛЯТОРА
-    // ==========================================
-    function initCalculator() {
-        const widthInput = document.getElementById('input-width');
-        const lengthInput = document.getElementById('input-length');
-        const heightInput = document.getElementById('input-height');
-        const thicknessInput = document.getElementById('input-thickness');
-        const windowsInput = document.getElementById('input-windows');
-        const typeInputs = document.getElementsByName('build-type');
-        const doorFrontSelect = document.getElementById('input-door-front');
-        const doorRearSelect = document.getElementById('input-door-rear');
+            let scene, camera, renderer, controls;
+            let hangarGroup;
+            let wallMaterial, frameMaterial, roofMaterial, glassMaterial;
+            let currentColor = 0x0D47A1;
 
-        const valWidth = document.getElementById('val-width');
-        const valLength = document.getElementById('val-length');
-        const valHeight = document.getElementById('val-height');
-        const valThickness = document.getElementById('val-thickness');
-        const valWindows = document.getElementById('val-windows');
+    // Угол наклона стен (в радианах)
+            const WALL_TILT = 0.05; 
 
-        const totalPriceEl = document.getElementById('total-price');
-        const resAreaEl = document.getElementById('res-area');
-        const resPriceM2El = document.getElementById('res-price-m2');
-        const resTimeEl = document.getElementById('res-time');
-        const resExtraCostEl = document.getElementById('res-extra-cost');
-        const thicknessGroup = document.getElementById('panel-thickness-group');
+            function init3D() {
+                const container = document.getElementById('scene3d');
+                if (!container) return;
+                
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xe0e0e0);
+                scene.fog = new THREE.Fog(0xe0e0e0, 100, 500);
 
-        // Поля формы заявки
-        const formL = document.getElementById('form-length');
-        const formW = document.getElementById('form-width');
-        const formH = document.getElementById('form-height');
+                camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+                camera.position.set(25, 15, 45);
 
-        function calculate() {
-            let w = parseFloat(widthInput.value);
-            let l = parseFloat(lengthInput.value);
-            let h = parseFloat(heightInput.value);
-            let thickness = parseFloat(thicknessInput.value);
-            let windowsCount = parseInt(windowsInput.value);
-            let type = document.querySelector('input[name="build-type"]:checked').value;
-            let doorsFront = parseInt(doorFrontSelect.value);
-            let doorsRear = parseInt(doorRearSelect.value);
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                container.appendChild(renderer.domElement);
 
-            // Обновляем текст
-            valWidth.textContent = w;
-            valLength.textContent = l;
-            valHeight.textContent = h;
-            valThickness.textContent = thickness;
-            valWindows.textContent = windowsCount;
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.maxPolarAngle = Math.PI / 2 - 0.05;
 
-            // UI толщины
-            if (type === 'cold') {
-                thicknessGroup.style.opacity = '0.3';
-                thicknessGroup.style.pointerEvents = 'none';
-            } else {
-                thicknessGroup.style.opacity = '1';
-                thicknessGroup.style.pointerEvents = 'auto';
+        // Свет
+                const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
+                scene.add(ambLight);
+                const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                dirLight.position.set(30, 50, 20);
+                dirLight.castShadow = true;
+                scene.add(dirLight);
+
+        // Пол
+                const ground = new THREE.Mesh(
+                    new THREE.PlaneGeometry(1000, 1000),
+                    new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
+                    );
+                ground.rotation.x = -Math.PI / 2;
+                ground.receiveShadow = true;
+                scene.add(ground);
+
+        // Материалы
+                wallMaterial = new THREE.MeshStandardMaterial({ color: currentColor, roughness: 0.5, side: THREE.DoubleSide });
+                frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
+                roofMaterial = new THREE.MeshStandardMaterial({ color: 0x455A64, roughness: 0.6, side: THREE.DoubleSide });
+                glassMaterial = new THREE.MeshStandardMaterial({ color: 0x81D4FA, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.7 });
+
+                hangarGroup = new THREE.Group();
+                scene.add(hangarGroup);
+
+                animate();
+                
+                window.addEventListener('resize', () => {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                });
             }
 
-            // Формула
-            let area = w * l;
-            let basePricePerM2 = 4500;
-            let typeCost = (type === 'warm') ? 3500 : 1800;
-            let heightFactor = 1 + ((h - 6) * 0.05);
-            if (heightFactor < 1) heightFactor = 1;
-            let thicknessCost = (type === 'warm') ? (thickness - 100) * 15 : 0;
-            let priceM2 = (basePricePerM2 + typeCost + thicknessCost) * heightFactor;
+            function animate() {
+                requestAnimationFrame(animate);
+                if (controls) controls.update();
+                if (renderer && scene && camera) renderer.render(scene, camera);
+            }
 
-            if (area > 500) priceM2 *= 0.95;
-            if (area > 1000) priceM2 *= 0.90;
+            function update3DModel(width, length, height, windowsCount, doorFrontCount, doorRearCount) {
+                if (!hangarGroup) return;
 
-            let baseTotal = Math.floor(area * priceM2);
-            let doorsCost = (doorsFront + doorsRear) * 45000;
-            let oneWindowPrice = 1.8 * 8500;
-            let windowsCost = windowsCount * oneWindowPrice;
-            let extraCosts = doorsCost + windowsCost;
-            let grandTotal = baseTotal + extraCosts;
-            let finalPriceM2 = Math.floor(grandTotal / area);
-            let days = 30 + Math.floor(area / 50) + (windowsCount > 10 ? 5 : 0);
+        // Очистка
+                while(hangarGroup.children.length > 0){ 
+                    hangarGroup.remove(hangarGroup.children[0]); 
+                }
 
-            // Вывод в DOM
-            totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
-            resAreaEl.textContent = area;
-            resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
-            resTimeEl.textContent = days;
-            resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
+        // РАСЧЕТ ГЕОМЕТРИИ
+                const tiltOffset = height * Math.tan(WALL_TILT);
+                const topWidth = width - (tiltOffset * 2); 
+                const roofHeight = width * 0.12;
+                const roofHalfWidth = topWidth / 2;
+                const angle = Math.atan(roofHeight / roofHalfWidth);
+                const roofSlopeLen = Math.sqrt(Math.pow(roofHalfWidth, 2) + Math.pow(roofHeight, 2));
 
-            // Обновляем 3D
-            update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
+        // 1. КАРКАС
+                const frameStep = 3; 
+                const numFrames = Math.floor(length / frameStep);
+                
+                for (let i = 0; i <= numFrames; i++) {
+                    const zPos = (i * (length / numFrames)) - (length / 2);
+                    createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen);
+                }
+
+        // 2. БОКОВЫЕ СТЕНЫ
+                const sideGeo = new THREE.BoxGeometry(0.1, height, length);
+                
+                const leftW = new THREE.Mesh(sideGeo, wallMaterial);
+                leftW.rotation.z = -WALL_TILT;
+                leftW.position.set(-width/2 + (tiltOffset/2), height/2, 0);
+                hangarGroup.add(leftW);
+
+                const rightW = new THREE.Mesh(sideGeo, wallMaterial);
+                rightW.rotation.z = WALL_TILT;
+                rightW.position.set(width/2 - (tiltOffset/2), height/2, 0);
+                hangarGroup.add(rightW);
+
+        // 3. ОКНА (Исправлено: висят ровно, по центру секций)
+                if (windowsCount > 0) {
+                    createWindows(width, length, height, tiltOffset, windowsCount, frameStep);
+                }
+
+        // 4. ТОРЦЕВЫЕ СТЕНЫ И ВОРОТА (Исправлено: Front - спереди, Rear - сзади)
+        // Задние ворота (-Z)
+                createPolygonWall(-length/2, width, height, tiltOffset, roofHeight, doorRearCount); 
+        // Передние ворота (+Z)
+                createPolygonWall(length/2, width, height, tiltOffset, roofHeight, doorFrontCount); 
+
+        // 5. КРЫША
+                const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4); 
+
+                const roofL = new THREE.Mesh(roofGeo, roofMaterial);
+                roofL.rotation.z = angle; 
+                roofL.position.set(-(width/2 - tiltOffset)/2, height + roofHeight/2, 0);
+                hangarGroup.add(roofL);
+
+                const roofR = new THREE.Mesh(roofGeo, roofMaterial);
+                roofR.rotation.z = -angle;
+                roofR.position.set((width/2 - tiltOffset)/2, height + roofHeight/2, 0);
+                hangarGroup.add(roofR);
+            }
+
+            function createWindows(width, length, height, tiltOffset, totalWindows, frameStep) {
+                const windowsPerSide = Math.ceil(totalWindows / 2);
+        // Размеры окна: Толщина 0.15, Высота 1.2, Ширина 1.5 (вдоль стены)
+                const winGeo = new THREE.BoxGeometry(0.15, 1.2, 1.5); 
+
+                const numBays = Math.floor(length / frameStep);
+                if (numBays < 1) return;
+
+                for (let i = 0; i < windowsPerSide; i++) {
+            // Равномерное распределение по секциям
+                    const ratio = numBays / windowsPerSide;
+                    const bayIndex = Math.floor((i + 0.5) * ratio);
+                    
+                    if (bayIndex >= numBays) continue;
+
+                    const zPos = (-length / 2) + (bayIndex * frameStep) + (frameStep / 2);
+
+            // ЛЕВАЯ СТЕНА (без лишнего вращения Y, только наклон Z)
+                    const winL = new THREE.Mesh(winGeo, glassMaterial);
+                    winL.rotation.z = -WALL_TILT;
+                    winL.position.set((-width/2 + (tiltOffset/2)) - 0.12, height / 2 + 0.5, zPos);
+                    hangarGroup.add(winL);
+
+            // ПРАВАЯ СТЕНА
+                    if ((i * 2) + 1 < totalWindows) {
+                        const winR = new THREE.Mesh(winGeo, glassMaterial);
+                        winR.rotation.z = WALL_TILT;
+                        winR.position.set((width/2 - (tiltOffset/2)) + 0.12, height / 2 + 0.5, zPos);
+                        hangarGroup.add(winR);
+                    }
+                }
+            }
+
+            function createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen) {
+                const bT = 0.25;
+
+                const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
+                colL.rotation.z = -WALL_TILT;
+                colL.position.set(-width/2 + tiltOffset/2, height/2, zPos);
+                hangarGroup.add(colL);
+
+                const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
+                colR.rotation.z = WALL_TILT;
+                colR.position.set(width/2 - tiltOffset/2, height/2, zPos);
+                hangarGroup.add(colR);
+
+                const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
+                
+                const beamL = new THREE.Mesh(beamGeo, frameMaterial);
+                beamL.rotation.z = angle;
+                beamL.position.set(-(width/2 - tiltOffset)/2, height + roofHeight/2, zPos);
+                hangarGroup.add(beamL);
+
+                const beamR = new THREE.Mesh(beamGeo, frameMaterial);
+                beamR.rotation.z = -angle;
+                beamR.position.set((width/2 - tiltOffset)/2, height + roofHeight/2, zPos);
+                hangarGroup.add(beamR);
+            }
+
+            function createPolygonWall(zPos, width, height, tiltOffset, roofHeight, doorsCount) {
+                const shape = new THREE.Shape();
+
+                const halfBottom = width / 2;
+                const halfTop = width / 2 - tiltOffset;
+
+                shape.moveTo(-halfBottom, 0);
+                shape.lineTo(halfBottom, 0);
+                shape.lineTo(halfTop, height);
+                shape.lineTo(0, height + roofHeight);
+                shape.lineTo(-halfTop, height);
+                shape.lineTo(-halfBottom, 0);
+
+                const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
+                const wall = new THREE.Mesh(geom, wallMaterial);
+                const offset = (zPos > 0) ? -0.1 : 0; 
+                wall.position.set(0, 0, zPos + offset);
+                hangarGroup.add(wall);
+
+        // Генерация ворот
+                if (doorsCount > 0) {
+                    const dW = Math.min(4, width * 0.4); 
+                    const dH = Math.min(4.5, height * 0.85); 
+                    const doorGeo = new THREE.BoxGeometry(dW, dH, 0.2);
+                    const doorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+                    const doorZ = zPos + ((zPos > 0) ? 0.05 : -0.05);
+
+                    if (doorsCount == 1) {
+                        const door = new THREE.Mesh(doorGeo, doorMat);
+                        door.position.set(0, dH/2, doorZ);
+                        hangarGroup.add(door);
+                    } else if (doorsCount == 2) {
+                        const offsetX = width / 4;
+                        const door1 = new THREE.Mesh(doorGeo, doorMat);
+                        door1.position.set(-offsetX, dH/2, doorZ);
+                        hangarGroup.add(door1);
+                        const door2 = new THREE.Mesh(doorGeo, doorMat);
+                        door2.position.set(offsetX, dH/2, doorZ);
+                        hangarGroup.add(door2);
+                    }
+                }
+            }
+
+            window.changeColor = function(c) {
+                currentColor = c;
+                if(wallMaterial) wallMaterial.color.setHex(c);
+            }
+
+    // ==========================================
+    // ЛОГИКА КАЛЬКУЛЯТОРА
+    // ==========================================
+            function initCalculator() {
+                const widthInput = document.getElementById('input-width');
+                const lengthInput = document.getElementById('input-length');
+                const heightInput = document.getElementById('input-height');
+                const thicknessInput = document.getElementById('input-thickness');
+                const windowsInput = document.getElementById('input-windows');
+                
+                const typeInputs = document.getElementsByName('build-type');
+                
+                const doorFrontSelect = document.getElementById('input-door-front');
+                const doorRearSelect = document.getElementById('input-door-rear');
+                
+                const valWidth = document.getElementById('val-width');
+                const valLength = document.getElementById('val-length');
+                const valHeight = document.getElementById('val-height');
+                const valThickness = document.getElementById('val-thickness');
+                const valWindows = document.getElementById('val-windows');
+                
+                const totalPriceEl = document.getElementById('total-price');
+                const resAreaEl = document.getElementById('res-area');
+                const resPriceM2El = document.getElementById('res-price-m2');
+                const resTimeEl = document.getElementById('res-time');
+                const resExtraCostEl = document.getElementById('res-extra-cost');
+                const thicknessGroup = document.getElementById('panel-thickness-group');
+
+                function calculate() {
+                    let w = parseFloat(widthInput.value);
+                    let l = parseFloat(lengthInput.value);
+                    let h = parseFloat(heightInput.value);
+                    let thickness = parseFloat(thicknessInput.value);
+                    let windowsCount = parseInt(windowsInput.value);
+                    let type = document.querySelector('input[name="build-type"]:checked').value;
+                    
+                    let doorsFront = parseInt(doorFrontSelect.value);
+                    let doorsRear = parseInt(doorRearSelect.value);
+
+            // Обновляем текст значений
+                    valWidth.textContent = w;
+                    valLength.textContent = l;
+                    valHeight.textContent = h;
+                    valThickness.textContent = thickness;
+                    valWindows.textContent = windowsCount;
+
+            // Логика UI толщины панели
+                    if (type === 'cold') {
+                        thicknessGroup.style.opacity = '0.3';
+                        thicknessGroup.style.pointerEvents = 'none';
+                    } else {
+                        thicknessGroup.style.opacity = '1';
+                        thicknessGroup.style.pointerEvents = 'auto';
+                    }
+
+            // === ФОРМУЛА РАСЧЕТА ===
+                    let area = w * l;
+                    let basePricePerM2 = 4500; 
+
+            // Коэффициент типа здания
+                    let typeCost = (type === 'warm') ? 3500 : 1800;
+
+            // Добавка за высоту
+                    let heightFactor = 1 + ((h - 6) * 0.05);
+                    if (heightFactor < 1) heightFactor = 1;
+
+            // Добавка за толщину панели
+                    let thicknessCost = 0;
+                    if (type === 'warm') {
+                        thicknessCost = (thickness - 100) * 15; 
+                    }
+
+                    let priceM2 = (basePricePerM2 + typeCost + thicknessCost) * heightFactor;
+                    
+            // Скидка на объем
+                    if (area > 500) priceM2 *= 0.95;
+                    if (area > 1000) priceM2 *= 0.90;
+
+                    let baseTotal = Math.floor(area * priceM2);
+                    
+            // ДОП. ОПЦИИ: Ворота
+                    let doorsCost = (doorsFront + doorsRear) * 45000;
+
+            // ДОП. ОПЦИИ: Окна
+                    let oneWindowPrice = 1.8 * 8500;
+                    let windowsCost = windowsCount * oneWindowPrice;
+
+                    let extraCosts = doorsCost + windowsCost;
+                    let grandTotal = baseTotal + extraCosts;
+                    
+                    let finalPriceM2 = Math.floor(grandTotal / area);
+                    let days = 30 + Math.floor(area / 50) + (windowsCount > 10 ? 5 : 0);
+
+            // Вывод
+                    totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
+                    resAreaEl.textContent = area;
+                    resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
+                    resTimeEl.textContent = days;
+                    resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
+                    
+            // ОБНОВЛЯЕМ 3D МОДЕЛЬ
+                    update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
+                }
+
+        // Слушатели событий
+                widthInput.addEventListener('input', calculate);
+                lengthInput.addEventListener('input', calculate);
+                heightInput.addEventListener('input', calculate);
+                thicknessInput.addEventListener('input', calculate);
+                windowsInput.addEventListener('input', calculate);
+                typeInputs.forEach(radio => radio.addEventListener('change', calculate));
+                
+                doorFrontSelect.addEventListener('change', calculate);
+                doorRearSelect.addEventListener('change', calculate);
+
+        // Инициализация 3D
+                init3D();
+                
+        // Первый запуск
+                calculate();
+            }
+
+    // Запуск при загрузке
+            document.addEventListener('DOMContentLoaded', initCalculator);
             
-            // Обновляем График
-            updatePricingChart(grandTotal);
+        // ==========================================
+        // ПЛАВНАЯ ПРОКРУТКА К ЯКОРЯМ
+        // ==========================================
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
 
-            // Синхронизация с формой
-            if (formL) formL.value = l;
-            if (formW) formW.value = w;
-            if (formH) formH.value = h;
-        }
+        // ==========================================
+        // ГРАФИК 1: ПРЕИМУЩЕСТВА СЭНДВИЧ-ПАНЕЛЕЙ
+        // ==========================================
+            const advantagesCtx = document.getElementById('advantagesChart').getContext('2d');
+            new Chart(advantagesCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Теплоизоляция', 'Скорость монтажа', 'Долговечность', 'Экономичность', 'Экологичность', 'Огнестойкость'],
+                    datasets: [{
+                        label: 'Сэндвич-панели MKL',
+                        data: [95, 90, 85, 88, 80, 92],
+                        backgroundColor: 'rgba(0, 121, 107, 0.2)',
+                        borderColor: '#00796B',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#00796B'
+                    }, {
+                        label: 'Традиционные материалы',
+                        data: [70, 50, 75, 60, 70, 65],
+                        backgroundColor: 'rgba(13, 71, 161, 0.1)',
+                        borderColor: '#0D47A1',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#0D47A1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Сравнительный анализ характеристик (оценка по 100-балльной шкале)',
+                            font: { size: 16, weight: '600' },
+                            color: '#212121'
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { stepSize: 20 }
+                        }
+                    }
+                }
+            });
 
-        widthInput.addEventListener('input', calculate);
-        lengthInput.addEventListener('input', calculate);
-        heightInput.addEventListener('input', calculate);
-        thicknessInput.addEventListener('input', calculate);
-        windowsInput.addEventListener('input', calculate);
-        typeInputs.forEach(radio => radio.addEventListener('change', calculate));
-        doorFrontSelect.addEventListener('change', calculate);
-        doorRearSelect.addEventListener('change', calculate);
+        // ==========================================
+        // ГРАФИК 2: СТРУКТУРА ЦЕНООБРАЗОВАНИЯ
+        // ==========================================
+            const pricingCtx = document.getElementById('pricingChart').getContext('2d');
+            new Chart(pricingCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Материалы', 'Монтажные работы', 'Доставка', 'Проектирование', 'Накладные расходы'],
+                    datasets: [{
+                        data: [45, 30, 10, 8, 7],
+                        backgroundColor: [
+                            '#0D47A1',
+                            '#00796B',
+                            '#EF6C00',
+                            '#B0BEC5',
+                            '#546E7A'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Структура стоимости проекта (в % от общей суммы)',
+                            font: { size: 16, weight: '600' },
+                            color: '#212121'
+                        },
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
 
-        init3D();
-        calculate();
-    }
+        // ==========================================
+        // ГРАФИК 3: ВРЕМЕННАЯ ШКАЛА ПРОЕКТА
+        // ==========================================
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            new Chart(timelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Консультация', 'Проектирование', 'Производство', 'Доставка', 'Монтаж', 'Сдача'],
+                    datasets: [{
+                        label: 'Продолжительность (дни)',
+                        data: [1, 5, 14, 2, 30, 1],
+                        backgroundColor: [
+                            '#0D47A1',
+                            '#0D47A1',
+                            '#00796B',
+                            '#00796B',
+                            '#EF6C00',
+                            '#EF6C00'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Типовой график реализации проекта площадью 500 м²',
+                            font: { size: 16, weight: '600' },
+                            color: '#212121'
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Дни'
+                            }
+                        }
+                    }
+                }
+            });
 
-    document.addEventListener('DOMContentLoaded', initCalculator);
+        // ==========================================
+        // ГРАФИК 4: ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ
+        // ==========================================
+            const specificationCtx = document.getElementById('specificationChart').getContext('2d');
+            new Chart(specificationCtx, {
+                type: 'line',
+                data: {
+                    labels: ['50 мм', '80 мм', '100 мм', '120 мм', '150 мм', '200 мм', '250 мм'],
+                    datasets: [{
+                        label: 'Термическое сопротивление R (м²·°C/Вт)',
+                        data: [1.2, 2.0, 2.5, 3.0, 3.8, 5.0, 6.3],
+                        borderColor: '#00796B',
+                        backgroundColor: 'rgba(0, 121, 107, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#00796B'
+                    }, {
+                        label: 'Стоимость за м² (тыс. руб.)',
+                        data: [2.5, 3.2, 3.8, 4.5, 5.5, 6.8, 8.2],
+                        borderColor: '#EF6C00',
+                        backgroundColor: 'rgba(239, 108, 0, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#EF6C00'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Зависимость теплоизоляции и стоимости от толщины сэндвич-панели',
+                            font: { size: 16, weight: '600' },
+                            color: '#212121'
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Толщина панели'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
 
+        // ==========================================
+        // ГРАФИК 5: РАСПРЕДЕЛЕНИЕ ПРОЕКТОВ ПО РЕГИОНАМ
+        // ==========================================
+            const regionCtx = document.getElementById('regionChart').getContext('2d');
+            new Chart(regionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Центральный ФО', 'Северо-Западный ФО', 'Приволжский ФО', 'Южный ФО', 'Уральский ФО'],
+                    datasets: [{
+                        label: '2023',
+                        data: [85, 45, 62, 38, 25],
+                        backgroundColor: '#0D47A1',
+                        borderWidth: 0
+                    }, {
+                        label: '2024',
+                        data: [102, 58, 75, 48, 32],
+                        backgroundColor: '#00796B',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Количество реализованных проектов по федеральным округам',
+                            font: { size: 16, weight: '600' },
+                            color: '#212121'
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Количество проектов'
+                            }
+                        }
+                    }
+                }
+            });
 
-    // ==========================================
-    // 5. ОСТАЛЬНЫЕ СКРИПТЫ (Якоря, Chart.js, Меню)
-    // ==========================================
-    
-    // Плавная прокрутка
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // ==========================================
+        // АНИМАЦИЯ ПРИ СКРОЛЛЕ
+        // ==========================================
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(section);
+            });
+
+        // ==========================================
+        // CONSOLE LOG
+        // ==========================================
+            console.log('%c🏗️ MKL - Быстровозводимые Здания', 'color: #0D47A1; font-size: 20px; font-weight: bold;');
+            console.log('%c10+ лет опыта | 500+ проектов | 5 лет гарантии', 'color: #00796B; font-size: 14px;');
+            console.log('%cСвязаться: grishats@mail.ru | https://t.me/MKLcompany', 'color: #546E7A; font-size: 12px;');
+// ==========================================
+        // УМНАЯ ШАПКА ДЛЯ МОБИЛЬНЫХ
+        // ==========================================
+            let lastScrollTop = 0;
+            const navBar = document.querySelector('.navigation');
+        const scrollThreshold = 5; // Чувствительность к скроллу (чтобы не дёргалось от 1 пикселя)
+
+        window.addEventListener('scroll', function() {
+            // Проверяем ширину экрана. Если больше 768px (ПК), ничего не делаем
+            if (window.innerWidth > 768) {
+                navBar.classList.remove('nav-hidden');
+                return;
             }
-        });
-    });
 
-    // Обычные графики (Chart.js)
-    const advantagesCtx = document.getElementById('advantagesChart').getContext('2d');
-    new Chart(advantagesCtx, {
-        type: 'radar',
-        data: {
-            labels: ['Теплоизоляция', 'Скорость монтажа', 'Долговечность', 'Экономичность', 'Экологичность', 'Огнестойкость'],
-            datasets: [{
-                label: 'Сэндвич-панели MKL',
-                data: [95, 90, 85, 88, 80, 92],
-                backgroundColor: 'rgba(0, 121, 107, 0.2)',
-                borderColor: '#00796B',
-                borderWidth: 2,
-                pointBackgroundColor: '#00796B'
-            }, {
-                label: 'Традиционные материалы',
-                data: [70, 50, 75, 60, 70, 65],
-                backgroundColor: 'rgba(13, 71, 161, 0.1)',
-                borderColor: '#0D47A1',
-                borderWidth: 2,
-                pointBackgroundColor: '#0D47A1'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: true, text: 'Сравнительный анализ характеристик', font: { size: 16, weight: '600' }, color: '#212121' },
-                legend: { position: 'bottom' }
-            },
-            scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } }
-        }
-    });
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-    const timelineCtx = document.getElementById('timelineChart').getContext('2d');
-    new Chart(timelineCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Консультация', 'Проектирование', 'Производство', 'Доставка', 'Монтаж', 'Сдача'],
-            datasets: [{
-                label: 'Продолжительность (дни)',
-                data: [1, 5, 14, 2, 30, 1],
-                backgroundColor: ['#0D47A1', '#0D47A1', '#00796B', '#00796B', '#EF6C00', '#EF6C00'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
-            plugins: {
-                title: { display: true, text: 'Типовой график реализации проекта', font: { size: 16, weight: '600' }, color: '#212121' },
-                legend: { display: false }
-            },
-            scales: { x: { beginAtZero: true, title: { display: true, text: 'Дни' } } }
-        }
-    });
-
-    const specificationCtx = document.getElementById('specificationChart').getContext('2d');
-    new Chart(specificationCtx, {
-        type: 'line',
-        data: {
-            labels: ['50 мм', '80 мм', '100 мм', '120 мм', '150 мм', '200 мм', '250 мм'],
-            datasets: [{
-                label: 'Термическое сопротивление R',
-                data: [1.2, 2.0, 2.5, 3.0, 3.8, 5.0, 6.3],
-                borderColor: '#00796B',
-                backgroundColor: 'rgba(0, 121, 107, 0.1)',
-                tension: 0.4,
-                fill: true,
-                borderWidth: 3,
-                pointRadius: 5,
-                pointBackgroundColor: '#00796B'
-            }, {
-                label: 'Стоимость за м² (тыс. руб.)',
-                data: [2.5, 3.2, 3.8, 4.5, 5.5, 6.8, 8.2],
-                borderColor: '#EF6C00',
-                backgroundColor: 'rgba(239, 108, 0, 0.1)',
-                tension: 0.4,
-                fill: true,
-                borderWidth: 3,
-                pointRadius: 5,
-                pointBackgroundColor: '#EF6C00'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: true, text: 'Зависимость теплоизоляции и стоимости', font: { size: 16, weight: '600' }, color: '#212121' },
-                legend: { position: 'bottom' }
-            },
-            scales: { y: { beginAtZero: true } }
-        }
-    });
-
-    const regionCtx = document.getElementById('regionChart').getContext('2d');
-    new Chart(regionCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Центральный ФО', 'Северо-Западный ФО', 'Приволжский ФО', 'Южный ФО', 'Уральский ФО'],
-            datasets: [{
-                label: '2023',
-                data: [85, 45, 62, 38, 25],
-                backgroundColor: '#0D47A1',
-                borderWidth: 0
-            }, {
-                label: '2024',
-                data: [102, 58, 75, 48, 32],
-                backgroundColor: '#00796B',
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: true, text: 'Количество проектов по регионам', font: { size: 16, weight: '600' }, color: '#212121' },
-                legend: { position: 'bottom' }
-            },
-            scales: { y: { beginAtZero: true } }
-        }
-    });
-
-    // Анимация скролла
-    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+            // Защита от отрицательного скролла (например, при оттягивании страницы вверх на iPhone)
+            if (scrollTop < 0) {
+                scrollTop = 0;
             }
-        });
-    }, observerOptions);
 
-    document.querySelectorAll('.section').forEach(section => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(20px)';
-        section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(section);
-    });
+            // Логика скрытия/показа
+            if (Math.abs(lastScrollTop - scrollTop) <= scrollThreshold) {
+                return; // Если прокрутили совсем чуть-чуть, ничего не делаем
+            }
 
-    // Умная шапка
-    let lastScrollTop = 0;
-    const navBar = document.querySelector('.navigation');
-    const scrollThreshold = 5;
+            if (scrollTop > lastScrollTop && scrollTop > 60) {
+                // Если крутим ВНИЗ и мы не в самом верху страницы -> СКРЫВАЕМ
+                navBar.classList.add('nav-hidden');
+            } else {
+                // Если крутим ВВЕРХ -> ПОКАЗЫВАЕМ
+                navBar.classList.remove('nav-hidden');
+            }
 
-    window.addEventListener('scroll', function() {
-        if (window.innerWidth > 768) {
-            navBar.classList.remove('nav-hidden');
-            return;
-        }
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (scrollTop < 0) scrollTop = 0;
-        if (Math.abs(lastScrollTop - scrollTop) <= scrollThreshold) return;
-        if (scrollTop > lastScrollTop && scrollTop > 60) {
-            navBar.classList.add('nav-hidden');
-        } else {
-            navBar.classList.remove('nav-hidden');
-        }
-        lastScrollTop = scrollTop;
-    }, { passive: true });
-
-    console.log('%c🏗️ MKL - Ready', 'color: #0D47A1; font-weight: bold;');
-</script>
+            lastScrollTop = scrollTop;
+        }, { passive: true }); // passive: true улучшает производительность скролла на мобильных
+    </script>
 
     <!-- THREE.JS БИБЛИОТЕКА -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <!-- ============================================
-     COOKIE БАННЕР (КОМПАКТНЫЙ)
+     COOKIE БАННЕР
      ============================================ -->
      <div id="cookieBanner" class="cookie-banner">
         <h3>🍪 Файлы cookie</h3>
         <p>Сайт использует cookie для корректной работы и сбора статистики. 
-         Нажатие «Принять» подтверждает согласие с   
-         <a href="/policy.html" target="_blank">Политике обработки данных</a>.
+   Нажатие «Принять» подтверждает согласие с   
+         <a href="/policy.html" target="_blank">Политикой обработки данных</a>.
      </p>
      <div class="cookie-buttons">
         <button class="cookie-btn accept" onclick="acceptCookies()">Принять</button>
