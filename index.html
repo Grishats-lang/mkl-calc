@@ -2600,109 +2600,80 @@ input:checked + .cookie-slider:before {
             }
 
     // ==========================================
-    // ЛОГИКА КАЛЬКУЛЯТОРА
-    // ==========================================
-    // ==========================================
-    // НОВАЯ ФУНКЦИЯ ДЛЯ 3D ДИАГРАММЫ (HIGHCHARTS)
-    // ==========================================
-            let pricingChartInstance = null;
-
-            function updatePricingChart(totalPrice) {
-        // Распределение процентов (как было в старом графике)
-        // Материалы: 45%, Монтаж: 30%, Доставка: 10%, Проект: 8%, Накладные: 7%
-                const distribution = {
-                    materials: Math.round(totalPrice * 0.45),
-                    montage: Math.round(totalPrice * 0.30),
-                    delivery: Math.round(totalPrice * 0.10),
-                    design: Math.round(totalPrice * 0.08),
-                    overhead: Math.round(totalPrice * 0.07)
-                };
-
-                const dataSeries = [
-                    ['Материалы (45%)', distribution.materials],
-                    ['Монтажные работы (30%)', distribution.montage],
-                    ['Доставка (10%)', distribution.delivery],
-                    ['Проектирование (8%)', distribution.design],
-                    ['Накладные расходы (7%)', distribution.overhead]
-                ];
-
-        // Форматтер для красивых пробелов в числах (1 000 000)
-                const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
-
-                if (pricingChartInstance) {
-            // Если график уже есть, просто обновляем данные с анимацией
-                    pricingChartInstance.series[0].setData(dataSeries, true);
-                    pricingChartInstance.setTitle({ text: `Общая смета: ${formatRub(totalPrice)} ₽` });
-                } else {
-            // Инициализация графика (создается 1 раз)
-                    pricingChartInstance = Highcharts.chart('pricingChart3D', {
-                        chart: {
-                            type: 'pie',
-                            options3d: {
-                                enabled: true,
-                                alpha: 45,
-                                beta: 0
-                            },
-                            backgroundColor: 'transparent',
-                            style: {
-                                fontFamily: "'Inter', sans-serif"
-                            }
-                        },
-                        title: {
-                            text: `Общая смета: ${formatRub(totalPrice)} ₽`,
-                            style: {
-                                color: '#212121',
-                                fontSize: '20px',
-                                fontWeight: 'bold'
-                            }
-                        },
-                        subtitle: {
-                            text: 'Интерактивная структура стоимости (наведите для деталей)',
-                            style: { color: '#546E7A' }
-                        },
-                        tooltip: {
-                            pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>'
-                        },
-                        accessibility: {
-                            point: {
-                                valueSuffix: '₽'
-                            }
-                        },
-                        plotOptions: {
-                            pie: {
-                                allowPointSelect: true,
-                                cursor: 'pointer',
-                        depth: 45, // Глубина 3D эффекта
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.y:,.0f} ₽',
-                            style: {
-                                fontSize: '12px',
-                                color: '#212121',
-                                textOutline: 'none'
-                            },
-                            connectorColor: '#CFD8DC'
-                        },
-                        colors: [
-                            '#0D47A1', // Материалы (Синий)
-                            '#00796B', // Монтаж (Бирюзовый)
-                            '#EF6C00', // Доставка (Оранжевый)
-                            '#B0BEC5', // Проект (Светло-серый)
-                            '#546E7A'  // Накладные (Серо-синий)
-                        ]
-                    }
-                },
-                series: [{
-                    type: 'pie',
-                    name: 'Стоимость',
-                    data: dataSeries
-                }],
-                credits: {
-                    enabled: false // Убираем логотип Highcharts
-                }
-            });
-                }
+        // БЕЗОПАСНАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ ДИАГРАММЫ
+        // ==========================================
+        let pricingChartInstance = null;
+    
+        function updatePricingChart(totalPrice) {
+            // 1. ЗАЩИТА: Проверяем, загрузилась ли библиотека
+            if (typeof Highcharts === 'undefined') {
+                console.warn('Highcharts еще загружается, пропускаем отрисовку...');
+                return; // Выходим из функции, чтобы не было ошибки
             }
+    
+            // 2. ЗАЩИТА: Проверяем, существует ли контейнер в HTML
+            const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
+            if (!chartContainer) {
+                 console.warn('Контейнер для графика не найден');
+                 return;
+            }
+    
+            const distribution = {
+                materials: Math.round(totalPrice * 0.45),
+                montage: Math.round(totalPrice * 0.30),
+                delivery: Math.round(totalPrice * 0.10),
+                design: Math.round(totalPrice * 0.08),
+                overhead: Math.round(totalPrice * 0.07)
+            };
+    
+            const dataSeries = [
+                ['Материалы (45%)', distribution.materials],
+                ['Монтаж (30%)', distribution.montage],
+                ['Доставка (10%)', distribution.delivery],
+                ['Проектирование (8%)', distribution.design],
+                ['Накладные (7%)', distribution.overhead]
+            ];
+    
+            const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
+    
+            if (pricingChartInstance) {
+                pricingChartInstance.series[0].setData(dataSeries, true);
+                pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
+            } else {
+                // Используем ID контейнера, который нашли выше
+                pricingChartInstance = Highcharts.chart(chartContainer.id, {
+                    chart: {
+                        type: 'pie',
+                        options3d: { enabled: true, alpha: 45, beta: 0 },
+                        backgroundColor: 'transparent',
+                        style: { fontFamily: "'Inter', sans-serif" }
+                    },
+                    title: {
+                        text: `Итого: ${formatRub(totalPrice)} ₽`,
+                        style: { fontSize: '20px', fontWeight: 'bold', color: '#212121' }
+                    },
+                    tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            depth: 45,
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
+                            },
+                            colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
+                        }
+                    },
+                    series: [{
+                        type: 'pie',
+                        name: 'Сумма',
+                        data: dataSeries
+                    }],
+                    credits: { enabled: false }
+                });
+            }
+        }
 
             function initCalculator() {
                 const widthInput = document.getElementById('input-width');
@@ -3177,10 +3148,6 @@ input:checked + .cookie-slider:before {
         </div>
     </div>
 </div>
-<script>
-console.log('Highcharts loaded:', typeof Highcharts !== 'undefined');
-console.log('Container exists:', !!document.getElementById('pricingChart3D'));
-</script>
-    
+
 </body>
 </html>
