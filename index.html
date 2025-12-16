@@ -136,6 +136,7 @@
 
     <!-- Highcharts (Local) -->
     <script src="js/highcharts.js"></script>
+    <script src="js/highcharts-more.js"></script>
     <script src="js/highcharts-3d.js"></script>
     <script src="js/exporting.js"></script>
     <script src="js/accessibility.js"></script>
@@ -1638,7 +1639,7 @@ input:checked + .cookie-slider:before {
     </div>
 
     <div class="chart-container">
-        <canvas id="advantagesChart"></canvas>
+        <div id="advantagesHighchart" style="width: 100%; height: 100%;"></div>
     </div>
 </section>
 
@@ -2086,7 +2087,7 @@ input:checked + .cookie-slider:before {
     </div>
 
     <div class="chart-container">
-        <canvas id="specificationChart"></canvas>
+        <div id="specificationHighchart" style="width: 100%; height: 100%;"></div>
     </div>
 </section>
 
@@ -2125,9 +2126,9 @@ input:checked + .cookie-slider:before {
         Стоимость доставки рассчитывается индивидуально и включается в общую смету проекта.
     </div>
 
-    <h3>Статистика по регионам (2023-2024)</h3>
-    <div class="chart-container">
-        <canvas id="regionChart"></canvas>
+    <h3>Статистика по регионам (2023-2025)</h3>
+    <div class="chart-container" style="height: 600px;">
+        <div id="regionHighchart" style="width: 100%; height: 100%;"></div>
     </div>
 </section>
 
@@ -2984,193 +2985,433 @@ input:checked + .cookie-slider:before {
                 });
             });
 
-        // ==========================================
-        // ГРАФИК 1: ПРЕИМУЩЕСТВА СЭНДВИЧ-ПАНЕЛЕЙ
-        // ==========================================
-            const advantagesCtx = document.getElementById('advantagesChart').getContext('2d');
-            new Chart(advantagesCtx, {
-                type: 'radar',
-                data: {
-                    labels: ['Теплоизоляция', 'Скорость монтажа', 'Долговечность', 'Экономичность', 'Экологичность', 'Огнестойкость'],
-                    datasets: [{
-                        label: 'Сэндвич-панели MKL',
+            // ==========================================
+            // ГРАФИК 1: ПРЕИМУЩЕСТВА (HIGHCHARTS RADAR)
+            // ==========================================
+            // Требует подключения js/highcharts-more.js
+            document.addEventListener('DOMContentLoaded', function() {
+                Highcharts.chart('advantagesHighchart', {
+                    chart: {
+                        polar: true, // Включает режим "Паутины"
+                        type: 'line',
+                        backgroundColor: 'transparent',
+                        style: {
+                            fontFamily: "'Inter', sans-serif"
+                        }
+                    },
+                    title: {
+                        text: 'Сравнительный анализ характеристик',
+                        style: {
+                            fontSize: '18px',
+                            fontWeight: '600',
+                            color: '#212121'
+                        }
+                    },
+                    subtitle: {
+                        text: 'Оценка по 100-балльной шкале',
+                        style: {
+                            color: '#546E7A'
+                        }
+                    },
+                    pane: {
+                        size: '80%' // Размер паутины внутри контейнера
+                    },
+                    xAxis: {
+                        categories: [
+                            'Теплоизоляция', 
+                            'Скорость монтажа', 
+                            'Долговечность', 
+                            'Экономичность', 
+                            'Экологичность', 
+                            'Огнестойкость'
+                        ],
+                        tickmarkPlacement: 'on',
+                        lineWidth: 0,
+                        labels: {
+                            style: {
+                                color: '#212121',
+                                fontWeight: '500'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        gridLineInterpolation: 'polygon', // Делает сетку угловатой (как паутина), а не круглой
+                        lineWidth: 0,
+                        min: 0,
+                        max: 100,
+                        tickInterval: 20
+                    },
+                    tooltip: {
+                        shared: true,
+                        pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}</b><br/>'
+                    },
+                    legend: {
+                        align: 'center',
+                        verticalAlign: 'bottom',
+                        layout: 'horizontal'
+                    },
+                    series: [{
+                        name: 'Сэндвич-панели MKL',
                         data: [95, 90, 85, 88, 80, 92],
-                        backgroundColor: 'rgba(0, 121, 107, 0.2)',
-                        borderColor: '#00796B',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#00796B'
+                        color: '#00796B', // Ваш accent-teal
+                        pointPlacement: 'on',
+                        lineWidth: 2,
+                        marker: {
+                            enabled: true,
+                            symbol: 'circle',
+                            radius: 4
+                        },
+                        fillColor: 'rgba(0, 121, 107, 0.2)',
+                        type: 'area' // Делаем заливку области
                     }, {
-                        label: 'Традиционные материалы',
+                        name: 'Традиционные материалы',
                         data: [70, 50, 75, 60, 70, 65],
-                        backgroundColor: 'rgba(13, 71, 161, 0.1)',
-                        borderColor: '#0D47A1',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#0D47A1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Сравнительный анализ характеристик (оценка по 100-балльной шкале)',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
+                        color: '#0D47A1', // Ваш primary-blue
+                        pointPlacement: 'on',
+                        lineWidth: 1,
+                        dashStyle: 'LongDash', // Пунктирная линия для сравнения
+                        marker: {
+                            enabled: true,
+                            symbol: 'diamond',
+                            radius: 3
                         },
-                        legend: {
-                            position: 'bottom'
-                        }
+                        fillColor: 'rgba(13, 71, 161, 0.1)',
+                        type: 'area'
+                    }],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 500
+                            },
+                            chartOptions: {
+                                pane: {
+                                    size: '65%' // Уменьшаем паутину на мобильных, чтобы влезли подписи
+                                },
+                                legend: {
+                                    itemStyle: {
+                                        fontSize: '10px'
+                                    }
+                                },
+                                xAxis: {
+                                    labels: {
+                                        style: {
+                                            fontSize: '10px' // Уменьшаем шрифт подписей осей
+                                        },
+                                        distance: 10 // Прижимаем подписи ближе к графику
+                                    }
+                                }
+                            }
+                        }]
                     },
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { stepSize: 20 }
-                        }
+                    credits: {
+                        enabled: false
                     }
-                }
-            });
+                });
+});
 
         // ==========================================
-        // ГРАФИК 4: ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ
+        // ГРАФИК 4: ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ (HIGHCHARTS DUAL AXIS)
         // ==========================================
-            const specificationCtx = document.getElementById('specificationChart').getContext('2d');
-            new Chart(specificationCtx, {
-                type: 'line',
-                data: {
-                    labels: ['50 мм', '80 мм', '100 мм', '120 мм', '150 мм', '200 мм', '250 мм'],
-                    datasets: [{
-                        label: 'Термическое сопротивление R (м²·°C/Вт)',
-                        data: [1.2, 2.0, 2.5, 3.0, 3.8, 5.0, 6.3],
-                        borderColor: '#00796B',
-                        backgroundColor: 'rgba(0, 121, 107, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#00796B'
-                    }, {
-                        label: 'Стоимость за м² (тыс. руб.)',
-                        data: [2.5, 3.2, 3.8, 4.5, 5.5, 6.8, 8.2],
-                        borderColor: '#EF6C00',
-                        backgroundColor: 'rgba(239, 108, 0, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#EF6C00'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Зависимость теплоизоляции и стоимости от толщины сэндвич-панели',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
-                        },
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Толщина панели'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Данные (приближенные к реальности)
+            const thicknesses = ['50 мм', '80 мм', '100 мм', '120 мм', '150 мм', '200 мм', '250 мм'];
+            const rValues = [1.2, 2.1, 2.6, 3.2, 3.9, 5.2, 6.4]; // Теплосопротивление
+            const prices = [2500, 3200, 3800, 4500, 5500, 6800, 8200]; // Цена руб/м2
+            
+            // Дополнительные данные для тултипа (какой мороз выдержит комфортно)
+            const tempLimit = ['-5°C (Юг)', '-15°C', '-25°C (Центр)', '-30°C', '-40°C (Сибирь)', '-55°C (Север)', '-65°C (Арктика)'];
 
-        // ==========================================
-        // ГРАФИК 5: РАСПРЕДЕЛЕНИЕ ПРОЕКТОВ ПО РЕГИОНАМ
-        // ==========================================
-            const regionCtx = document.getElementById('regionChart').getContext('2d');
-            new Chart(regionCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Центральный ФО', 'Северо-Западный ФО', 'Приволжский ФО', 'Южный ФО', 'Уральский ФО'],
-                    datasets: [{
-                        label: '2023',
-                        data: [85, 45, 62, 38, 25],
-                        backgroundColor: '#0D47A1',
-                        borderWidth: 0
-                    }, {
-                        label: '2024',
-                        data: [102, 58, 75, 48, 32],
-                        backgroundColor: '#00796B',
-                        borderWidth: 0
+            Highcharts.chart('specificationHighchart', {
+                chart: {
+                    zoomType: 'xy',
+                    backgroundColor: 'transparent',
+                    style: { fontFamily: "'Inter', sans-serif" }
+                },
+                title: {
+                    text: 'Баланс Цены и Энергоэффективности',
+                    align: 'left',
+                    style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+                },
+                subtitle: {
+                    text: 'Сравнение стоимости панелей и их теплоизоляционных свойств (R)',
+                    align: 'left',
+                    style: { color: '#546E7A' }
+                },
+                xAxis: {
+                    categories: thicknesses,
+                    crosshair: true,
+                    plotBands: [{ // Подсветка "Золотой середины"
+                        from: 1.5,
+                        to: 4.5,
+                        color: 'rgba(0, 121, 107, 0.05)',
+                        label: {
+                            text: 'Оптимальный выбор для ЦФО',
+                            style: { color: '#00796B', fontWeight: 'bold' },
+                            y: 20
+                        }
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Количество реализованных проектов по федеральным округам',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
-                        },
-                        legend: {
-                            position: 'bottom'
+                yAxis: [{ // ПЕРВАЯ ОСЬ (Цена) - СЛЕВА
+                    labels: {
+                        format: '{value} ₽',
+                        style: { color: '#EF6C00' }
+                    },
+                    title: {
+                        text: 'Стоимость за м²',
+                        style: { color: '#EF6C00', fontWeight: '600' }
+                    }
+                }, { // ВТОРАЯ ОСЬ (Тепло) - СПРАВА
+                    title: {
+                        text: 'Коэф. R (м²·°C/Вт)',
+                        style: { color: '#0D47A1', fontWeight: '600' }
+                    },
+                    labels: {
+                        format: '{value} R',
+                        style: { color: '#0D47A1' }
+                    },
+                    opposite: true // Ставит ось справа
+                }],
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: '#CFD8DC',
+                    borderRadius: 8,
+                    shadow: true,
+                    // Кастомный HTML тултип
+                    formatter: function () {
+                        // Получаем индекс текущей точки
+                        let index = this.points[0].point.index; 
+                        let rec = tempLimit[index];
+                        
+                        let s = `<div style="padding: 5px; min-width: 200px;">
+                                 <strong style="font-size: 14px; color: #212121;">Панель ${this.x}</strong><br/>
+                                 <span style="font-size: 11px; color: #546E7A;">Регион: ${rec}</span>
+                                 <hr style="margin: 8px 0; border: 0; border-top: 1px solid #eee;">`;
+                        
+                        this.points.forEach(function (point) {
+                            s += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span style="color: ${point.series.color}">● ${point.series.name}:</span>
+                                    <span style="font-weight: bold">${point.y} ${point.series.name === 'Стоимость' ? '₽' : ''}</span>
+                                  </div>`;
+                        });
+                        
+                        // Добавляем "вердикт"
+                        if (index >= 2 && index <= 4) {
+                             s += `<div style="margin-top: 8px; font-size: 11px; color: #00796B; font-weight: 600;">✅ Рекомендовано МК-Л</div>`;
+                        }
+                        
+                        s += '</div>';
+                        return s;
+                    }
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom',
+                    backgroundColor: 'transparent'
+                },
+                series: [{
+                    name: 'Стоимость',
+                    type: 'column',
+                    yAxis: 0, // Привязка к левой оси
+                    data: prices,
+                    color: '#EF6C00', // Оранжевый (Акцент)
+                    tooltip: { valueSuffix: ' ₽' },
+                    borderRadius: 3
+                }, {
+                    name: 'Теплосопротивление (R)',
+                    type: 'spline',
+                    yAxis: 1, // Привязка к правой оси
+                    data: rValues,
+                    color: '#0D47A1', // Синий (Основной)
+                    marker: {
+                        lineWidth: 2,
+                        lineColor: '#0D47A1',
+                        fillColor: 'white'
+                    },
+                    tooltip: { valueSuffix: ' м²·°C/Вт' },
+                    dashStyle: 'ShortDot',
+                    lineWidth: 3
+                }],
+                responsive: {
+                    rules: [{
+                        condition: { maxWidth: 500 },
+                        chartOptions: {
+                            legend: { itemStyle: { fontSize: '10px' } },
+                            yAxis: [{ labels: { style: { fontSize: '10px' } }, title: { text: null } },
+                                    { labels: { style: { fontSize: '10px' } }, title: { text: null } }]
+                        }
+                    }]
+                },
+                credits: { enabled: false }
+            });
+        });
+
+    // ==========================================
+    // ГРАФИК 5: РЕГИОНЫ (HIGHCHARTS BASIC BAR)
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        Highcharts.chart('regionHighchart', {
+            chart: {
+                type: 'bar', // Горизонтальные полосы
+                backgroundColor: 'transparent',
+                style: { fontFamily: "'Inter', sans-serif" }
+            },
+            title: {
+                text: 'География строительства',
+                align: 'left',
+                style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+            },
+            xAxis: {
+                categories: [
+                    'Центральный ФО', 
+                    'Северо-Западный ФО', 
+                    'Приволжский ФО', 
+                    'Южный ФО', 
+                    'Уральский ФО'
+                ],
+                title: { text: null },
+                gridLineWidth: 0,
+                labels: {
+                    style: {
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: '#212121'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Количество проектов',
+                    align: 'high',
+                    style: { color: '#546E7A' }
+                },
+                labels: {
+                    overflow: 'justify'
+                },
+                gridLineColor: '#eee'
+            },
+            tooltip: {
+                shared: true, // Показывает все годы в одной плашке
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#CFD8DC',
+                borderRadius: 8,
+                shadow: true,
+                valueSuffix: ' шт.'
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        enabled: true, // Показываем цифры прямо на полосках
+                        style: {
+                            fontWeight: '500',
+                            fontSize: '11px',
+                            textOutline: 'none' // Убираем обводку текста для чистоты
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Количество проектов'
+                    borderRadius: 4, // Скругленные концы полосок
+                    pointPadding: 0.1, 
+                    groupPadding: 0.15
+                },
+                series: {
+                    cursor: 'pointer',
+                    // Настройка анимации при отключении
+                    animation: {
+                        duration: 500
+                    }
+                }
+            },
+            legend: {
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom',
+                margin: 30, 
+                itemStyle: { 
+                    fontSize: '14px', 
+                    fontWeight: '500', 
+                    color: '#212121',
+                    cursor: 'pointer'
+                },
+                itemHoverStyle: {
+                    color: '#EF6C00'
+                }
+            },
+            credits: { enabled: false },
+            series: [{
+                name: '2023',
+                data: [35, 18, 14, 10, 5],
+                color: '#B0BEC5', // Серый (прошлое) - для контраста
+                dataLabels: { color: '#455A64' }
+            }, {
+                name: '2024',
+                data: [42, 24, 18, 12, 7],
+                color: '#00796B', // Бирюзовый (недавнее)
+                dataLabels: { color: '#ffffff' } // Белый текст на темном фоне
+            }, {
+                name: '2025 (План)',
+                data: [48, 28, 22, 15, 10],
+                color: '#EF6C00', // Оранжевый (актуальное)
+                dataLabels: { color: '#ffffff' }
+            }],
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 500
+                    },
+                    chartOptions: {
+                        chart: { height: 400 }, // Чуть выше на мобильном
+                        legend: {
+                            itemStyle: { fontSize: '12px' }
+                        },
+                        xAxis: {
+                            labels: {
+                                style: { fontSize: '11px' }
                             }
                         }
                     }
-                }
-            });
+                }]
+            }
+        });
+    });
 
         // ==========================================
         // АНИМАЦИЯ ПРИ СКРОЛЛЕ
         // ==========================================
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
 
-            document.querySelectorAll('.section').forEach(section => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                observer.observe(section);
-            });
+    document.querySelectorAll('.section').forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(section);
+    });
 
         // ==========================================
         // CONSOLE LOG
         // ==========================================
-            console.log('%c🏗️ MKL - Быстровозводимые Здания', 'color: #0D47A1; font-size: 20px; font-weight: bold;');
-            console.log('%c10+ лет опыта | 500+ проектов | 5 лет гарантии', 'color: #00796B; font-size: 14px;');
-            console.log('%cСвязаться: grishats@mail.ru | https://t.me/MKLcompany', 'color: #546E7A; font-size: 12px;');
+    console.log('%c🏗️ MKL - Быстровозводимые Здания', 'color: #0D47A1; font-size: 20px; font-weight: bold;');
+    console.log('%c10+ лет опыта | 500+ проектов | 5 лет гарантии', 'color: #00796B; font-size: 14px;');
+    console.log('%cСвязаться: grishats@mail.ru | https://t.me/MKLcompany', 'color: #546E7A; font-size: 12px;');
 // ==========================================
         // УМНАЯ ШАПКА ДЛЯ МОБИЛЬНЫХ
         // ==========================================
-            let lastScrollTop = 0;
-            const navBar = document.querySelector('.navigation');
+    let lastScrollTop = 0;
+    const navBar = document.querySelector('.navigation');
         const scrollThreshold = 5; // Чувствительность к скроллу (чтобы не дёргалось от 1 пикселя)
 
         window.addEventListener('scroll', function() {
@@ -3214,10 +3455,10 @@ input:checked + .cookie-slider:before {
      <div id="cookieBanner" class="cookie-banner">
         <h3>🍪 Файлы cookie</h3>
         <p>Сайт использует cookie для корректной работы и сбора статистики. 
-           Нажатие «Принять» подтверждает согласие с   
-           <a href="/policy.html" target="_blank">Политике обработки данных</a>.
-       </p>
-       <div class="cookie-buttons">
+         Нажатие «Принять» подтверждает согласие с   
+         <a href="/policy.html" target="_blank">Политике обработки данных</a>.
+     </p>
+     <div class="cookie-buttons">
         <button class="cookie-btn accept" onclick="acceptCookies()">Принять</button>
         <button class="cookie-btn reject" onclick="rejectCookies()">Отклонить</button>
         <button class="cookie-btn settings" onclick="showCookieSettings()">Настройки</button>
