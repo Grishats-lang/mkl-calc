@@ -67,7 +67,7 @@
                     m[i].l=1*new Date();
                     for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
                         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105596286','ym');
+                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
 
                 ym(105596286, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
                 
@@ -134,6 +134,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
+    <!-- Highcharts (для красивой 3D диаграммы) -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <style>
       /* Адаптивность для таблиц */
       .table-responsive {
@@ -1874,8 +1879,9 @@ input:checked + .cookie-slider:before {
         </div>
     </div>
 
-    <div class="chart-container">
-        <canvas id="pricingChart"></canvas>
+    <!-- Контейнер для новой 3D диаграммы -->
+    <div class="chart-container" style="height: 500px; padding: 0; overflow: hidden;">
+        <div id="pricingChart3D" style="width: 100%; height: 100%;"></div>
     </div>
 
     <div class="cta-container mt-30">
@@ -2155,9 +2161,12 @@ input:checked + .cookie-slider:before {
         <div class="form-group">
             <label>Желаемые габариты (Длина х Ширина х Высота)</label>
             <div class="form-row">
-                <input type="number" name="length" class="form-input" placeholder="Длина (м)">
-                <input type="number" name="width" class="form-input" placeholder="Ширина (м)">
-                <input type="number" name="height" class="form-input" placeholder="Высота (м)">
+                <!-- Добавили id="form-length" -->
+                <input type="number" id="form-length" name="length" class="form-input" placeholder="Длина (м)">
+                <!-- Добавили id="form-width" -->
+                <input type="number" id="form-width" name="width" class="form-input" placeholder="Ширина (м)">
+                <!-- Добавили id="form-height" -->
+                <input type="number" id="form-height" name="height" class="form-input" placeholder="Высота (м)">
             </div>
         </div>
 
@@ -2284,7 +2293,9 @@ input:checked + .cookie-slider:before {
     <!-- ============================================
          JAVASCRIPT - ИНТЕРАКТИВНОСТЬ
          ============================================ -->
-         <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+         <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+
+         <script>
 // ==========================================
         // МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ (С ЛИСТАНИЕМ)
         // ==========================================
@@ -2591,6 +2602,108 @@ input:checked + .cookie-slider:before {
     // ==========================================
     // ЛОГИКА КАЛЬКУЛЯТОРА
     // ==========================================
+    // ==========================================
+    // НОВАЯ ФУНКЦИЯ ДЛЯ 3D ДИАГРАММЫ (HIGHCHARTS)
+    // ==========================================
+            let pricingChartInstance = null;
+
+            function updatePricingChart(totalPrice) {
+        // Распределение процентов (как было в старом графике)
+        // Материалы: 45%, Монтаж: 30%, Доставка: 10%, Проект: 8%, Накладные: 7%
+                const distribution = {
+                    materials: Math.round(totalPrice * 0.45),
+                    montage: Math.round(totalPrice * 0.30),
+                    delivery: Math.round(totalPrice * 0.10),
+                    design: Math.round(totalPrice * 0.08),
+                    overhead: Math.round(totalPrice * 0.07)
+                };
+
+                const dataSeries = [
+                    ['Материалы (45%)', distribution.materials],
+                    ['Монтажные работы (30%)', distribution.montage],
+                    ['Доставка (10%)', distribution.delivery],
+                    ['Проектирование (8%)', distribution.design],
+                    ['Накладные расходы (7%)', distribution.overhead]
+                ];
+
+        // Форматтер для красивых пробелов в числах (1 000 000)
+                const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
+
+                if (pricingChartInstance) {
+            // Если график уже есть, просто обновляем данные с анимацией
+                    pricingChartInstance.series[0].setData(dataSeries, true);
+                    pricingChartInstance.setTitle({ text: `Общая смета: ${formatRub(totalPrice)} ₽` });
+                } else {
+            // Инициализация графика (создается 1 раз)
+                    pricingChartInstance = Highcharts.chart('pricingChart3D', {
+                        chart: {
+                            type: 'pie',
+                            options3d: {
+                                enabled: true,
+                                alpha: 45,
+                                beta: 0
+                            },
+                            backgroundColor: 'transparent',
+                            style: {
+                                fontFamily: "'Inter', sans-serif"
+                            }
+                        },
+                        title: {
+                            text: `Общая смета: ${formatRub(totalPrice)} ₽`,
+                            style: {
+                                color: '#212121',
+                                fontSize: '20px',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        subtitle: {
+                            text: 'Интерактивная структура стоимости (наведите для деталей)',
+                            style: { color: '#546E7A' }
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>'
+                        },
+                        accessibility: {
+                            point: {
+                                valueSuffix: '₽'
+                            }
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                        depth: 45, // Глубина 3D эффекта
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y:,.0f} ₽',
+                            style: {
+                                fontSize: '12px',
+                                color: '#212121',
+                                textOutline: 'none'
+                            },
+                            connectorColor: '#CFD8DC'
+                        },
+                        colors: [
+                            '#0D47A1', // Материалы (Синий)
+                            '#00796B', // Монтаж (Бирюзовый)
+                            '#EF6C00', // Доставка (Оранжевый)
+                            '#B0BEC5', // Проект (Светло-серый)
+                            '#546E7A'  // Накладные (Серо-синий)
+                        ]
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: 'Стоимость',
+                    data: dataSeries
+                }],
+                credits: {
+                    enabled: false // Убираем логотип Highcharts
+                }
+            });
+                }
+            }
+
             function initCalculator() {
                 const widthInput = document.getElementById('input-width');
                 const lengthInput = document.getElementById('input-length');
@@ -2690,319 +2803,294 @@ input:checked + .cookie-slider:before {
                     
             // ОБНОВЛЯЕМ 3D МОДЕЛЬ
                     update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
-                }
+            // ---> ДОБАВИТЬ ВОТ ЭТУ СТРОКУ: <---
+                    updatePricingChart(grandTotal);
+
+            // === СИНХРОНИЗАЦИЯ С ФОРМОЙ ЗАЯВКИ ===
+            // Находим поля формы по ID и ставим им значения из калькулятора
+                    const formL = document.getElementById('form-length');
+                    const formW = document.getElementById('form-width');
+                    const formH = document.getElementById('form-height');
+
+            if (formL) formL.value = l; // Записываем длину
+            if (formW) formW.value = w; // Записываем ширину
+            if (formH) formH.value = h; // Записываем высоту
+        }
 
         // Слушатели событий
-                widthInput.addEventListener('input', calculate);
-                lengthInput.addEventListener('input', calculate);
-                heightInput.addEventListener('input', calculate);
-                thicknessInput.addEventListener('input', calculate);
-                windowsInput.addEventListener('input', calculate);
-                typeInputs.forEach(radio => radio.addEventListener('change', calculate));
-                
-                doorFrontSelect.addEventListener('change', calculate);
-                doorRearSelect.addEventListener('change', calculate);
+        widthInput.addEventListener('input', calculate);
+        lengthInput.addEventListener('input', calculate);
+        heightInput.addEventListener('input', calculate);
+        thicknessInput.addEventListener('input', calculate);
+        windowsInput.addEventListener('input', calculate);
+        typeInputs.forEach(radio => radio.addEventListener('change', calculate));
+        
+        doorFrontSelect.addEventListener('change', calculate);
+        doorRearSelect.addEventListener('change', calculate);
 
         // Инициализация 3D
-                init3D();
-                
+        init3D();
+        
         // Первый запуск
-                calculate();
-            }
+        calculate();
+    }
 
     // Запуск при загрузке
-            document.addEventListener('DOMContentLoaded', initCalculator);
-            
+    document.addEventListener('DOMContentLoaded', initCalculator);
+    
         // ==========================================
         // ПЛАВНАЯ ПРОКРУТКА К ЯКОРЯМ
         // ==========================================
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 });
-            });
+            }
+        });
+    });
 
         // ==========================================
         // ГРАФИК 1: ПРЕИМУЩЕСТВА СЭНДВИЧ-ПАНЕЛЕЙ
         // ==========================================
-            const advantagesCtx = document.getElementById('advantagesChart').getContext('2d');
-            new Chart(advantagesCtx, {
-                type: 'radar',
-                data: {
-                    labels: ['Теплоизоляция', 'Скорость монтажа', 'Долговечность', 'Экономичность', 'Экологичность', 'Огнестойкость'],
-                    datasets: [{
-                        label: 'Сэндвич-панели MKL',
-                        data: [95, 90, 85, 88, 80, 92],
-                        backgroundColor: 'rgba(0, 121, 107, 0.2)',
-                        borderColor: '#00796B',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#00796B'
-                    }, {
-                        label: 'Традиционные материалы',
-                        data: [70, 50, 75, 60, 70, 65],
-                        backgroundColor: 'rgba(13, 71, 161, 0.1)',
-                        borderColor: '#0D47A1',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#0D47A1'
-                    }]
+    const advantagesCtx = document.getElementById('advantagesChart').getContext('2d');
+    new Chart(advantagesCtx, {
+        type: 'radar',
+        data: {
+            labels: ['Теплоизоляция', 'Скорость монтажа', 'Долговечность', 'Экономичность', 'Экологичность', 'Огнестойкость'],
+            datasets: [{
+                label: 'Сэндвич-панели MKL',
+                data: [95, 90, 85, 88, 80, 92],
+                backgroundColor: 'rgba(0, 121, 107, 0.2)',
+                borderColor: '#00796B',
+                borderWidth: 2,
+                pointBackgroundColor: '#00796B'
+            }, {
+                label: 'Традиционные материалы',
+                data: [70, 50, 75, 60, 70, 65],
+                backgroundColor: 'rgba(13, 71, 161, 0.1)',
+                borderColor: '#0D47A1',
+                borderWidth: 2,
+                pointBackgroundColor: '#0D47A1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Сравнительный анализ характеристик (оценка по 100-балльной шкале)',
+                    font: { size: 16, weight: '600' },
+                    color: '#212121'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Сравнительный анализ характеристик (оценка по 100-балльной шкале)',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
-                        },
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { stepSize: 20 }
-                        }
-                    }
+                legend: {
+                    position: 'bottom'
                 }
-            });
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { stepSize: 20 }
+                }
+            }
+        }
+    });
 
-        // ==========================================
-        // ГРАФИК 2: СТРУКТУРА ЦЕНООБРАЗОВАНИЯ
-        // ==========================================
-            const pricingCtx = document.getElementById('pricingChart').getContext('2d');
-            new Chart(pricingCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Материалы', 'Монтажные работы', 'Доставка', 'Проектирование', 'Накладные расходы'],
-                    datasets: [{
-                        data: [45, 30, 10, 8, 7],
-                        backgroundColor: [
-                            '#0D47A1',
-                            '#00796B',
-                            '#EF6C00',
-                            '#B0BEC5',
-                            '#546E7A'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#FFFFFF'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Структура стоимости проекта (в % от общей суммы)',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
-                        },
-                        legend: {
-                            position: 'right'
-                        }
-                    }
-                }
-            });
 
         // ==========================================
         // ГРАФИК 3: ВРЕМЕННАЯ ШКАЛА ПРОЕКТА
         // ==========================================
-            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
-            new Chart(timelineCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Консультация', 'Проектирование', 'Производство', 'Доставка', 'Монтаж', 'Сдача'],
-                    datasets: [{
-                        label: 'Продолжительность (дни)',
-                        data: [1, 5, 14, 2, 30, 1],
-                        backgroundColor: [
-                            '#0D47A1',
-                            '#0D47A1',
-                            '#00796B',
-                            '#00796B',
-                            '#EF6C00',
-                            '#EF6C00'
-                        ],
-                        borderWidth: 0
-                    }]
+    const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+    new Chart(timelineCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Консультация', 'Проектирование', 'Производство', 'Доставка', 'Монтаж', 'Сдача'],
+            datasets: [{
+                label: 'Продолжительность (дни)',
+                data: [1, 5, 14, 2, 30, 1],
+                backgroundColor: [
+                    '#0D47A1',
+                    '#0D47A1',
+                    '#00796B',
+                    '#00796B',
+                    '#EF6C00',
+                    '#EF6C00'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Типовой график реализации проекта площадью 500 м²',
+                    font: { size: 16, weight: '600' },
+                    color: '#212121'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Типовой график реализации проекта площадью 500 м²',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
-                        },
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Дни'
-                            }
-                        }
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Дни'
                     }
                 }
-            });
+            }
+        }
+    });
 
         // ==========================================
         // ГРАФИК 4: ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ
         // ==========================================
-            const specificationCtx = document.getElementById('specificationChart').getContext('2d');
-            new Chart(specificationCtx, {
-                type: 'line',
-                data: {
-                    labels: ['50 мм', '80 мм', '100 мм', '120 мм', '150 мм', '200 мм', '250 мм'],
-                    datasets: [{
-                        label: 'Термическое сопротивление R (м²·°C/Вт)',
-                        data: [1.2, 2.0, 2.5, 3.0, 3.8, 5.0, 6.3],
-                        borderColor: '#00796B',
-                        backgroundColor: 'rgba(0, 121, 107, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#00796B'
-                    }, {
-                        label: 'Стоимость за м² (тыс. руб.)',
-                        data: [2.5, 3.2, 3.8, 4.5, 5.5, 6.8, 8.2],
-                        borderColor: '#EF6C00',
-                        backgroundColor: 'rgba(239, 108, 0, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#EF6C00'
-                    }]
+    const specificationCtx = document.getElementById('specificationChart').getContext('2d');
+    new Chart(specificationCtx, {
+        type: 'line',
+        data: {
+            labels: ['50 мм', '80 мм', '100 мм', '120 мм', '150 мм', '200 мм', '250 мм'],
+            datasets: [{
+                label: 'Термическое сопротивление R (м²·°C/Вт)',
+                data: [1.2, 2.0, 2.5, 3.0, 3.8, 5.0, 6.3],
+                borderColor: '#00796B',
+                backgroundColor: 'rgba(0, 121, 107, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointBackgroundColor: '#00796B'
+            }, {
+                label: 'Стоимость за м² (тыс. руб.)',
+                data: [2.5, 3.2, 3.8, 4.5, 5.5, 6.8, 8.2],
+                borderColor: '#EF6C00',
+                backgroundColor: 'rgba(239, 108, 0, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointBackgroundColor: '#EF6C00'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Зависимость теплоизоляции и стоимости от толщины сэндвич-панели',
+                    font: { size: 16, weight: '600' },
+                    color: '#212121'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Зависимость теплоизоляции и стоимости от толщины сэндвич-панели',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
-                        },
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Толщина панели'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                legend: {
+                    position: 'bottom'
                 }
-            });
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Толщина панели'
+                    }
+                },
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 
         // ==========================================
         // ГРАФИК 5: РАСПРЕДЕЛЕНИЕ ПРОЕКТОВ ПО РЕГИОНАМ
         // ==========================================
-            const regionCtx = document.getElementById('regionChart').getContext('2d');
-            new Chart(regionCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Центральный ФО', 'Северо-Западный ФО', 'Приволжский ФО', 'Южный ФО', 'Уральский ФО'],
-                    datasets: [{
-                        label: '2023',
-                        data: [85, 45, 62, 38, 25],
-                        backgroundColor: '#0D47A1',
-                        borderWidth: 0
-                    }, {
-                        label: '2024',
-                        data: [102, 58, 75, 48, 32],
-                        backgroundColor: '#00796B',
-                        borderWidth: 0
-                    }]
+    const regionCtx = document.getElementById('regionChart').getContext('2d');
+    new Chart(regionCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Центральный ФО', 'Северо-Западный ФО', 'Приволжский ФО', 'Южный ФО', 'Уральский ФО'],
+            datasets: [{
+                label: '2023',
+                data: [85, 45, 62, 38, 25],
+                backgroundColor: '#0D47A1',
+                borderWidth: 0
+            }, {
+                label: '2024',
+                data: [102, 58, 75, 48, 32],
+                backgroundColor: '#00796B',
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Количество реализованных проектов по федеральным округам',
+                    font: { size: 16, weight: '600' },
+                    color: '#212121'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Количество реализованных проектов по федеральным округам',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
-                        },
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Количество проектов'
-                            }
-                        }
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Количество проектов'
                     }
                 }
-            });
+            }
+        }
+    });
 
         // ==========================================
         // АНИМАЦИЯ ПРИ СКРОЛЛЕ
         // ==========================================
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
 
-            document.querySelectorAll('.section').forEach(section => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                observer.observe(section);
-            });
+    document.querySelectorAll('.section').forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(section);
+    });
 
         // ==========================================
         // CONSOLE LOG
         // ==========================================
-            console.log('%c🏗️ MKL - Быстровозводимые Здания', 'color: #0D47A1; font-size: 20px; font-weight: bold;');
-            console.log('%c10+ лет опыта | 500+ проектов | 5 лет гарантии', 'color: #00796B; font-size: 14px;');
-            console.log('%cСвязаться: grishats@mail.ru | https://t.me/MKLcompany', 'color: #546E7A; font-size: 12px;');
+    console.log('%c🏗️ MKL - Быстровозводимые Здания', 'color: #0D47A1; font-size: 20px; font-weight: bold;');
+    console.log('%c10+ лет опыта | 500+ проектов | 5 лет гарантии', 'color: #00796B; font-size: 14px;');
+    console.log('%cСвязаться: grishats@mail.ru | https://t.me/MKLcompany', 'color: #546E7A; font-size: 12px;');
 // ==========================================
         // УМНАЯ ШАПКА ДЛЯ МОБИЛЬНЫХ
         // ==========================================
-            let lastScrollTop = 0;
-            const navBar = document.querySelector('.navigation');
+    let lastScrollTop = 0;
+    const navBar = document.querySelector('.navigation');
         const scrollThreshold = 5; // Чувствительность к скроллу (чтобы не дёргалось от 1 пикселя)
 
         window.addEventListener('scroll', function() {
@@ -3041,15 +3129,15 @@ input:checked + .cookie-slider:before {
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <!-- ============================================
-     COOKIE БАННЕР
+     COOKIE БАННЕР (КОМПАКТНЫЙ)
      ============================================ -->
      <div id="cookieBanner" class="cookie-banner">
         <h3>🍪 Файлы cookie</h3>
         <p>Сайт использует cookie для корректной работы и сбора статистики. 
-   Нажатие «Принять» подтверждает согласие с   
-         <a href="/policy.html" target="_blank">Политикой обработки данных</a>.
-     </p>
-     <div class="cookie-buttons">
+           Нажатие «Принять» подтверждает согласие с   
+           <a href="/policy.html" target="_blank">Политике обработки данных</a>.
+       </p>
+       <div class="cookie-buttons">
         <button class="cookie-btn accept" onclick="acceptCookies()">Принять</button>
         <button class="cookie-btn reject" onclick="rejectCookies()">Отклонить</button>
         <button class="cookie-btn settings" onclick="showCookieSettings()">Настройки</button>
@@ -3089,6 +3177,10 @@ input:checked + .cookie-slider:before {
         </div>
     </div>
 </div>
-
+<script>
+console.log('Highcharts loaded:', typeof Highcharts !== 'undefined');
+console.log('Container exists:', !!document.getElementById('pricingChart3D'));
+</script>
+    
 </body>
 </html>
