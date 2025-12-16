@@ -67,7 +67,7 @@
                     m[i].l=1*new Date();
                     for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
                         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105596286','ym');
+                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
 
                 ym(105596286, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
                 
@@ -134,6 +134,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
+    <!-- Highcharts (для красивой 3D диаграммы) -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <style>
       /* Адаптивность для таблиц */
       .table-responsive {
@@ -1874,8 +1879,9 @@ input:checked + .cookie-slider:before {
         </div>
     </div>
 
-    <div class="chart-container">
-        <canvas id="pricingChart"></canvas>
+    <!-- Контейнер для новой 3D диаграммы -->
+    <div class="chart-container" style="height: 500px; padding: 0; overflow: hidden;">
+        <div id="pricingChart3D" style="width: 100%; height: 100%;"></div>
     </div>
 
     <div class="cta-container mt-30">
@@ -2155,9 +2161,12 @@ input:checked + .cookie-slider:before {
         <div class="form-group">
             <label>Желаемые габариты (Длина х Ширина х Высота)</label>
             <div class="form-row">
-                <input type="number" name="length" class="form-input" placeholder="Длина (м)">
-                <input type="number" name="width" class="form-input" placeholder="Ширина (м)">
-                <input type="number" name="height" class="form-input" placeholder="Высота (м)">
+                <!-- Добавили id="form-length" -->
+                <input type="number" id="form-length" name="length" class="form-input" placeholder="Длина (м)">
+                <!-- Добавили id="form-width" -->
+                <input type="number" id="form-width" name="width" class="form-input" placeholder="Ширина (м)">
+                <!-- Добавили id="form-height" -->
+                <input type="number" id="form-height" name="height" class="form-input" placeholder="Высота (м)">
             </div>
         </div>
 
@@ -2591,6 +2600,108 @@ input:checked + .cookie-slider:before {
     // ==========================================
     // ЛОГИКА КАЛЬКУЛЯТОРА
     // ==========================================
+    // ==========================================
+    // НОВАЯ ФУНКЦИЯ ДЛЯ 3D ДИАГРАММЫ (HIGHCHARTS)
+    // ==========================================
+    let pricingChartInstance = null;
+
+    function updatePricingChart(totalPrice) {
+        // Распределение процентов (как было в старом графике)
+        // Материалы: 45%, Монтаж: 30%, Доставка: 10%, Проект: 8%, Накладные: 7%
+        const distribution = {
+            materials: Math.round(totalPrice * 0.45),
+            montage: Math.round(totalPrice * 0.30),
+            delivery: Math.round(totalPrice * 0.10),
+            design: Math.round(totalPrice * 0.08),
+            overhead: Math.round(totalPrice * 0.07)
+        };
+
+        const dataSeries = [
+            ['Материалы (45%)', distribution.materials],
+            ['Монтажные работы (30%)', distribution.montage],
+            ['Доставка (10%)', distribution.delivery],
+            ['Проектирование (8%)', distribution.design],
+            ['Накладные расходы (7%)', distribution.overhead]
+        ];
+
+        // Форматтер для красивых пробелов в числах (1 000 000)
+        const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
+
+        if (pricingChartInstance) {
+            // Если график уже есть, просто обновляем данные с анимацией
+            pricingChartInstance.series[0].setData(dataSeries, true);
+            pricingChartInstance.setTitle({ text: `Общая смета: ${formatRub(totalPrice)} ₽` });
+        } else {
+            // Инициализация графика (создается 1 раз)
+            pricingChartInstance = Highcharts.chart('pricingChart3D', {
+                chart: {
+                    type: 'pie',
+                    options3d: {
+                        enabled: true,
+                        alpha: 45,
+                        beta: 0
+                    },
+                    backgroundColor: 'transparent',
+                    style: {
+                        fontFamily: "'Inter', sans-serif"
+                    }
+                },
+                title: {
+                    text: `Общая смета: ${formatRub(totalPrice)} ₽`,
+                    style: {
+                        color: '#212121',
+                        fontSize: '20px',
+                        fontWeight: 'bold'
+                    }
+                },
+                subtitle: {
+                    text: 'Интерактивная структура стоимости (наведите для деталей)',
+                    style: { color: '#546E7A' }
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>'
+                },
+                accessibility: {
+                    point: {
+                        valueSuffix: '₽'
+                    }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        depth: 45, // Глубина 3D эффекта
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y:,.0f} ₽',
+                            style: {
+                                fontSize: '12px',
+                                color: '#212121',
+                                textOutline: 'none'
+                            },
+                            connectorColor: '#CFD8DC'
+                        },
+                        colors: [
+                            '#0D47A1', // Материалы (Синий)
+                            '#00796B', // Монтаж (Бирюзовый)
+                            '#EF6C00', // Доставка (Оранжевый)
+                            '#B0BEC5', // Проект (Светло-серый)
+                            '#546E7A'  // Накладные (Серо-синий)
+                        ]
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: 'Стоимость',
+                    data: dataSeries
+                }],
+                credits: {
+                    enabled: false // Убираем логотип Highcharts
+                }
+            });
+        }
+    }
+
             function initCalculator() {
                 const widthInput = document.getElementById('input-width');
                 const lengthInput = document.getElementById('input-length');
@@ -2690,6 +2801,18 @@ input:checked + .cookie-slider:before {
                     
             // ОБНОВЛЯЕМ 3D МОДЕЛЬ
                     update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
+            // ---> ДОБАВИТЬ ВОТ ЭТУ СТРОКУ: <---
+            updatePricingChart(grandTotal);
+
+            // === СИНХРОНИЗАЦИЯ С ФОРМОЙ ЗАЯВКИ ===
+            // Находим поля формы по ID и ставим им значения из калькулятора
+            const formL = document.getElementById('form-length');
+            const formW = document.getElementById('form-width');
+            const formH = document.getElementById('form-height');
+
+            if (formL) formL.value = l; // Записываем длину
+            if (formW) formW.value = w; // Записываем ширину
+            if (formH) formH.value = h; // Записываем высоту
                 }
 
         // Слушатели событий
@@ -2777,43 +2900,6 @@ input:checked + .cookie-slider:before {
                 }
             });
 
-        // ==========================================
-        // ГРАФИК 2: СТРУКТУРА ЦЕНООБРАЗОВАНИЯ
-        // ==========================================
-            const pricingCtx = document.getElementById('pricingChart').getContext('2d');
-            new Chart(pricingCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Материалы', 'Монтажные работы', 'Доставка', 'Проектирование', 'Накладные расходы'],
-                    datasets: [{
-                        data: [45, 30, 10, 8, 7],
-                        backgroundColor: [
-                            '#0D47A1',
-                            '#00796B',
-                            '#EF6C00',
-                            '#B0BEC5',
-                            '#546E7A'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#FFFFFF'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Структура стоимости проекта (в % от общей суммы)',
-                            font: { size: 16, weight: '600' },
-                            color: '#212121'
-                        },
-                        legend: {
-                            position: 'right'
-                        }
-                    }
-                }
-            });
 
         // ==========================================
         // ГРАФИК 3: ВРЕМЕННАЯ ШКАЛА ПРОЕКТА
@@ -3041,13 +3127,13 @@ input:checked + .cookie-slider:before {
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <!-- ============================================
-     COOKIE БАННЕР
+     COOKIE БАННЕР (КОМПАКТНЫЙ)
      ============================================ -->
      <div id="cookieBanner" class="cookie-banner">
         <h3>🍪 Файлы cookie</h3>
         <p>Сайт использует cookie для корректной работы и сбора статистики. 
-   Нажатие «Принять» подтверждает согласие с   
-         <a href="/policy.html" target="_blank">Политикой обработки данных</a>.
+         Нажатие «Принять» подтверждает согласие с   
+         <a href="/policy.html" target="_blank">Политике обработки данных</a>.
      </p>
      <div class="cookie-buttons">
         <button class="cookie-btn accept" onclick="acceptCookies()">Принять</button>
