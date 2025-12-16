@@ -939,6 +939,17 @@
             }
         }
 
+                /* Адаптив для контейнера графика */
+        @media (max-width: 600px) {
+            #costChart3D {
+                height: 350px !important; /* Уменьшаем высоту на телефоне */
+            }
+            .chart-container {
+                height: auto !important;
+                min-height: 350px;
+            }
+        }
+
         /* ============================================
            АНИМАЦИИ
            ============================================ */
@@ -2599,84 +2610,116 @@ input:checked + .cookie-slider:before {
                 if(wallMaterial) wallMaterial.color.setHex(c);
             }
 
-// ==========================================
-    // 3. ФУНКЦИЯ ОБНОВЛЕНИЯ ДИАГРАММЫ (С АВТО-ПОВТОРОМ)
     // ==========================================
-    let pricingChartInstance = null;
+        // 3. ФУНКЦИЯ ОБНОВЛЕНИЯ ДИАГРАММЫ (АДАПТИВНАЯ)
+        // ==========================================
+        let pricingChartInstance = null;
 
-    function updatePricingChart(totalPrice) {
-        // 1. АВТО-ПОВТОР: Если библиотека не готова, пробуем снова через 500 мс
-        if (typeof Highcharts === 'undefined') {
-            console.warn('Highcharts еще загружается, пробую снова через 0.5 сек...');
-            // Вот эта магия, которая починит график на сервере:
-            setTimeout(() => updatePricingChart(totalPrice), 500); 
-            return; 
+        function updatePricingChart(totalPrice) {
+            // Проверка библиотеки
+            if (typeof Highcharts === 'undefined') {
+                // Пробуем снова через 500мс, если скрипт еще грузится
+                setTimeout(() => updatePricingChart(totalPrice), 500);
+                return;
+            }
+
+            // Ищем контейнер
+            const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
+            if (!chartContainer) return;
+
+            const distribution = {
+                materials: Math.round(totalPrice * 0.45),
+                montage: Math.round(totalPrice * 0.30),
+                delivery: Math.round(totalPrice * 0.10),
+                design: Math.round(totalPrice * 0.08),
+                overhead: Math.round(totalPrice * 0.07)
+            };
+
+            const dataSeries = [
+                ['Материалы (45%)', distribution.materials],
+                ['Монтаж (30%)', distribution.montage],
+                ['Доставка (10%)', distribution.delivery],
+                ['Проектирование (8%)', distribution.design],
+                ['Накладные (7%)', distribution.overhead]
+            ];
+
+            const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
+
+            // Обновляем данные, если график уже есть
+            if (pricingChartInstance) {
+                pricingChartInstance.series[0].setData(dataSeries, true);
+                pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
+            } else {
+                // Создаем новый график
+                pricingChartInstance = Highcharts.chart(chartContainer.id, {
+                    chart: {
+                        type: 'pie',
+                        options3d: { enabled: true, alpha: 45, beta: 0 },
+                        backgroundColor: 'transparent',
+                        style: { fontFamily: "'Inter', sans-serif" }
+                    },
+                    title: {
+                        text: `Итого: ${formatRub(totalPrice)} ₽`,
+                        style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+                    },
+                    tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
+                    
+                    // Настройки самого "пирога"
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            depth: 45,
+                            dataLabels: {
+                                enabled: true, // На ПК подписи включены
+                                format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
+                            },
+                            showInLegend: false, // На ПК легенда выключена
+                            colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
+                        }
+                    },
+                    
+                    // === МАГИЯ АДАПТИВНОСТИ ===
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 500 // Если экран уже 500px (телефон)
+                            },
+                            chartOptions: {
+                                chart: {
+                                    height: 350 // Фиксируем высоту
+                                },
+                                title: {
+                                    style: { fontSize: '16px' } // Шрифт чуть меньше
+                                },
+                                legend: {
+                                    enabled: true, // Включаем легенду снизу
+                                    align: 'center',
+                                    verticalAlign: 'bottom',
+                                    layout: 'horizontal'
+                                },
+                                plotOptions: {
+                                    pie: {
+                                        dataLabels: { enabled: false }, // ОТКЛЮЧАЕМ подписи (освобождаем место)
+                                        showInLegend: true, // Показываем данные в легенде
+                                        size: '110%', // Растягиваем круг на максимум
+                                        center: ['50%', '40%'] // Чуть поднимаем круг вверх
+                                    }
+                                }
+                            }
+                        }]
+                    },
+                    // ===========================
+
+                    series: [{
+                        type: 'pie',
+                        name: 'Сумма',
+                        data: dataSeries
+                    }],
+                    credits: { enabled: false }
+                });
+            }
         }
-
-        // 2. ЗАЩИТА: Проверяем, существует ли контейнер
-        // Ищем по новому ID 'costChart3D' (и старому на всякий случай)
-        const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
-        
-        if (!chartContainer) {
-             // Если контейнера нет, график рисовать негде. Тихо выходим.
-             return;
-        }
-
-        const distribution = {
-            materials: Math.round(totalPrice * 0.45),
-            montage: Math.round(totalPrice * 0.30),
-            delivery: Math.round(totalPrice * 0.10),
-            design: Math.round(totalPrice * 0.08),
-            overhead: Math.round(totalPrice * 0.07)
-        };
-
-        const dataSeries = [
-            ['Материалы (45%)', distribution.materials],
-            ['Монтаж (30%)', distribution.montage],
-            ['Доставка (10%)', distribution.delivery],
-            ['Проектирование (8%)', distribution.design],
-            ['Накладные (7%)', distribution.overhead]
-        ];
-
-        const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
-
-        if (pricingChartInstance) {
-            pricingChartInstance.series[0].setData(dataSeries, true);
-            pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
-        } else {
-            pricingChartInstance = Highcharts.chart(chartContainer.id, {
-                chart: {
-                    type: 'pie',
-                    options3d: { enabled: true, alpha: 45, beta: 0 },
-                    backgroundColor: 'transparent',
-                    style: { fontFamily: "'Inter', sans-serif" }
-                },
-                title: {
-                    text: `Итого: ${formatRub(totalPrice)} ₽`,
-                    style: { fontSize: '20px', fontWeight: 'bold', color: '#212121' }
-                },
-                tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        depth: 45,
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
-                        },
-                        colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
-                    }
-                },
-                series: [{
-                    type: 'pie',
-                    name: 'Сумма',
-                    data: dataSeries
-                }],
-                credits: { enabled: false }
-            });
-        }
-    }
 
             function initCalculator() {
                 const widthInput = document.getElementById('input-width');
