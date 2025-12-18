@@ -1357,17 +1357,6 @@ input:checked + .cookie-slider:before {
         text-align: center;
     }
 }
-        /* Адаптивность для графика Timeline */
-@media (max-width: 768px) {
-    #timelineHighchart {
-        height: 1050px !important; /* Увеличиваем высоту, чтобы влез "шахматный" список */
-    }
-    .chart-container {
-        height: auto !important;
-        padding: 0 !important;
-        overflow: visible !important;
-    }
-}
 </style>
 </head>
 <body>
@@ -2727,20 +2716,133 @@ input:checked + .cookie-slider:before {
                 }
             }
 
+// ==========================================
+// ИНТЕРАКТИВНЫЙ ГРАФИК РАБОТЫ (TIMELINE - MULTICOLOR BARS)
+// ==========================================
+            let timelineChartInstance = null;
 
+            function updateTimelineChart(times) {
+                if (typeof Highcharts === 'undefined') return;
+
+                if (!Highcharts.seriesTypes.timeline) {
+                    console.warn('Модуль timeline.js не загружен!');
+                    return;
+                }
+
+    // 1. Распаковка реальных сроков
+                const { t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays } = times;
+
+    // 2. Настройка цветов
+                const colors = {
+        consult: '#90A4AE', // Серый
+        design:  '#546E7A', // Темно-серый
+        prod:    '#0D47A1', // Синий
+        delivery:'#00796B', // Бирюзовый
+        install: '#EF6C00', // Оранжевый
+        handover:'#2E7D32'  // Зеленый
+    };
+
+    // 3. Подготовка данных с "умными" интервалами
+    // Чтобы карточки не слипались, вводим минимальную визуальную длительность (напр. 7 условных единиц)
+    const minVisualDays = 8; 
+    
+    // Массив этапов (порядок важен)
+    const rawSteps = [
+        { id: 'consult',  days: t_consult,  name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
+        { id: 'design',   days: t_design,   name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
+        { id: 'prod',     days: t_prod,     name: '3. Производство', desc: 'Изготовление на заводе', color: colors.prod },
+        { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
+        { id: 'install',  days: t_install,  name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
+        { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
+    ];
+
+    let currentVisualX = 0;
+    const seriesData = [];
+    const zones = [];
+
+    rawSteps.forEach((step, index) => {
+        // Визуальная ширина: берем реальные дни, но если они меньше 8, рисуем как 8, чтобы влез текст
+        const visualDuration = Math.max(step.days, minVisualDays);
+        
+        // Смещаем координату X
+        currentVisualX += visualDuration;
+
+        // 1. Добавляем точку данных
+        seriesData.push({
+            x: currentVisualX, 
+            name: step.name,
+            label: `${step.days} дн.`, // В тексте показываем РЕАЛЬНЫЕ дни
+            description: step.desc,
+            color: step.color, // Цвет маркера
+            dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
+        });
+
+        // 2. Добавляем зону окраски линии (линия ДО этой точки будет этого цвета)
+        zones.push({
+            value: currentVisualX, // Красим линию до этой координаты X
+            color: step.color
+        });
+    });
+
+    // 4. Отрисовка
+    if (timelineChartInstance) {
+        timelineChartInstance.update({
+            series: [{
+                data: seriesData,
+                zones: zones
+            }],
+            title: { text: `Общий срок реализации: ~${totalDays} дней` }
+        });
+    } else {
+        timelineChartInstance = Highcharts.chart('timelineHighchart', {
+            chart: {
+                type: 'timeline',
+                backgroundColor: 'transparent',
+                style: { fontFamily: "'Inter', sans-serif" },
+                height: 450
+            },
+            title: {
+                text: `Общий срок реализации: ~${totalDays} дней`,
+                style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
+            },
+            xAxis: {
+                visible: false,
+                min: 0 // Фиксируем начало
+            },
+            yAxis: { visible: false },
+            legend: { enabled: false },
+            
+            // Всплывающая подсказка (Tooltip)
+            tooltip: {
+                enabled: true,
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderWidth: 1,
+                borderColor: '#ccc',
+                shadow: true,
+                useHTML: true,
+                headerFormat: '',
+                pointFormat: '<div style="text-align:center; padding: 5px;">' +
+                '<b style="color:{point.color}; font-size:14px;">{point.name}</b><br/>' +
+                '<span>⏱ Длительность: <b>{point.label}</b></span><br/>' +
+                '<i style="color:#666; font-size:12px;">{point.description}</i>' +
+                '</div>',
+                followPointer: true // Подсказка бегает за мышкой
+            },
 
             series: [{
                 data: seriesData,
-                zones: zones,
-                zoneAxis: 'x',
-                lineWidth: 18,
+                zones: zones,         // Применяем раскраску отрезков
+                zoneAxis: 'x',        // Раскраска идет по оси X
+                lineWidth: 18,        // Толстая линия (брусок)
+                linecap: 'butt',      // Прямые края
                 marker: {
                     enabled: true,
-                    symbol: 'square',
-                    radius: 8,
+                    symbol: 'square', // Квадратный маркер на стыке
+                    radius: 8,        // Ширина маркера почти как у линии (18/2 = 9)
                     lineColor: 'white',
                     lineWidth: 2
                 },
+                cursor: 'pointer',    // Курсор-палец при наведении
                 dataLabels: {
                     enabled: true,
                     backgroundColor: '#FFFFFF',
@@ -2751,20 +2853,18 @@ input:checked + .cookie-slider:before {
                     padding: 6,
                     connectorWidth: 2,
                     connectorColor: '#CFD8DC',
-                    distance: 60, // Длинная ножка для ПК
+                    distance: 60,     // Длинная ножка, чтобы развести карточки
                     useHTML: true,
                     formatter: function() {
-                        // Адаптивная ширина внутри HTML задается через style chartOptions выше, 
-                        // но здесь ставим 100% чтобы заполнить контейнер
-                        return `<div style="text-align: center; width: 100%;"> 
+                        return `<div style="text-align: center; width: 135px;">
                                     <div style="color: ${this.point.color}; font-weight: bold; font-size: 13px; margin-bottom: 3px;">${this.point.name}</div>
                                     <div style="font-size: 12px; color: #333; border-top: 1px solid #eee; padding-top: 3px;">
                                         🕒 <b>${this.point.label}</b><br>
                                         <span style="font-size: 11px; color: #777;">${this.point.description}</span>
                                     </div>
-                                </div>`;
-                    },
-                    alternate: true // Шахматный порядок для ПК (верх/низ)
+                    </div>`;
+                },
+                    alternate: true // Шахматный порядок (верх/низ)
                 }
             }],
             credits: { enabled: false }
