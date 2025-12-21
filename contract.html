@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление документов | МК-Л</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Библиотеки: PDF и Парсер Markdown -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #0D47A1;
+            --accent-teal: #00796B;
+            --accent-orange: #EF6C00;
+            --background-light: #F8F9FA;
+            --border-color: #CFD8DC;
+            --text-primary: #212121;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--background-light); color: var(--text-primary); margin: 0; padding: 0; }
+        .contract-page { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        
+        /* Прогресс-бар */
+        .progress-container { margin-bottom: 30px; }
+        .progress-steps { display: flex; justify-content: space-between; position: relative; }
+        .progress-line { position: absolute; top: 17px; left: 0; right: 0; height: 2px; background: #ccc; z-index: 1; }
+        .progress-step { background: var(--background-light); z-index: 2; padding: 0 10px; text-align: center; font-size: 12px; font-weight: 600; color: #999; }
+        .step-number { width: 34px; height: 34px; border-radius: 50%; background: #ccc; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; }
+        .progress-step.active { color: var(--primary-blue); }
+        .progress-step.active .step-number { background: var(--primary-blue); }
+
+        /* Форма */
+        .contract-form-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .form-step { display: none; }
+        .form-step.active { display: block; }
+        
+        h2 { color: var(--primary-blue); margin-top: 0; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        label { font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        input, select, textarea { padding: 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 15px; }
+        
+        /* Расчет стоимости */
+        .cost-preview { background: #E3F2FD; padding: 25px; border-radius: 6px; border-left: 5px solid var(--primary-blue); }
+        .cost-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 16px; }
+        .cost-row.total { border-top: 1px solid #BBDEFB; padding-top: 12px; margin-top: 12px; font-weight: 700; color: var(--accent-orange); font-size: 1.4em; }
+
+        /* Кнопки */
+        .btn { padding: 15px 30px; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 15px; }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-success { background: var(--accent-teal); color: white; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 1000; justify-content: center; align-items: center; font-weight: 700; }
+        
+        /* Стили для предпросмотра контракта */
+        #contractPreview { 
+            border: 1px solid #ddd; padding: 30px; background: white; 
+            max-height: 500px; overflow-y: auto; margin-bottom: 20px; 
+            font-family: 'Times New Roman', Times, serif; color: #000;
+            line-height: 1.5;
+        }
+        #contractPreview h1, #contractPreview h2 { text-align: center; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="loading-overlay">⚙️ Загрузка документа...</div>
+
+<div class="contract-page">
+    <div class="progress-container">
+        <div class="progress-steps">
+            <div class="progress-line"></div>
+            <div class="progress-step active" data-step="1"><div class="step-number">1</div>Проект</div>
+            <div class="progress-step" data-step="2"><div class="step-number">2</div>Реквизиты</div>
+            <div class="progress-step" data-step="3"><div class="step-number">3</div>Контакты</div>
+            <div class="progress-step" data-step="4"><div class="step-number">4</div>Договор</div>
+        </div>
+    </div>
+
+    <div class="contract-form-container">
+        <form id="contractForm">
+            
+            <!-- ШАГ 1: ПАРАМЕТРЫ (ВКЛЮЧАЯ ОКНА И ДВЕРИ) -->
+            <div class="form-step active" data-step="1">
+                <h2>Конфигурация здания</h2>
+                <div class="form-row">
+                    <div class="form-group"><label>Ширина, м</label><input type="number" id="width"></div>
+                    <div class="form-group"><label>Длина, м</label><input type="number" id="length"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Высота, м</label><input type="number" id="height" step="0.5"></div>
+                    <div class="form-group">
+                        <label>Тип здания</label>
+                        <select id="type">
+                            <option value="warm">Теплое (Сэндвич-панели)</option>
+                            <option value="cold">Холодное (Профлист)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Окна (шт)</label><input type="number" id="windows"></div>
+                    <div class="form-group"><label>Ворота (шт)</label><input type="number" id="doors"></div>
+                </div>
+
+                <div class="cost-preview">
+                    <div class="cost-row"><span>Площадь:</span> <strong id="res-area">0 м²</strong></div>
+                    <div class="cost-row"><span>Окна и двери:</span> <strong id="res-extra">0 ₽</strong></div>
+                    <div class="cost-row total"><span>Итоговая цена:</span> <strong id="res-total">0 ₽</strong></div>
+                </div>
+            </div>
+
+            <!-- ШАГ 2: РЕКВИЗИТЫ -->
+            <div class="form-step" data-step="2">
+                <h2>Данные организации (Заказчик)</h2>
+                <div class="form-group">
+                    <label>Введите ИНН организации</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="inn" placeholder="ИНН" style="flex: 1;">
+                        <button type="button" class="btn btn-primary" onclick="fetchDaData()">Найти</button>
+                    </div>
+                </div>
+                <div class="form-group"><label>Полное наименование</label><input type="text" id="fullName" readonly></div>
+                <div class="form-row">
+                    <div class="form-group"><label>КПП</label><input type="text" id="kpp" readonly></div>
+                    <div class="form-group"><label>ОГРН</label><input type="text" id="ogrn" readonly></div>
+                </div>
+                <div class="form-group"><label>Юридический адрес</label><textarea id="address" readonly rows="2"></textarea></div>
+                <div class="form-group"><label>Руководитель</label><input type="text" id="director" readonly></div>
+            </div>
+
+            <!-- ШАГ 3: КОНТАКТЫ -->
+            <div class="form-step" data-step="3">
+                <h2>Контактные данные</h2>
+                <div class="form-group"><label>ФИО контактного лица</label><input type="text" id="cName" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Телефон</label><input type="tel" id="cPhone" placeholder="+7" required></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="cEmail" required></div>
+                </div>
+                <div class="form-group"><label>Точный адрес объекта</label><textarea id="cObject" required></textarea></div>
+            </div>
+
+            <!-- ШАГ 4: ГЕНЕРАЦИЯ ИЗ MD -->
+            <div class="form-step" data-step="4">
+                <h2>Предпросмотр договора</h2>
+                <div id="contractPreview">
+                    <!-- Сюда подгрузится contract.md с замененными данными -->
+                </div>
+                <label style="display: flex; gap: 10px; cursor: pointer; align-items: center; margin-top: 15px;">
+                    <input type="checkbox" id="checkAgree" required> Я подтверждаю правильность данных
+                </label>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+                <button type="button" id="btnPrev" class="btn btn-secondary" style="display:none;" onclick="moveStep(-1)">Назад</button>
+                <button type="button" id="btnNext" class="btn btn-primary" onclick="moveStep(1)">Далее</button>
+                <button type="button" id="btnDownload" class="btn btn-success" style="display:none;" onclick="exportPDF()">Скачать PDF</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+
+    // 1. Инициализация и URL
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('w')) document.getElementById('width').value = params.get('w');
+        if(params.has('l')) document.getElementById('length').value = params.get('l');
+        if(params.has('h')) document.getElementById('height').value = params.get('h');
+        if(params.has('win')) document.getElementById('windows').value = params.get('win');
+        if(params.has('doors')) document.getElementById('doors').value = params.get('doors');
+        if(params.has('type')) {
+            const isWarm = params.get('type').toLowerCase().includes('тепл');
+            document.getElementById('type').value = isWarm ? 'warm' : 'cold';
+        }
+        calculate();
+        document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+    });
+
+    // 2. Расчет Итоговой стоимости (Включает окна и двери)
+    function calculate() {
+        const w = parseFloat(document.getElementById('width').value) || 0;
+        const l = parseFloat(document.getElementById('length').value) || 0;
+        const h = parseFloat(document.getElementById('height').value) || 0;
+        const win = parseInt(document.getElementById('windows').value) || 0;
+        const drs = parseInt(document.getElementById('doors').value) || 0;
+        const type = document.getElementById('type').value;
+
+        const area = w * l;
+        let base = (type === 'warm') ? 8000 : 6300; // База за м2
+        let hFactor = 1 + ((h - 6) * 0.05); if (hFactor < 1) hFactor = 1;
+
+        const baseTotal = area * base * hFactor;
+        const extraCost = (win * (1.8 * 8500)) + (drs * 45000); // Окна и двери
+        const grandTotal = Math.round(baseTotal + extraCost);
+
+        document.getElementById('res-area').innerText = area + " м²";
+        document.getElementById('res-extra').innerText = new Intl.NumberFormat('ru-RU').format(extraCost) + " ₽";
+        document.getElementById('res-total').innerText = new Intl.NumberFormat('ru-RU').format(grandTotal) + " ₽";
+
+        return { area, grandTotal, extraCost, win, drs };
+    }
+
+    // 3. DaData
+    async function fetchDaData() {
+        const inn = document.getElementById('inn').value;
+        if(inn.length < 10) return alert("Введите ИНН");
+        document.getElementById('loader').style.display = 'flex';
+        try {
+            const res = await fetch("https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json", "Authorization": "Token dc91c2bd189b5668cd7faedec70a4b4bccd30a82" },
+                body: JSON.stringify({ query: inn })
+            });
+            const json = await res.json();
+            if(json.suggestions.length > 0) {
+                const d = json.suggestions[0].data;
+                document.getElementById('fullName').value = json.suggestions[0].value;
+                document.getElementById('kpp').value = d.kpp || "—";
+                document.getElementById('ogrn').value = d.ogrn;
+                document.getElementById('address').value = d.address.value;
+                document.getElementById('director').value = d.management ? d.management.name : "—";
+            }
+        } finally { document.getElementById('loader').style.display = 'none'; }
+    }
+
+    // 4. Главная магия: Загрузка MD и замена переменных
+    async function prepareContract() {
+        const calc = calculate();
+        const d = new Date();
+        document.getElementById('loader').style.display = 'flex';
+
+        try {
+            const response = await fetch('/contract.md'); // Путь к вашему файлу
+            let template = await response.text();
+
+            // Словарь замен
+            const replacements = {
+                '{{num}}': `МК-${d.getFullYear()}/${Math.floor(Math.random()*1000)}`,
+                '{{date}}': d.toLocaleDateString('ru-RU'),
+                '{{customer}}': document.getElementById('fullName').value,
+                '{{inn}}': document.getElementById('inn').value,
+                '{{kpp}}': document.getElementById('kpp').value,
+                '{{ogrn}}': document.getElementById('ogrn').value,
+                '{{address}}': document.getElementById('address').value,
+                '{{director}}': document.getElementById('director').value,
+                '{{object}}': document.getElementById('cObject').value,
+                '{{width}}': document.getElementById('width').value,
+                '{{length}}': document.getElementById('length').value,
+                '{{height}}': document.getElementById('height').value,
+                '{{area}}': calc.area,
+                '{{windows}}': calc.win,
+                '{{doors}}': calc.drs,
+                '{{total}}': document.getElementById('res-total').innerText,
+                '{{advance}}': new Intl.NumberFormat('ru-RU').format(Math.round(calc.grandTotal * 0.3)) + " ₽"
+            };
+
+            // Проходим циклом по словарю и заменяем все вхождения
+            for (let key in replacements) {
+                template = template.split(key).join(replacements[key] || '_______');
+            }
+
+            // Рендерим Markdown в HTML
+            document.getElementById('contractPreview').innerHTML = marked.parse(template);
+
+        } catch (e) {
+            document.getElementById('contractPreview').innerHTML = "<p style='color:red'>Ошибка загрузки contract.md. Проверьте наличие файла в корне сайта.</p>";
+        } finally {
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+
+    // 5. Навигация
+    function moveStep(dir) {
+        if(dir === 1 && currentStep < 4) {
+             const active = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+             const req = active.querySelectorAll('input[required], textarea[required]');
+             for(let i of req) if(!i.value) return alert("Заполните обязательные поля");
+        }
+        currentStep += dir;
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+        
+        document.getElementById('btnPrev').style.display = currentStep === 1 ? 'none' : 'block';
+        document.getElementById('btnNext').style.display = currentStep === 4 ? 'none' : 'block';
+        document.getElementById('btnDownload').style.display = currentStep === 4 ? 'block' : 'none';
+
+        if(currentStep === 4) prepareContract();
+    }
+
+    // 6. Экспорт PDF
+    function exportPDF() {
+        if(!document.getElementById('checkAgree').checked) return alert("Подтвердите согласие");
+        const element = document.getElementById('contractPreview');
+        html2pdf().from(element).set({
+            margin: 15,
+            filename: 'Contract_MKL.pdf',
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).save();
+    }
+</script>
+</body>
+</html>
