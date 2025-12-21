@@ -1,0 +1,705 @@
+/* =============================================
+   СТИЛИ ДЛЯ СТРАНИЦЫ ГЕНЕРАЦИИ ДОГОВОРОВ
+   ============================================= */
+
+:root {
+    --primary-blue: #0D47A1;
+    --accent-teal: #00796B;
+    --accent-orange: #EF6C00;
+    --gray-dark: #212121;
+    --gray-medium: #B0BEC5;
+    --gray-light: #ECEFF1;
+    --background-white: #FFFFFF;
+    --background-light: #F8F9FA;
+    --border-color: #CFD8DC;
+    --text-primary: #212121;
+    --text-secondary: #546E7A;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--background-light);
+}
+
+.contract-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* ПРОГРЕСС-БАР */
+.progress-container {
+    background-color: var(--background-white);
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.progress-step {
+    text-align: center;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--gray-light);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2em;
+    margin: 0 auto 10px;
+    border: 3px solid var(--background-white);
+    transition: all 0.3s ease;
+}
+
+.progress-step.active .step-number {
+    background-color: var(--primary-blue);
+    color: white;
+    box-shadow: 0 4px 12px rgba(13, 71, 161, 0.3);
+    transform: scale(1.1);
+}
+
+.progress-step.completed .step-number {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.progress-step.completed .step-number::after {
+    content: "✓";
+}
+
+.step-label {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.progress-step.active .step-label {
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.progress-line {
+    height: 3px;
+    background-color: var(--gray-light);
+    flex: 1;
+    margin: 0 10px;
+    position: relative;
+    top: -22px;
+}
+
+/* КОНТЕЙНЕР ФОРМЫ */
+.contract-form-container {
+    background-color: var(--background-white);
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.form-step {
+    display: none;
+}
+
+.form-step.active {
+    display: block;
+    animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-step h2 {
+    color: var(--primary-blue);
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.step-description {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 1em;
+}
+
+/* ЭЛЕМЕНТЫ ФОРМЫ */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95em;
+}
+
+.required {
+    color: var(--error-color);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1em;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    background-color: var(--background-white);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
+}
+
+.form-group input:read-only {
+    background-color: var(--background-light);
+    cursor: not-allowed;
+}
+
+.form-group input.auto-filled {
+    background-color: #e8f5e9;
+    border-color: var(--success-color);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* КНОПКА ПРОВЕРКИ ИНН */
+.input-with-button {
+    display: flex;
+    gap: 10px;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.btn-check-inn {
+    padding: 12px 20px;
+    background-color: var(--accent-teal);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-check-inn:hover {
+    background-color: #00695C;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 121, 107, 0.3);
+}
+
+.btn-check-inn:disabled {
+    background-color: var(--gray-medium);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* СТАТУС ПОЛЯ */
+.field-status {
+    margin-top: 8px;
+    font-size: 0.9em;
+    min-height: 20px;
+}
+
+.field-status.loading {
+    color: var(--text-secondary);
+}
+
+.field-status.loading::before {
+    content: "⏳ ";
+}
+
+.field-status.success {
+    color: var(--success-color);
+}
+
+.field-status.success::before {
+    content: "✓ ";
+}
+
+.field-status.error {
+    color: var(--error-color);
+}
+
+.field-status.error::before {
+    content: "⚠ ";
+}
+
+/* СЕКЦИЯ АВТОЗАПОЛНЕНИЯ */
+.auto-fill-section {
+    margin-bottom: 25px;
+}
+
+/* ИНФОРМАЦИОННЫЕ БОКСЫ */
+.info-box {
+    background-color: #e3f2fd;
+    border-left: 4px solid var(--primary-blue);
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+
+.info-box.success {
+    background-color: #e8f5e9;
+    border-left-color: var(--success-color);
+}
+
+.info-box.warning {
+    background-color: #fff3e0;
+    border-left-color: var(--accent-orange);
+}
+
+.info-box strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* ПРЕДПРОСМОТР СТОИМОСТИ */
+.cost-preview {
+    background-color: var(--background-light);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+    border: 2px solid var(--border-color);
+}
+
+.cost-preview h3 {
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.cost-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.cost-row:last-child {
+    border-bottom: none;
+    padding-top: 15px;
+    margin-top: 10px;
+    border-top: 2px solid var(--primary-blue);
+}
+
+.cost-row strong {
+    font-size: 1.1em;
+}
+
+.cost-row .highlight {
+    color: var(--accent-orange);
+    font-size: 1.3em;
+}
+
+/* СЕКЦИЯ ПРЕДПРОСМОТРА (ШАГ 4) */
+.preview-section {
+    background-color: var(--background-light);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.preview-section h3 {
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    border-bottom: 2px solid var(--accent-teal);
+    padding-bottom: 10px;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.preview-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.preview-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.preview-label {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.preview-value {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.preview-value.highlight {
+    color: var(--accent-orange);
+    font-size: 1.3em;
+}
+
+/* СПИСОК ДОКУМЕНТОВ */
+.documents-list {
+    background-color: #e8f5e9;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 25px 0;
+}
+
+.documents-list h3 {
+    color: var(--success-color);
+    margin-bottom: 15px;
+}
+
+.documents-list ul {
+    list-style: none;
+}
+
+.documents-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 0.95em;
+}
+
+.documents-list li:last-child {
+    border-bottom: none;
+}
+
+/* ЧЕКБОКС СОГЛАСИЯ */
+.agreement-checkbox {
+    margin: 30px 0;
+    padding: 20px;
+    background-color: #fff3e0;
+    border-radius: 8px;
+    border: 2px solid var(--accent-orange);
+}
+
+.agreement-checkbox label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+}
+
+.agreement-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.agreement-checkbox span {
+    flex: 1;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+/* КНОПКИ НАВИГАЦИИ */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid var(--border-color);
+    gap: 15px;
+}
+
+.btn {
+    padding: 15px 35px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0a3778;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13, 71, 161, 0.3);
+}
+
+.btn-secondary {
+    background-color: var(--gray-medium);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--gray-dark);
+    color: white;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+    font-size: 1.1em;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+}
+
+.btn:disabled {
+    background-color: var(--gray-light);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* РЕЗУЛЬТАТ ГЕНЕРАЦИИ */
+.result-container {
+    background-color: var(--background-white);
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.success-message {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.success-icon {
+    width: 100px;
+    height: 100px;
+    background-color: var(--success-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3em;
+    margin: 0 auto 20px;
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.success-message h2 {
+    color: var(--success-color);
+    margin-bottom: 10px;
+}
+
+.success-message p {
+    color: var(--text-secondary);
+    font-size: 1.1em;
+}
+
+/* СЕКЦИЯ СКАЧИВАНИЯ */
+.download-section {
+    margin-bottom: 40px;
+}
+
+.download-section h3 {
+    color: var(--primary-blue);
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.download-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.download-btn {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--background-light);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.download-btn:hover {
+    border-color: var(--accent-teal);
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+}
+
+.file-icon {
+    font-size: 2.5em;
+    margin-right: 15px;
+}
+
+.file-info strong {
+    display: block;
+    color: var(--primary-blue);
+    margin-bottom: 5px;
+}
+
+.file-info small {
+    color: var(--text-secondary);
+    font-size: 0.85em;
+}
+
+/* СЛЕДУЮЩИЕ ШАГИ */
+.next-steps {
+    background-color: #e3f2fd;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.next-steps h3 {
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+}
+
+.next-steps ol {
+    padding-left: 25px;
+}
+
+.next-steps li {
+    padding: 8px 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 768px) {
+    .contract-page {
+        padding: 20px 15px;
+    }
+
+    .progress-container {
+        padding: 20px 15px;
+    }
+
+    .progress-steps {
+        flex-direction: column;
+    }
+
+    .progress-line {
+        width: 3px;
+        height: 30px;
+        margin: 10px auto;
+        top: 0;
+    }
+
+    .step-label {
+        display: none;
+    }
+
+    .contract-form-container {
+        padding: 25px 20px;
+    }
+
+    .form-step h2 {
+        font-size: 1.5em;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .input-with-button {
+        flex-direction: column;
+    }
+
+    .btn-check-inn {
+        width: 100%;
+    }
+
+    .form-navigation {
+        flex-direction: column;
+    }
+
+    .form-navigation .btn {
+        width: 100%;
+    }
+
+    .preview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .download-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* АНИМАЦИЯ ЗАГРУЗКИ */
+.loading-spinner {
+    border: 4px solid var(--gray-light);
+    border-top: 4px solid var(--primary-blue);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
