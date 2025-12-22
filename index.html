@@ -135,15 +135,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
     <!-- Highcharts (Local) -->
-    <script src="js/proj4.js"></script>
     <script src="js/highcharts.js"></script>
-    <script src="js/map.js"></script>
-    <script src="js/ru-all.js"></script>
     <script src="js/highcharts-more.js"></script>
     <script src="js/timeline.js"></script>
     <script src="js/highcharts-3d.js"></script>
     <script src="js/exporting.js"></script>
-    <script src="js/offline-exporting.js"></script>
     <script src="js/accessibility.js"></script>
     <style>
       /* Адаптивность для таблиц */
@@ -2113,9 +2109,29 @@ input:checked + .cookie-slider:before {
     <div class="section-number">9</div>
     <h2>География Деятельности</h2>
     <p>
-        Компания MKL реализует проекты <strong>по всей европейской части России</strong>. За 10 лет работы мы выполнили более 500 проектов в различных регионах. Наша логистическая 
+        Компания MKL реализует проекты <strong>по всей европейской части России</strong>. Наша логистическая 
         сеть позволяет эффективно доставлять материалы и организовывать монтажные работы в удалённых регионах.
     </p>
+
+    <h3>Основные регионы работы</h3>
+    <div class="specs-grid">
+        <div class="spec-card">
+            <h4>Центральный ФО</h4>
+            <p>Москва, Московская обл., Тула, Рязань, Калуга, Ярославль, Владимир и другие</p>
+        </div>
+        <div class="spec-card">
+            <h4>Северо-Западный ФО</h4>
+            <p>Санкт-Петербург, Ленинградская обл., Новгород, Псков, Вологда</p>
+        </div>
+        <div class="spec-card">
+            <h4>Приволжский ФО</h4>
+            <p>Нижний Новгород, Казань, Самара, Пермь, Уфа, Саратов</p>
+        </div>
+        <div class="spec-card">
+            <h4>Южный ФО</h4>
+            <p>Ростов-на-Дону, Краснодар, Волгоград, Астрахань</p>
+        </div>
+    </div>
 
     <div class="info-box mt-30">
         <strong>Доставка материалов:</strong> Осуществляется собственным и привлечённым транспортом. 
@@ -2123,50 +2139,9 @@ input:checked + .cookie-slider:before {
         Стоимость доставки рассчитывается индивидуально и включается в общую смету проекта.
     </div>
 
-    <h3>Карта реализованных проектов</h3>
-    <p>На карте отмечены основные регионы нашей деятельности и выполненные проекты:</p>
-    
+    <h3>Статистика по регионам</h3>
     <div class="chart-container" style="height: 600px;">
-        <div id="russiaMap" style="width: 100%; height: 100%;"></div>
-    </div>
-
-    <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
-        <div style="display: flex; align-items: center;">
-            <div style="width: 12px; height: 12px; background-color: #0D47A1; border-radius: 50%; margin-right: 8px;"></div>
-            <span style="font-size: 0.9em;">Основные регионы работы (границы)</span>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <div style="width: 12px; height: 12px; background-color: #EF6C00; border-radius: 50%; margin-right: 8px;"></div>
-            <span style="font-size: 0.9em;">Реализованные проекты MKL</span>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <div style="width: 12px; height: 12px; background-color: #00796B; border-radius: 50%; margin-right: 8px;"></div>
-            <span style="font-size: 0.9em;">Крупные города</span>
-        </div>
-    </div>
-
-    <h3 style="margin-top: 40px;">Статистика по регионам (за 10 лет)</h3>
-    <div class="specs-grid">
-        <div class="spec-card">
-            <h4>Центральный ФО</h4>
-            <p>Москва, Московская обл., Тула, Рязань, Калуга, Ярославль, Владимир и другие</p>
-            <div style="font-size: 1.5em; color: var(--accent-orange); font-weight: bold; margin-top: 10px;">215 проектов</div>
-        </div>
-        <div class="spec-card">
-            <h4>Северо-Западный ФО</h4>
-            <p>Санкт-Петербург, Ленинградская обл., Новгород, Псков, Вологда</p>
-            <div style="font-size: 1.5em; color: var(--accent-orange); font-weight: bold; margin-top: 10px;">112 проектов</div>
-        </div>
-        <div class="spec-card">
-            <h4>Приволжский ФО</h4>
-            <p>Нижний Новгород, Казань, Самара, Пермь, Уфа, Саратов</p>
-            <div style="font-size: 1.5em; color: var(--accent-orange); font-weight: bold; margin-top: 10px;">98 проектов</div>
-        </div>
-        <div class="spec-card">
-            <h4>Южный ФО</h4>
-            <p>Ростов-на-Дону, Краснодар, Волгоград, Астрахань</p>
-            <div style="font-size: 1.5em; color: var(--accent-orange); font-weight: bold; margin-top: 10px;">75 проектов</div>
-        </div>
+        <div id="regionHighchart" style="width: 100%; height: 100%;"></div>
     </div>
 </section>
 
@@ -3339,98 +3314,125 @@ function updateTimelineChart(times) {
     // ==========================================
     // ГРАФИК 5: РЕГИОНЫ (ЧИСЛА СПРАВА)
     // ==========================================
-// ==========================================
-// КАРТА РОССИИ (ИСПРАВЛЕННАЯ ВЕРСИЯ)
-// ==========================================
-document.addEventListener('DOMContentLoaded', function() {
-    const mapContainer = document.getElementById('russiaMap');
-    if (!mapContainer) return;
-
-    // Данные по проектам MKL
-    const projectsData = [
-        { name: 'Москва', lat: 55.7558, lon: 37.6173, projects: 85 },
-        { name: 'Санкт-Петербург', lat: 59.9343, lon: 30.3351, projects: 65 },
-        { name: 'Нижний Новгород', lat: 56.3269, lon: 44.0059, projects: 35 },
-        { name: 'Ростов-на-Дону', lat: 47.2224, lon: 39.7189, projects: 40 },
-        { name: 'Екатеринбург', lat: 56.8389, lon: 60.6057, projects: 12 },
-        { name: 'Краснодар', lat: 45.0355, lon: 38.9753, projects: 25 }
-    ];
-
-    // Проверяем наличие данных из локального файла js/ru-all.js
-    const mapData = Highcharts.maps['countries/ru/ru-all'];
-
-    if (!mapData) {
-        console.error('Ошибка: Данные карты из js/ru-all.js не загружены. Проверьте путь к файлу.');
-        mapContainer.innerHTML = '<p style="text-align:center; padding-top:50px; color:red;">Ошибка: Файл данных карты не найден</p>';
-        return;
-    }
-
-    Highcharts.mapChart('russiaMap', {
-        chart: {
-            map: mapData,
-            backgroundColor: 'transparent',
-            style: { fontFamily: "'Inter', sans-serif" }
-        },
-        title: {
-            text: 'География объектов МК-Л',
-            style: { color: '#0D47A1', fontWeight: 'bold' }
-        },
-        credits: { enabled: false },
-        mapNavigation: {
-            enabled: true,
-            buttonOptions: { verticalAlign: 'bottom' }
-        },
-        legend: { enabled: false },
-        tooltip: {
-            useHTML: true,
-            headerFormat: '<b>{point.name}</b><br>',
-            pointFormat: 'Реализовано проектов: <b>{point.projects}</b>'
-        },
-        series: [{
-            name: 'Регионы',
-            borderColor: '#CFD8DC',
-            borderWidth: 0.5,
-            nullColor: 'rgba(200, 200, 200, 0.2)',
-            states: {
-                hover: { color: '#B2DFDB' }
-            }
-        }, {
-            type: 'mappoint',
-            name: 'Наши объекты',
-            color: '#EF6C00', // Наш accent-orange
-            data: projectsData,
-            marker: {
-                radius: 5,
-                symbol: 'circle'
+    document.addEventListener('DOMContentLoaded', function() {
+        Highcharts.chart('regionHighchart', {
+            chart: {
+                type: 'bar', 
+                backgroundColor: 'transparent',
+                style: { fontFamily: "'Inter', sans-serif" },
+                // Увеличиваем отступ справа, чтобы цифры точно влезли
+                marginRight: 50 
             },
-            dataLabels: {
-                enabled: true,
-                format: '{point.name}',
-                style: { 
-                    fontSize: '10px', 
-                    fontWeight: 'normal',
-                    textOutline: 'none',
-                    color: '#212121' 
+            title: {
+                text: 'География строительства (2023-2025)',
+                align: 'left',
+                style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+            },
+            subtitle: {
+                text: 'Кликните на год в легенде, чтобы скрыть/показать данные',
+                align: 'left',
+                style: { color: '#546E7A' }
+            },
+            xAxis: {
+                categories: [
+                    'Центральный ФО', 
+                    'Северо-Западный ФО', 
+                    'Приволжский ФО', 
+                    'Южный ФО', 
+                    'Уральский ФО'
+                ],
+                title: { text: null },
+                gridLineWidth: 0,
+                labels: {
+                    style: {
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: '#212121'
+                    }
                 }
+            },
+            yAxis: {
+                min: 0,
+                // Добавляем потолок, чтобы для самых длинных полосок оставалось место под цифру
+                // Если у вас макс. значение 48, ставим чуть больше, например 60
+                max: 60, 
+                title: {
+                    text: 'Количество проектов',
+                    align: 'high',
+                    style: { color: '#546E7A' }
+                },
+                gridLineColor: '#eee'
+            },
+            tooltip: {
+                shared: true,
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#CFD8DC',
+                borderRadius: 8,
+                shadow: true,
+                valueSuffix: ' шт.'
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    pointPadding: 0.1, 
+                    groupPadding: 0.15,
+                    dataLabels: {
+                        enabled: true,
+                        inside: false,    // <--- ВАЖНО: Выносит текст наружу
+                        align: 'left',    // Прижимает текст слева от точки привязки (сразу за баром)
+                        crop: false,      // Не обрезать текст краем графика
+                        overflow: 'allow',
+                        x: 5,             // Отступ в 5px от конца полоски
+                        style: {
+                            fontWeight: '600',
+                            fontSize: '11px',
+                            color: '#212121', // Темный цвет (так как теперь на белом фоне)
+                            textOutline: 'none' // Убираем белую обводку букв
+                        }
+                    }
+                },
+                series: {
+                    cursor: 'pointer',
+                    animation: { duration: 500 }
+                }
+            },
+            legend: {
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom',
+                margin: 30, // Отступ легенды от графика
+                itemStyle: { 
+                    fontSize: '14px', 
+                    fontWeight: '500', 
+                    color: '#212121',
+                    cursor: 'pointer'
+                },
+                itemHoverStyle: { color: '#EF6C00' }
+            },
+            credits: { enabled: false },
+            series: [{
+                name: '2023',
+                data: [35, 18, 14, 10, 5],
+                color: '#B0BEC5' 
+            }, {
+                name: '2024',
+                data: [42, 24, 18, 12, 7],
+                color: '#00796B' 
+            }, {
+                name: '2025 (План)',
+                data: [48, 28, 22, 15, 10],
+                color: '#EF6C00' 
+            }],
+            responsive: {
+                rules: [{
+                    condition: { maxWidth: 500 },
+                    chartOptions: {
+                        chart: { marginRight: 30 }, // На мобильном отступ поменьше
+                        legend: { itemStyle: { fontSize: '12px' } },
+                        xAxis: { labels: { style: { fontSize: '11px' } } }
+                    }
+                }]
             }
-        }]
-    });
-});
-
-    // Загрузка гео-данных (GeoJSON)
-    // ВАЖНО: Мы стараемся уйти от внешних CDN. 
-    // Рекомендую скачать этот файл и положить в js/ru-main.json
-    fetch('https://code.highcharts.com/mapdata/countries/ru/ru-all.geo.json')
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data => {
-            renderRussiaMap(data);
-        })
-        .catch(error => {
-            console.error('Ошибка загрузки карты:', error);
-            mapContainer.innerHTML = '<p style="text-align:center; padding-top:50px;">Не удалось загрузить карту региона</p>';
         });
 });
 
