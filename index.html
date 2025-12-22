@@ -145,7 +145,6 @@
     <script src="js/exporting.js"></script>
     <script src="js/offline-exporting.js"></script>
     <script src="js/accessibility.js"></script>
-    <script src="js/main.js"></script>
     <style>
       /* Адаптивность для таблиц */
       .table-responsive {
@@ -3341,72 +3340,82 @@ function updateTimelineChart(times) {
     // ГРАФИК 5: РЕГИОНЫ (ЧИСЛА СПРАВА)
     // ==========================================
 // ==========================================
-// КАРТА РОССИИ С ПРОЕКТАМИ MKL (ИСПРАВЛЕНО)
+// КАРТА РОССИИ (ИСПРАВЛЕННАЯ ВЕРСИЯ)
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
     const mapContainer = document.getElementById('russiaMap');
     if (!mapContainer) return;
 
-    // Функция отрисовки
-    function renderRussiaMap(geoData) {
-        // Проверяем, что модуль карт загружен
-        if (typeof Highcharts.mapChart !== 'function') {
-            console.error('Ошибка: Модуль map.js не загружен!');
-            mapContainer.innerHTML = '<p style="padding:20px; text-align:center;">Ошибка загрузки модуля карт</p>';
-            return;
-        }
+    // Данные по проектам MKL
+    const projectsData = [
+        { name: 'Москва', lat: 55.7558, lon: 37.6173, projects: 85 },
+        { name: 'Санкт-Петербург', lat: 59.9343, lon: 30.3351, projects: 65 },
+        { name: 'Нижний Новгород', lat: 56.3269, lon: 44.0059, projects: 35 },
+        { name: 'Ростов-на-Дону', lat: 47.2224, lon: 39.7189, projects: 40 },
+        { name: 'Екатеринбург', lat: 56.8389, lon: 60.6057, projects: 12 },
+        { name: 'Краснодар', lat: 45.0355, lon: 38.9753, projects: 25 }
+    ];
 
-        // Данные по проектам
-        const projectsData = [
-            { name: 'Москва', lat: 55.7558, lon: 37.6173, projects: 85, region: 'Центральный' },
-            { name: 'Санкт-Петербург', lat: 59.9343, lon: 30.3351, projects: 65, region: 'Северо-Западный' },
-            { name: 'Нижний Новгород', lat: 56.3269, lon: 44.0059, projects: 35, region: 'Приволжский' },
-            { name: 'Ростов-на-Дону', lat: 47.2224, lon: 39.7189, projects: 40, region: 'Южный' },
-            { name: 'Краснодар', lat: 45.0355, lon: 38.9753, projects: 25, region: 'Южный' }
-            // Можно добавить остальные города здесь
-        ];
+    // Проверяем наличие данных из локального файла js/ru-all.js
+    const mapData = Highcharts.maps['countries/ru/ru-all'];
 
-        Highcharts.mapChart('russiaMap', {
-            chart: {
-                map: Highcharts.maps['countries/ru/ru-all'],
-                backgroundColor: 'transparent'
-            },
-            title: {
-                text: 'География реализованных объектов',
-                style: { color: '#0D47A1', fontWeight: 'bold' }
-            },
-            mapNavigation: {
-                enabled: true,
-                buttonOptions: { verticalAlign: 'bottom' }
-            },
-            legend: { enabled: false },
-            tooltip: {
-                useHTML: true,
-                pointFormat: '<b>{point.name}</b><br>Проектов: {point.projects}'
-            },
-            series: [{
-                name: 'Карта',
-                borderColor: '#CFD8DC',
-                borderWidth: 1,
-                nullColor: 'rgba(200, 200, 200, 0.2)',
-                showInLegend: false
-            }, {
-                type: 'mappoint',
-                name: 'Объекты',
-                color: '#EF6C00',
-                data: projectsData,
-                marker: {
-                    radius: 6,
-                    symbol: 'circle'
-                },
-                dataLabels: {
-                    enabled: true,
-                    format: '{point.name}',
-                    style: { fontSize: '9px', textOutline: 'none' }
-                }
-            }]
-        });
+    if (!mapData) {
+        console.error('Ошибка: Данные карты из js/ru-all.js не загружены. Проверьте путь к файлу.');
+        mapContainer.innerHTML = '<p style="text-align:center; padding-top:50px; color:red;">Ошибка: Файл данных карты не найден</p>';
+        return;
     }
+
+    Highcharts.mapChart('russiaMap', {
+        chart: {
+            map: mapData,
+            backgroundColor: 'transparent',
+            style: { fontFamily: "'Inter', sans-serif" }
+        },
+        title: {
+            text: 'География объектов МК-Л',
+            style: { color: '#0D47A1', fontWeight: 'bold' }
+        },
+        credits: { enabled: false },
+        mapNavigation: {
+            enabled: true,
+            buttonOptions: { verticalAlign: 'bottom' }
+        },
+        legend: { enabled: false },
+        tooltip: {
+            useHTML: true,
+            headerFormat: '<b>{point.name}</b><br>',
+            pointFormat: 'Реализовано проектов: <b>{point.projects}</b>'
+        },
+        series: [{
+            name: 'Регионы',
+            borderColor: '#CFD8DC',
+            borderWidth: 0.5,
+            nullColor: 'rgba(200, 200, 200, 0.2)',
+            states: {
+                hover: { color: '#B2DFDB' }
+            }
+        }, {
+            type: 'mappoint',
+            name: 'Наши объекты',
+            color: '#EF6C00', // Наш accent-orange
+            data: projectsData,
+            marker: {
+                radius: 5,
+                symbol: 'circle'
+            },
+            dataLabels: {
+                enabled: true,
+                format: '{point.name}',
+                style: { 
+                    fontSize: '10px', 
+                    fontWeight: 'normal',
+                    textOutline: 'none',
+                    color: '#212121' 
+                }
+            }
+        }]
+    });
+});
 
     // Загрузка гео-данных (GeoJSON)
     // ВАЖНО: Мы стараемся уйти от внешних CDN. 
