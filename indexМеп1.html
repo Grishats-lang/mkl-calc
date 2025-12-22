@@ -1397,21 +1397,6 @@ input:checked + .cookie-slider:before {
     border-color: var(--primary-blue);
     box-shadow: 0 4px 8px rgba(13, 71, 161, 0.2);
 }
-
-#russiaMap {
-    width: 100%;
-    height: 500px; /* Обязательно задайте высоту */
-    margin: 20px 0;
-    background: var(--background-light);
-    border-radius: 4px;
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 768px) {
-    #russiaMap {
-        height: 350px;
-    }
-}
         
 </style>
 </head>
@@ -3123,34 +3108,124 @@ function updateTimelineChart(times) {
             // ГРАФИК 1: ПРЕИМУЩЕСТВА (HIGHCHARTS RADAR)
             // ==========================================
             // Требует подключения js/highcharts-more.js
-document.addEventListener('DOMContentLoaded', function() {
-    const mapContainer = document.getElementById('russiaMap');
-    if (!mapContainer) return;
-
-    // Проверка, загружен ли модуль карт
-    if (typeof Highcharts.mapChart !== 'function') {
-        console.error('Ошибка: Модуль highcharts-map.js не загружен!');
-        return;
-    }
-
-    const mapData = Highcharts.maps['countries/ru/ru-all'];
-    if (!mapData) {
-        console.error('Ошибка: Файл геометрии карты не найден в Highcharts.maps');
-        // Попробуем вывести в консоль, что вообще загружено, для отладки
-        console.log('Доступные карты:', Object.keys(Highcharts.maps || {}));
-        return;
-    }
-
-    russiaMapChart = Highcharts.mapChart('russiaMap', {
-        // ... ваш конфиг ...
-        chart: {
-            map: mapData,
-            backgroundColor: 'transparent'
-        },
-        // Важно: если используете mappoint (точки городов), 
-        // убедитесь что у них есть lat/lon и подключена библиотека proj4.js 
-        // ИЛИ используйте координаты x/y из данных карты.
-    });
+            document.addEventListener('DOMContentLoaded', function() {
+                Highcharts.chart('advantagesHighchart', {
+                    chart: {
+                        polar: true, // Включает режим "Паутины"
+                        type: 'line',
+                        backgroundColor: 'transparent',
+                        style: {
+                            fontFamily: "'Inter', sans-serif"
+                        }
+                    },
+                    title: {
+                        text: 'Сравнительный анализ характеристик',
+                        style: {
+                            fontSize: '18px',
+                            fontWeight: '600',
+                            color: '#212121'
+                        }
+                    },
+                    subtitle: {
+                        text: 'Оценка по 100-балльной шкале',
+                        style: {
+                            color: '#546E7A'
+                        }
+                    },
+                    pane: {
+                        size: '80%' // Размер паутины внутри контейнера
+                    },
+                    xAxis: {
+                        categories: [
+                            'Теплоизоляция', 
+                            'Скорость монтажа', 
+                            'Долговечность', 
+                            'Экономичность', 
+                            'Экологичность', 
+                            'Огнестойкость'
+                        ],
+                        tickmarkPlacement: 'on',
+                        lineWidth: 0,
+                        labels: {
+                            style: {
+                                color: '#212121',
+                                fontWeight: '500'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        gridLineInterpolation: 'polygon', // Делает сетку угловатой (как паутина), а не круглой
+                        lineWidth: 0,
+                        min: 0,
+                        max: 100,
+                        tickInterval: 20
+                    },
+                    tooltip: {
+                        shared: true,
+                        pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}</b><br/>'
+                    },
+                    legend: {
+                        align: 'center',
+                        verticalAlign: 'bottom',
+                        layout: 'horizontal'
+                    },
+                    series: [{
+                        name: 'Сэндвич-панели MKL',
+                        data: [95, 90, 85, 88, 80, 92],
+                        color: '#00796B', // Ваш accent-teal
+                        pointPlacement: 'on',
+                        lineWidth: 2,
+                        marker: {
+                            enabled: true,
+                            symbol: 'circle',
+                            radius: 4
+                        },
+                        fillColor: 'rgba(0, 121, 107, 0.2)',
+                        type: 'area' // Делаем заливку области
+                    }, {
+                        name: 'Традиционные материалы',
+                        data: [70, 50, 75, 60, 70, 65],
+                        color: '#0D47A1', // Ваш primary-blue
+                        pointPlacement: 'on',
+                        lineWidth: 1,
+                        dashStyle: 'LongDash', // Пунктирная линия для сравнения
+                        marker: {
+                            enabled: true,
+                            symbol: 'diamond',
+                            radius: 3
+                        },
+                        fillColor: 'rgba(13, 71, 161, 0.1)',
+                        type: 'area'
+                    }],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 500
+                            },
+                            chartOptions: {
+                                pane: {
+                                    size: '65%' // Уменьшаем паутину на мобильных, чтобы влезли подписи
+                                },
+                                legend: {
+                                    itemStyle: {
+                                        fontSize: '10px'
+                                    }
+                                },
+                                xAxis: {
+                                    labels: {
+                                        style: {
+                                            fontSize: '10px' // Уменьшаем шрифт подписей осей
+                                        },
+                                        distance: 10 // Прижимаем подписи ближе к графику
+                                    }
+                                }
+                            }
+                        }]
+                    },
+                    credits: {
+                        enabled: false
+                    }
+                });
 });
 
         // ==========================================
