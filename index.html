@@ -137,6 +137,7 @@
     <!-- Highcharts (Local) -->
     <script src="js/proj4.js"></script>
     <script src="js/highcharts.js"></script>
+    <script src="js/map.js"></script>
     <script src="js/ru-all.js"></script>
     <script src="js/main.js"></script>
     <script src="js/highcharts-more.js"></script>
@@ -3340,275 +3341,88 @@ function updateTimelineChart(times) {
     // ГРАФИК 5: РЕГИОНЫ (ЧИСЛА СПРАВА)
     // ==========================================
 // ==========================================
-// КАРТА РОССИИ С ПРОЕКТАМИ MKL
+// КАРТА РОССИИ С ПРОЕКТАМИ MKL (ИСПРАВЛЕНО)
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
-    // Проверяем, загружен ли модуль карт
-    if (typeof Highcharts === 'undefined' || !Highcharts.maps['custom/european-russia']) {
-        // Загружаем карту европейской части России
-        fetch('https://code.highcharts.com/mapdata/custom/european-russia.geo.json')
-            .then(response => response.json())
-            .then(mapData => {
-                Highcharts.maps['custom/european-russia'] = mapData;
-                renderRussiaMap();
-            })
-            .catch(error => {
-                console.error('Error loading map:', error);
-                document.getElementById('russiaMap').innerHTML = 
-                    '<div style="text-align: center; padding: 50px; color: #666;">Карта временно недоступна</div>';
-            });
-    } else {
-        renderRussiaMap();
-    }
+    const mapContainer = document.getElementById('russiaMap');
+    if (!mapContainer) return;
 
-    function renderRussiaMap() {
-        // Генерируем случайные данные для проектов (для реалистичности)
-        const generateProjects = () => {
-            const projects = [];
-            
-            // Основные города в регионах работы
-            const cities = [
-                // Центральный ФО
-                { name: 'Москва', lat: 55.7558, lon: 37.6173, region: 'Центральный', projects: 85 },
-                { name: 'Тула', lat: 54.1961, lon: 37.6182, region: 'Центральный', projects: 25 },
-                { name: 'Рязань', lat: 54.6294, lon: 39.7417, region: 'Центральный', projects: 18 },
-                { name: 'Калуга', lat: 54.5133, lon: 36.2612, region: 'Центральный', projects: 22 },
-                { name: 'Ярославль', lat: 57.6261, lon: 39.8845, region: 'Центральный', projects: 30 },
-                { name: 'Владимир', lat: 56.1290, lon: 40.4066, region: 'Центральный', projects: 15 },
-                
-                // Северо-Западный ФО
-                { name: 'Санкт-Петербург', lat: 59.9343, lon: 30.3351, region: 'Северо-Западный', projects: 65 },
-                { name: 'Новгород', lat: 58.5228, lon: 31.2698, region: 'Северо-Западный', projects: 12 },
-                { name: 'Псков', lat: 57.8194, lon: 28.3318, region: 'Северо-Западный', projects: 10 },
-                { name: 'Вологда', lat: 59.2205, lon: 39.8915, region: 'Северо-Западный', projects: 25 },
-                
-                // Приволжский ФО
-                { name: 'Нижний Новгород', lat: 56.3269, lon: 44.0059, region: 'Приволжский', projects: 35 },
-                { name: 'Казань', lat: 55.7961, lon: 49.1064, region: 'Приволжский', projects: 28 },
-                { name: 'Самара', lat: 53.1959, lon: 50.1002, region: 'Приволжский', projects: 15 },
-                { name: 'Пермь', lat: 58.0105, lon: 56.2502, region: 'Приволжский', projects: 10 },
-                { name: 'Уфа', lat: 54.7351, lon: 55.9587, region: 'Приволжский', projects: 5 },
-                { name: 'Саратов', lat: 51.5336, lon: 46.0343, region: 'Приволжский', projects: 5 },
-                
-                // Южный ФО
-                { name: 'Ростов-на-Дону', lat: 47.2224, lon: 39.7189, region: 'Южный', projects: 40 },
-                { name: 'Краснодар', lat: 45.0355, lon: 38.9753, region: 'Южный', projects: 25 },
-                { name: 'Волгоград', lat: 48.7080, lon: 44.5133, region: 'Южный', projects: 8 },
-                { name: 'Астрахань', lat: 46.3497, lon: 48.0408, region: 'Южный', projects: 2 }
-            ];
-            
-            // Добавляем случайные проекты в других местах для реалистичности
-            for (let i = 0; i < 30; i++) {
-                cities.push({
-                    name: `Проект ${i+1}`,
-                    lat: 55 + (Math.random() - 0.5) * 12,
-                    lon: 40 + (Math.random() - 0.5) * 25,
-                    region: ['Центральный', 'Северо-Западный', 'Приволжский', 'Южный'][Math.floor(Math.random() * 4)],
-                    projects: Math.floor(Math.random() * 5) + 1
-                });
-            }
-            
-            return cities;
-        };
+    // Функция отрисовки
+    function renderRussiaMap(geoData) {
+        // Проверяем, что модуль карт загружен
+        if (typeof Highcharts.mapChart !== 'function') {
+            console.error('Ошибка: Модуль map.js не загружен!');
+            mapContainer.innerHTML = '<p style="padding:20px; text-align:center;">Ошибка загрузки модуля карт</p>';
+            return;
+        }
 
-        const projectsData = generateProjects();
-
-        // Регионы работы (границы)
-        const workRegions = [
-            {
-                name: 'Центральный ФО',
-                color: 'rgba(13, 71, 161, 0.1)',
-                borderColor: '#0D47A1',
-                borderWidth: 3,
-                // Примерные координаты региона (упрощенно)
-                path: 'M 100 100 L 200 100 L 200 200 L 100 200 Z' // Здесь нужны реальные координаты полигона
-            },
-            // Добавьте аналогично другие регионы
+        // Данные по проектам
+        const projectsData = [
+            { name: 'Москва', lat: 55.7558, lon: 37.6173, projects: 85, region: 'Центральный' },
+            { name: 'Санкт-Петербург', lat: 59.9343, lon: 30.3351, projects: 65, region: 'Северо-Западный' },
+            { name: 'Нижний Новгород', lat: 56.3269, lon: 44.0059, projects: 35, region: 'Приволжский' },
+            { name: 'Ростов-на-Дону', lat: 47.2224, lon: 39.7189, projects: 40, region: 'Южный' },
+            { name: 'Краснодар', lat: 45.0355, lon: 38.9753, projects: 25, region: 'Южный' }
+            // Можно добавить остальные города здесь
         ];
 
         Highcharts.mapChart('russiaMap', {
             chart: {
-                map: 'custom/european-russia',
+                map: Highcharts.maps['countries/ru/ru-all'],
                 backgroundColor: 'transparent'
             },
-
             title: {
-                text: 'Реализованные проекты MKL по регионам России',
-                style: {
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    color: '#212121'
-                }
+                text: 'География реализованных объектов',
+                style: { color: '#0D47A1', fontWeight: 'bold' }
             },
-
-            subtitle: {
-                text: 'Более 500 объектов за 10 лет работы',
-                style: {
-                    color: '#546E7A'
-                }
-            },
-
             mapNavigation: {
                 enabled: true,
-                enableDoubleClickZoomTo: true,
-                buttonOptions: {
-                    verticalAlign: 'bottom',
-                    theme: {
-                        fill: '#00796B',
-                        'stroke-width': 1,
-                        stroke: '#FFFFFF',
-                        r: 6,
-                        states: {
-                            hover: {
-                                fill: '#00695C'
-                            },
-                            select: {
-                                fill: '#0D47A1'
-                            }
-                        }
-                    }
-                }
+                buttonOptions: { verticalAlign: 'bottom' }
             },
-
-            legend: {
-                enabled: false
-            },
-
+            legend: { enabled: false },
             tooltip: {
                 useHTML: true,
-                headerFormat: '<span style="font-size: 14px; font-weight: bold">{point.key}</span><br/>',
-                pointFormat: function() {
-                    if (this.point.region) {
-                        return `
-                            <span style="color: ${this.series.color}">●</span> 
-                            Регион: <b>${this.point.region}</b><br/>
-                            Проектов: <b>${this.point.projects || 1}</b><br/>
-                            ${this.point.lat ? `Координаты: ${this.point.lat.toFixed(2)}°, ${this.point.lon.toFixed(2)}°` : ''}
-                        `;
-                    }
-                    return this.point.name;
-                },
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                borderColor: '#CFD8DC',
-                borderRadius: 8,
-                shadow: true
+                pointFormat: '<b>{point.name}</b><br>Проектов: {point.projects}'
             },
-
             series: [{
-                // Базовая карта
-                name: 'Россия',
-                borderColor: '#B0BEC5',
+                name: 'Карта',
+                borderColor: '#CFD8DC',
                 borderWidth: 1,
-                nullColor: 'rgba(236, 239, 241, 0.5)',
-                showInLegend: false,
-                enableMouseTracking: false
+                nullColor: 'rgba(200, 200, 200, 0.2)',
+                showInLegend: false
             }, {
-                // Регионы работы (выделенные границы)
-                type: 'mapline',
-                name: 'Основные регионы работы',
-                color: '#0D47A1',
-                lineWidth: 3,
-                dashStyle: 'Solid',
-                marker: {
-                    enabled: false
-                },
-                data: [{
-                    name: 'Центральный ФО',
-                    path: 'M 300 400 L 400 400 L 400 500 L 300 500 Z' // Упрощенный полигон
-                }, {
-                    name: 'Северо-Западный ФО',
-                    path: 'M 200 300 L 300 300 L 300 400 L 200 400 Z'
-                }, {
-                    name: 'Приволжский ФО',
-                    path: 'M 400 400 L 500 400 L 500 500 L 400 500 Z'
-                }, {
-                    name: 'Южный ФО',
-                    path: 'M 300 500 L 400 500 L 400 600 L 300 600 Z'
-                }],
-                tooltip: {
-                    pointFormat: '<b>{point.name}</b>'
-                }
-            }, {
-                // Реализованные проекты (точки)
                 type: 'mappoint',
-                name: 'Реализованные проекты',
+                name: 'Объекты',
                 color: '#EF6C00',
-                dataLabels: {
-                    enabled: false
-                },
+                data: projectsData,
                 marker: {
-                    radius: function() {
-                        return Math.min(Math.max((this.point.projects || 1) * 2, 4), 10);
-                    },
-                    symbol: 'circle',
-                    lineColor: '#FFFFFF',
-                    lineWidth: 1
+                    radius: 6,
+                    symbol: 'circle'
                 },
-                data: projectsData.map(project => ({
-                    name: project.name,
-                    lat: project.lat,
-                    lon: project.lon,
-                    region: project.region,
-                    projects: project.projects
-                }))
-            }, {
-                // Крупные города (отдельные маркеры)
-                type: 'mappoint',
-                name: 'Крупные города',
-                color: '#00796B',
                 dataLabels: {
                     enabled: true,
                     format: '{point.name}',
-                    style: {
-                        fontSize: '10px',
-                        fontWeight: 'bold',
-                        color: '#00796B',
-                        textOutline: '1px white'
-                    },
-                    verticalAlign: 'bottom',
-                    y: -5
-                },
-                marker: {
-                    radius: 6,
-                    symbol: 'square',
-                    lineColor: '#FFFFFF',
-                    lineWidth: 2
-                },
-                data: [
-                    { name: 'Москва', lat: 55.7558, lon: 37.6173 },
-                    { name: 'Санкт-Петербург', lat: 59.9343, lon: 30.3351 },
-                    { name: 'Нижний Новгород', lat: 56.3269, lon: 44.0059 },
-                    { name: 'Казань', lat: 55.7961, lon: 49.1064 },
-                    { name: 'Ростов-на-Дону', lat: 47.2224, lon: 39.7189 }
-                ]
-            }],
-
-            credits: {
-                enabled: false
-            },
-
-            responsive: {
-                rules: [{
-                    condition: {
-                        maxWidth: 500
-                    },
-                    chartOptions: {
-                        chart: {
-                            height: 400
-                        },
-                        mapNavigation: {
-                            enabled: false
-                        },
-                        title: {
-                            style: {
-                                fontSize: '16px'
-                            }
-                        }
-                    }
-                }]
-            }
+                    style: { fontSize: '9px', textOutline: 'none' }
+                }
+            }]
         });
     }
+
+    // Загрузка гео-данных (GeoJSON)
+    // ВАЖНО: Мы стараемся уйти от внешних CDN. 
+    // Рекомендую скачать этот файл и положить в js/ru-main.json
+    fetch('https://code.highcharts.com/mapdata/countries/ru/ru-all.geo.json')
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            renderRussiaMap(data);
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки карты:', error);
+            mapContainer.innerHTML = '<p style="text-align:center; padding-top:50px;">Не удалось загрузить карту региона</p>';
+        });
 });
 
         // ==========================================
