@@ -135,12 +135,17 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
     <!-- Highcharts (Local) -->
+    <script src="js/proj4.js"></script>
     <script src="js/highcharts.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/ru-all-topo.js"></script>
     <script src="js/highcharts-more.js"></script>
     <script src="js/timeline.js"></script>
     <script src="js/highcharts-3d.js"></script>
     <script src="js/exporting.js"></script>
+    <script src="js/offline-exporting.js"></script>
     <script src="js/accessibility.js"></script>
+    
     <style>
       /* Адаптивность для таблиц */
       .table-responsive {
@@ -1368,7 +1373,7 @@ input:checked + .cookie-slider:before {
         overflow: visible !important;
     }
 }
-        
+
 </style>
 </head>
 <body>
@@ -2107,31 +2112,8 @@ input:checked + .cookie-slider:before {
 <!-- РАЗДЕЛ 9: ТЕРРИТОРИЯ РАБОТЫ -->
 <section id="coverage" class="section">
     <div class="section-number">9</div>
-    <h2>География Деятельности</h2>
-    <p>
-        Компания MKL реализует проекты <strong>по всей европейской части России</strong>. Наша логистическая 
-        сеть позволяет эффективно доставлять материалы и организовывать монтажные работы в удалённых регионах.
-    </p>
 
-    <h3>Основные регионы работы</h3>
-    <div class="specs-grid">
-        <div class="spec-card">
-            <h4>Центральный ФО</h4>
-            <p>Москва, Московская обл., Тула, Рязань, Калуга, Ярославль, Владимир и другие</p>
-        </div>
-        <div class="spec-card">
-            <h4>Северо-Западный ФО</h4>
-            <p>Санкт-Петербург, Ленинградская обл., Новгород, Псков, Вологда</p>
-        </div>
-        <div class="spec-card">
-            <h4>Приволжский ФО</h4>
-            <p>Нижний Новгород, Казань, Самара, Пермь, Уфа, Саратов</p>
-        </div>
-        <div class="spec-card">
-            <h4>Южный ФО</h4>
-            <p>Ростов-на-Дону, Краснодар, Волгоград, Астрахань</p>
-        </div>
-    </div>
+    <h2>География Деятельности</h2>
 
     <div class="info-box mt-30">
         <strong>Доставка материалов:</strong> Осуществляется собственным и привлечённым транспортом. 
@@ -2139,9 +2121,51 @@ input:checked + .cookie-slider:before {
         Стоимость доставки рассчитывается индивидуально и включается в общую смету проекта.
     </div>
 
-    <h3>Статистика по регионам</h3>
+    <h3 style="margin-top: 40px;">Статистика по регионам (за 10 лет)</h3>
+    <div class="specs-grid">
+        <div class="spec-card">
+            <h4>Центральный ФО</h4>
+            <p>Москва, Московская обл., Тула, Рязань, Калуга, Ярославль, Владимир</p>
+            <div style="font-size: 1.5em; color: var(--accent-orange); font-weight: bold; margin-top: 10px;">215 проектов</div>
+        </div>
+        <div class="spec-card">
+            <h4>Северо-Западный ФО</h4>
+            <p>Санкт-Петербург, Ленинградская обл., Новгород, Псков, Вологда</p>
+            <div style="font-size: 1.5em; color: var(--accent-orange); font-weight: bold; margin-top: 10px;">112 проектов</div>
+        </div>
+        <div class="spec-card">
+            <h4>Приволжский ФО</h4>
+            <p>Нижний Новгород, Казань, Самара, Пермь, Уфа, Саратов</p>
+            <div style="font-size: 1.5em; color: var(--accent-orange); font-weight: bold; margin-top: 10px;">98 проектов</div>
+        </div>
+        <div class="spec-card">
+            <h4>Южный ФО</h4>
+            <p>Ростов-на-Дону, Краснодар, Волгоград, Астрахань</p>
+            <div style="font-size: 1.5em; color: var(--accent-orange); font-weight: bold; margin-top: 10px;">75 проектов</div>
+        </div>
+    </div>
+
+
+    <h3>Карта реализованных проектов</h3>
+    <p>На карте отмечены основные регионы нашей деятельности и выполненные проекты:</p>
+    
     <div class="chart-container" style="height: 600px;">
-        <div id="regionHighchart" style="width: 100%; height: 100%;"></div>
+        <div id="russiaMap" style="width: 100%; height: 100%;"></div>
+    </div>
+
+    <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
+        <div style="display: flex; align-items: center;">
+            <div style="width: 12px; height: 12px; background-color: #0D47A1; border-radius: 50%; margin-right: 8px;"></div>
+            <span style="font-size: 0.9em;">Основные регионы работы (границы)</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div style="width: 12px; height: 12px; background-color: #EF6C00; border-radius: 50%; margin-right: 8px;"></div>
+            <span style="font-size: 0.9em;">Реализованные проекты MKL</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div style="width: 12px; height: 12px; background-color: #00796B; border-radius: 50%; margin-right: 8px;"></div>
+            <span style="font-size: 0.9em;">Крупные города</span>
+        </div>
     </div>
 </section>
 
@@ -2731,98 +2755,98 @@ input:checked + .cookie-slider:before {
 // ==========================================
 // ИНТЕРАКТИВНЫЙ ГРАФИК РАБОТЫ (VERTICAL CHESS LAYOUT)
 // ==========================================
-let timelineChartInstance = null;
+            let timelineChartInstance = null;
 
-function updateTimelineChart(times) {
-    if (typeof Highcharts === 'undefined') return;
+            function updateTimelineChart(times) {
+                if (typeof Highcharts === 'undefined') return;
 
     // Проверяем модуль timeline
-    if (!Highcharts.seriesTypes.timeline) {
-        console.warn('Модуль timeline.js не загружен!');
-        return;
-    }
+                if (!Highcharts.seriesTypes.timeline) {
+                    console.warn('Модуль timeline.js не загружен!');
+                    return;
+                }
 
-    const container = document.getElementById('timelineHighchart');
-    if (!container) return;
+                const container = document.getElementById('timelineHighchart');
+                if (!container) return;
 
     // 1. Распаковка данных
-    const safeTime = (val) => (val && !isNaN(val)) ? val : 1;
-    const t_consult = safeTime(times.t_consult);
-    const t_design = safeTime(times.t_design);
-    const t_prod = safeTime(times.t_prod);
-    const t_delivery = safeTime(times.t_delivery);
-    const t_install = safeTime(times.t_install);
-    const t_handover = safeTime(times.t_handover);
-    const totalDays = times.totalDays || (t_consult + t_design + t_prod + t_delivery + t_install + t_handover);
+                const safeTime = (val) => (val && !isNaN(val)) ? val : 1;
+                const t_consult = safeTime(times.t_consult);
+                const t_design = safeTime(times.t_design);
+                const t_prod = safeTime(times.t_prod);
+                const t_delivery = safeTime(times.t_delivery);
+                const t_install = safeTime(times.t_install);
+                const t_handover = safeTime(times.t_handover);
+                const totalDays = times.totalDays || (t_consult + t_design + t_prod + t_delivery + t_install + t_handover);
 
     // 2. Цвета
-    const colors = {
-        consult: '#90A4AE', design: '#546E7A', prod: '#0D47A1',
-        delivery:'#00796B', install: '#EF6C00', handover:'#2E7D32'
-    };
+                const colors = {
+                    consult: '#90A4AE', design: '#546E7A', prod: '#0D47A1',
+                    delivery:'#00796B', install: '#EF6C00', handover:'#2E7D32'
+                };
 
     // 3. Данные
-    const minVisualDays = 8; 
-    const rawSteps = [
-        { id: 'consult',  days: t_consult,  name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
-        { id: 'design',   days: t_design,   name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
-        { id: 'prod',     days: t_prod,     name: '3. Производство', desc: 'Заводское изготовление', color: colors.prod },
-        { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
-        { id: 'install',  days: t_install,  name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
-        { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
-    ];
+                const minVisualDays = 8; 
+                const rawSteps = [
+                    { id: 'consult',  days: t_consult,  name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
+                    { id: 'design',   days: t_design,   name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
+                    { id: 'prod',     days: t_prod,     name: '3. Производство', desc: 'Заводское изготовление', color: colors.prod },
+                    { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
+                    { id: 'install',  days: t_install,  name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
+                    { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
+                ];
 
-    let currentVisualX = 0;
-    const seriesData = [];
-    const zones = [];
+                let currentVisualX = 0;
+                const seriesData = [];
+                const zones = [];
 
-    rawSteps.forEach((step) => {
-        const visualDuration = Math.max(step.days, minVisualDays);
-        currentVisualX += visualDuration;
+                rawSteps.forEach((step) => {
+                    const visualDuration = Math.max(step.days, minVisualDays);
+                    currentVisualX += visualDuration;
 
-        seriesData.push({
-            x: currentVisualX, 
-            name: step.name,
-            label: `${step.days} дн.`,
-            description: step.desc,
-            color: step.color,
-            dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
-        });
+                    seriesData.push({
+                        x: currentVisualX, 
+                        name: step.name,
+                        label: `${step.days} дн.`,
+                        description: step.desc,
+                        color: step.color,
+                        dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
+                    });
 
-        zones.push({ value: currentVisualX, color: step.color });
-    });
+                    zones.push({ value: currentVisualX, color: step.color });
+                });
 
     // 4. Отрисовка
-    if (timelineChartInstance) {
-        timelineChartInstance.update({
-            series: [{ data: seriesData, zones: zones }],
-            title: { text: `Общий срок реализации: ~${totalDays} дней` }
-        });
-    } else {
-        timelineChartInstance = Highcharts.chart('timelineHighchart', {
-            chart: {
-                type: 'timeline',
-                backgroundColor: 'transparent',
-                style: { fontFamily: "'Inter', sans-serif" },
-                height: 450
-            },
-            title: {
-                text: `Общий срок реализации: ~${totalDays} дней`,
-                style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
-            },
-            xAxis: { visible: false, min: 0 },
-            yAxis: { visible: false },
-            legend: { enabled: false },
-            tooltip: { enabled: false },
+                if (timelineChartInstance) {
+                    timelineChartInstance.update({
+                        series: [{ data: seriesData, zones: zones }],
+                        title: { text: `Общий срок реализации: ~${totalDays} дней` }
+                    });
+                } else {
+                    timelineChartInstance = Highcharts.chart('timelineHighchart', {
+                        chart: {
+                            type: 'timeline',
+                            backgroundColor: 'transparent',
+                            style: { fontFamily: "'Inter', sans-serif" },
+                            height: 450
+                        },
+                        title: {
+                            text: `Общий срок реализации: ~${totalDays} дней`,
+                            style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
+                        },
+                        xAxis: { visible: false, min: 0 },
+                        yAxis: { visible: false },
+                        legend: { enabled: false },
+                        tooltip: { enabled: false },
 
             // === АДАПТИВНОСТЬ (ШАХМАТНЫЙ ПОРЯДОК НА МОБИЛЬНОМ) ===
-            responsive: {
-                rules: [{
-                    condition: {
-                        maxWidth: 768
-                    },
-                    chartOptions: {
-                        chart: {
+                        responsive: {
+                            rules: [{
+                                condition: {
+                                    maxWidth: 768
+                                },
+                                chartOptions: {
+                                    chart: {
                             inverted: true, // 1. Вертикально
                             height: 1000,    // 2. Высокий блок
                             marginLeft: 10,
@@ -2877,15 +2901,15 @@ function updateTimelineChart(times) {
                                         🕒 <b>${this.point.label}</b><br>
                                         <span style="font-size: 11px; color: #777;">${this.point.description}</span>
                                     </div>
-                                </div>`;
-                    },
+                    </div>`;
+                },
                     alternate: true // Шахматный порядок для ПК (верх/низ)
                 }
             }],
             credits: { enabled: false }
         });
-    }
-}
+                }
+            }
 
             function initCalculator() {
                 const widthInput = document.getElementById('input-width');
@@ -3261,14 +3285,14 @@ function updateTimelineChart(times) {
                         
                         // Добавляем "вердикт"
                         if (index >= 2 && index <= 4) {
-                         s += `<div style="margin-top: 8px; font-size: 11px; color: #00796B; font-weight: 600;">✅ Рекомендовано МК-Л</div>`;
-                     }
+                           s += `<div style="margin-top: 8px; font-size: 11px; color: #00796B; font-weight: 600;">✅ Рекомендовано МК-Л</div>`;
+                       }
 
-                     s += '</div>';
-                     return s;
-                 }
-             },
-             legend: {
+                       s += '</div>';
+                       return s;
+                   }
+               },
+               legend: {
                 layout: 'horizontal',
                 align: 'center',
                 verticalAlign: 'bottom',
@@ -3314,127 +3338,133 @@ function updateTimelineChart(times) {
     // ==========================================
     // ГРАФИК 5: РЕГИОНЫ (ЧИСЛА СПРАВА)
     // ==========================================
+// ==========================================
+// КАРТА РОССИИ (ФИНАЛЬНАЯ ВЕРСИЯ С ФИЛЬТРАМИ)
+// ==========================================
     document.addEventListener('DOMContentLoaded', function() {
-        Highcharts.chart('regionHighchart', {
+        const mapContainer = document.getElementById('russiaMap');
+        if (!mapContainer || typeof russiaTopology === 'undefined') return;
+
+// РАССШИРЕННЫЕ И РАССЕЯННЫЕ ДАННЫЕ
+        const projects2024 = [
+    // Москва и область
+            { name: 'МСК-Север', lat: 56.15, lon: 37.3, projects: 15 },
+            { name: 'Химки-Пром', lat: 55.90, lon: 37.4, projects: 22 },
+            { name: 'Одинцово ЛСТК', lat: 55.67, lon: 36.7, projects: 10 },
+    // С-Пб и область
+            { name: 'СПб-Порт', lat: 59.95, lon: 30.2, projects: 45 },
+            { name: 'Гатчина-Склад', lat: 59.56, lon: 30.1, projects: 12 },
+    // Поволжье
+            { name: 'Н.Новгород', lat: 56.32, lon: 44.0, projects: 35 },
+            { name: 'Казань-Восток', lat: 55.75, lon: 49.2, projects: 8 },
+    // Юг
+            { name: 'Краснодар-1', lat: 45.05, lon: 39.0, projects: 28 },
+            { name: 'Новороссийск', lat: 44.72, lon: 37.7, projects: 14 },
+    // Урал
+            { name: 'Екб-Запад', lat: 56.85, lon: 60.5, projects: 12 }
+        ];
+
+        const projects2025 = [
+    // Москва и область
+            { name: 'МСК-Сити', lat: 55.75, lon: 37.6, projects: 30 },
+            { name: 'Подольск-Юг', lat: 55.42, lon: 37.5, projects: 48 },
+            { name: 'Балашиха-Тех', lat: 55.80, lon: 37.9, projects: 15 },
+    // С-Пб и область
+            { name: 'СПб-Центр', lat: 59.93, lon: 30.3, projects: 25 },
+            { name: 'Выборг-Ангар', lat: 60.71, lon: 28.7, projects: 18 },
+    // Поволжье
+            { name: 'Казань-Центр', lat: 55.83, lon: 49.1, projects: 32 },
+            { name: 'Самара-Склад', lat: 53.20, lon: 50.1, projects: 21 },
+    // Юг
+            { name: 'Ростов-на-Дону', lat: 47.23, lon: 39.7, projects: 40 },
+            { name: 'Сочи-Олимп', lat: 43.60, lon: 39.7, projects: 25 },
+            { name: 'Ставрополь', lat: 45.04, lon: 41.9, projects: 11 },
+    // Урал
+            { name: 'Челябинск', lat: 55.16, lon: 61.4, projects: 9 }
+        ];
+
+        Highcharts.mapChart('russiaMap', {
             chart: {
-                type: 'bar', 
                 backgroundColor: 'transparent',
                 style: { fontFamily: "'Inter', sans-serif" },
-                // Увеличиваем отступ справа, чтобы цифры точно влезли
-                marginRight: 50 
             },
             title: {
-                text: 'География строительства (2023-2025)',
-                align: 'left',
-                style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+                text: 'География объектов МК-Л',
+                style: { color: '#0D47A1', fontWeight: 'bold' }
             },
-            subtitle: {
-                text: 'Кликните на год в легенде, чтобы скрыть/показать данные',
-                align: 'left',
-                style: { color: '#546E7A' }
-            },
-            xAxis: {
-                categories: [
-                    'Центральный ФО', 
-                    'Северо-Западный ФО', 
-                    'Приволжский ФО', 
-                    'Южный ФО', 
-                    'Уральский ФО'
-                ],
-                title: { text: null },
-                gridLineWidth: 0,
-                labels: {
-                    style: {
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: '#212121'
-                    }
-                }
-            },
-            yAxis: {
-                min: 0,
-                // Добавляем потолок, чтобы для самых длинных полосок оставалось место под цифру
-                // Если у вас макс. значение 48, ставим чуть больше, например 60
-                max: 60, 
-                title: {
-                    text: 'Количество проектов',
-                    align: 'high',
-                    style: { color: '#546E7A' }
-                },
-                gridLineColor: '#eee'
-            },
-            tooltip: {
-                shared: true,
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                borderColor: '#CFD8DC',
-                borderRadius: 8,
-                shadow: true,
-                valueSuffix: ' шт.'
-            },
-            plotOptions: {
-                bar: {
-                    borderRadius: 4,
-                    pointPadding: 0.1, 
-                    groupPadding: 0.15,
-                    dataLabels: {
-                        enabled: true,
-                        inside: false,    // <--- ВАЖНО: Выносит текст наружу
-                        align: 'left',    // Прижимает текст слева от точки привязки (сразу за баром)
-                        crop: false,      // Не обрезать текст краем графика
-                        overflow: 'allow',
-                        x: 5,             // Отступ в 5px от конца полоски
-                        style: {
-                            fontWeight: '600',
-                            fontSize: '11px',
-                            color: '#212121', // Темный цвет (так как теперь на белом фоне)
-                            textOutline: 'none' // Убираем белую обводку букв
-                        }
-                    }
-                },
-                series: {
-                    cursor: 'pointer',
-                    animation: { duration: 500 }
-                }
-            },
-            legend: {
-                layout: 'horizontal',
-                align: 'center',
-                verticalAlign: 'bottom',
-                margin: 30, // Отступ легенды от графика
-                itemStyle: { 
-                    fontSize: '14px', 
-                    fontWeight: '500', 
-                    color: '#212121',
-                    cursor: 'pointer'
-                },
-                itemHoverStyle: { color: '#EF6C00' }
-            },
-            credits: { enabled: false },
-            series: [{
-                name: '2023',
-                data: [35, 18, 14, 10, 5],
-                color: '#B0BEC5' 
-            }, {
-                name: '2024',
-                data: [42, 24, 18, 12, 7],
-                color: '#00796B' 
-            }, {
-                name: '2025 (План)',
-                data: [48, 28, 22, 15, 10],
-                color: '#EF6C00' 
-            }],
-            responsive: {
-                rules: [{
-                    condition: { maxWidth: 500 },
-                    chartOptions: {
-                        chart: { marginRight: 30 }, // На мобильном отступ поменьше
-                        legend: { itemStyle: { fontSize: '12px' } },
-                        xAxis: { labels: { style: { fontSize: '11px' } } }
-                    }
-                }]
+            mapView: {
+                projection: { name: 'WebMercator' },
+            center: [56, 54], // Смещено еще левее
+            zoom: 4.3
+        },
+        mapNavigation: {
+            enabled: true,
+            enableMouseWheelZoom: true, // ЗУМ КОЛЕСОМ ВКЛЮЧЕН
+            buttonOptions: { align: 'right' }
+        },
+        legend: {
+            enabled: true,
+            align: 'center',
+            verticalAlign: 'bottom'
+        },
+        tooltip: {
+            useHTML: true,
+            pointFormat: '<b>{point.name}</b><br>Проектов: <b>{point.projects}</b>'
+        },
+        series: [{
+            name: 'Регионы',
+            mapData: russiaTopology,
+            borderColor: '#546E7A', 
+            borderWidth: 0.7, // ЖИРНЫЕ ЛИНИИ ОБЛАСТЕЙ
+            nullColor: 'rgba(236, 239, 241, 0.4)',
+            showInLegend: false
+        }, {
+            type: 'mappoint',
+            name: 'Объекты 2024',
+        color: '#00796B', // Бирюзовый
+        data: projects2024,
+        marker: { 
+            radius: 10, 
+            symbol: 'circle',
+            lineWidth: 2,
+            lineColor: '#FFFFFF'
+        },
+        dataLabels: {
+            enabled: true,
+            format: '{point.name} ({point.projects})',
+            y: -16, // Над маркером
+            style: { 
+                fontSize: '12px', 
+                fontWeight: 'bold', 
+                textOutline: '3px white',
+                color: '#004D40' 
             }
-        });
+        }
+    }, {        type: 'mappoint',
+        name: 'Объекты 2025',
+        color: '#EF6C00', // Оранжевый
+        data: projects2025,
+        marker: { 
+            radius: 12, 
+            symbol: 'circle',
+            lineWidth: 2,
+            lineColor: '#FFFFFF'
+        },
+        dataLabels: {
+            enabled: true,
+            format: '{point.name} ({point.projects})',
+            y: -18, // Над маркером
+            style: { 
+                fontSize: '14px', 
+                fontWeight: '900', 
+                textOutline: '3px white',
+                color: '#E65100' 
+
+            }
+        }
+    }]
 });
+    });
 
         // ==========================================
         // АНИМАЦИЯ ПРИ СКРОЛЛЕ
@@ -3514,10 +3544,10 @@ function updateTimelineChart(times) {
      <div id="cookieBanner" class="cookie-banner">
         <h3>🍪 Файлы cookie</h3>
         <p>Сайт использует cookie для корректной работы и сбора статистики. 
-         Нажатие «Принять» подтверждает согласие с   
-         <a href="/policy.html" target="_blank">Политике обработки данных</a>.
-     </p>
-     <div class="cookie-buttons">
+           Нажатие «Принять» подтверждает согласие с   
+           <a href="/policy.html" target="_blank">Политике обработки данных</a>.
+       </p>
+       <div class="cookie-buttons">
         <button class="cookie-btn accept" onclick="acceptCookies()">Принять</button>
         <button class="cookie-btn reject" onclick="rejectCookies()">Отклонить</button>
         <button class="cookie-btn settings" onclick="showCookieSettings()">Настройки</button>
