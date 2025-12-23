@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диаграмма Ганта Pro - Просмотр</title>
+    
+    <!-- Highcharts -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/gantt.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 95vh; /* Чтобы занимало почти весь экран */
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+
+        #ganttChart {
+            padding: 20px;
+            flex-grow: 1; /* Занимает все доступное пространство */
+            width: 100%;
+        }
+
+        /* Адаптив */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Визуализация этапов строительства</h1>           
+        </div>
+
+        <!-- Диаграмма Ганта -->
+        <div id="ganttChart"></div>
+    </div>
+
+    <script>
+        let chartInstance = null;
+        
+        // Настройки по умолчанию (так как инпуты удалены)
+        const config = {
+            chartHeight: null, // null = авто-высота
+            projectName: "Строительство здания MKL",
+            startDate: new Date(), // Сегодня
+            theme: 'light',
+            primaryColor: '#667eea'
+        };
+
+        // Данные проекта
+        let projectData = [
+            {
+                name: 'Подготовка проекта',
+                id: 'phase_design',
+                color: '#e0e0e0'
+            },
+            {
+                name: 'Консультация и ТЗ',
+                parent: 'phase_design',
+                start: 0,
+                end: 1,
+                color: '#546E7A',
+                completed: 0.15
+            },
+            {
+                name: 'Разработка КМ/КМД',
+                parent: 'phase_design',
+                start: 1,
+                end: 4,
+                color: '#546E7A',
+                dependency: 'task_prod'
+            },
+            {
+                name: 'Производство и Снабжение',
+                id: 'phase_supply',
+                color: '#e0e0e0'
+            },
+            {
+                id: 'task_prod',
+                name: 'Изготовление конструкций',
+                parent: 'phase_supply',
+                start: 4,
+                end: 14,
+                color: '#0D47A1'
+            },
+            {
+                name: 'Доставка на объект',
+                parent: 'phase_supply',
+                start: 14,
+                end: 16,
+                color: '#00796B',
+                dependency: 'task_frame'
+            },
+            {
+                name: 'Строительно-монтажные работы',
+                id: 'phase_build',
+                color: '#e0e0e0'
+            },
+            {
+                id: 'task_frame',
+                name: 'Монтаж металлокаркаса',
+                parent: 'phase_build',
+                start: 16,
+                end: 26,
+                color: '#EF6C00'
+            },
+            {
+                name: 'Монтаж сэндвич-панелей',
+                parent: 'phase_build',
+                start: 26,
+                end: 36,
+                color: '#EF6C00'
+            },
+            {
+                name: 'Установка ворот и окон',
+                parent: 'phase_build',
+                start: 36,
+                end: 41,
+                color: '#EF6C00',
+                dependency: 'task_handover'
+            },
+            {
+                id: 'task_handover',
+                name: 'Сдача объекта',
+                start: 43,
+                end: 43,
+                milestone: true,
+                color: '#00796B'
+            }
+        ];
+
+        function convertToGanttData() {
+            const day = 1000 * 60 * 60 * 24;
+            const startTimestamp = config.startDate.getTime();
+            
+            return projectData.map(task => {
+                // Если есть start/end в днях, конвертируем в timestamp
+                if (task.start !== undefined && task.end !== undefined) {
+                    return {
+                        ...task,
+                        start: startTimestamp + (task.start * day),
+                        end: startTimestamp + (task.end * day)
+                    };
+                }
+                return task;
+            });
+        }
+
+        function updateChart() {
+            const ganttData = convertToGanttData();
+            
+            // Настройки стилей
+            const backgroundColor = 'transparent';
+            const textColor = '#212121';
+            const gridColor = 'rgba(0,0,0,0.1)';
+
+            chartInstance = Highcharts.ganttChart('ganttChart', {
+                chart: {
+                    // height: config.chartHeight, // Автоматическая высота
+                    backgroundColor: backgroundColor,
+                    style: { fontFamily: "'Segoe UI', sans-serif" }
+                },
+                title: {
+                    text: config.projectName,
+                    style: { 
+                        fontSize: '24px', 
+                        fontWeight: 'bold', 
+                        color: textColor 
+                    }
+                },
+                xAxis: [{
+                    currentDateIndicator: {
+                        color: config.primaryColor,
+                        dashStyle: 'ShortDot',
+                        width: 3,
+                        label: {
+                            format: 'Сегодня',
+                            style: { color: config.primaryColor, fontWeight: 'bold' }
+                        }
+                    },
+                    grid: { 
+                        borderWidth: 1, 
+                        borderColor: gridColor 
+                    }
+                }],
+                yAxis: {
+                    uniqueNames: true,
+                    grid: {
+                        enabled: true,
+                        borderColor: gridColor,
+                        borderWidth: 1
+                    },
+                    labels: {
+                        style: { color: textColor, fontSize: '13px', fontWeight: '500' }
+                    }
+                },
+                tooltip: {
+                    pointFormat: '<span>{point.name}</span><br/>' +
+                        'Начало: <b>{point.start:%e %b}</b><br/>' +
+                        'Конец: <b>{point.end:%e %b}</b>',
+                    style: { fontSize: '12px' }
+                },
+                plotOptions: {
+                    series: {
+                        animation: { duration: 800 },
+                        dataLabels: {
+                            enabled: true,
+                            format: '{point.name}',
+                            style: {
+                                color: 'white',
+                                textOutline: 'none',
+                                fontWeight: 'normal'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: config.projectName,
+                    data: ganttData
+                }],
+                navigator: { enabled: true },
+                scrollbar: { enabled: true },
+                rangeSelector: {
+                    enabled: true,
+                    buttons: [
+                        { type: 'month', count: 1, text: '1 мес' },
+                        { type: 'month', count: 3, text: '3 мес' },
+                        { type: 'all', text: 'Все' }
+                    ],
+                    selected: 2
+                },
+                credits: { enabled: false }
+            });
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            updateChart();
+        });
+        
+        // Автоматический ресайз при изменении размера окна
+        window.addEventListener('resize', () => {
+            if(chartInstance) chartInstance.reflow();
+        });
+
+        // Слушатель для получения данных (если будет использоваться как модалка)
+        window.addEventListener('message', function(event) {
+             if (event.data.type === 'UPDATE_DATA') {
+                 // Если родительское окно передаст новые данные
+                 if(event.data.projectData) {
+                     projectData = event.data.projectData;
+                 }
+                 if(event.data.projectName) {
+                     config.projectName = event.data.projectName;
+                 }
+                 updateChart();
+             }
+        });
+    </script>
+</body>
+</html>
