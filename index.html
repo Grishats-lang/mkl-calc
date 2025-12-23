@@ -1374,6 +1374,105 @@ input:checked + .cookie-slider:before {
     }
 }
 
+/* ============================================
+   МОДАЛЬНОЕ ОКНО ДИАГРАММЫ ГАНТА
+   ============================================ */
+   .gantt-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.95);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.gantt-modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gantt-modal-content {
+    position: relative;
+    width: 95%;
+    height: 95%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.gantt-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: white;
+    font-size: 40px;
+    font-weight: 300;
+    cursor: pointer;
+    z-index: 10000;
+    background: rgba(0,0,0,0.5);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.gantt-modal-close:hover {
+    background: var(--accent-orange);
+    transform: rotate(90deg);
+}
+
+.gantt-modal iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Кнопка открытия диаграммы */
+.gantt-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1em;
+    cursor: pointer;
+    margin: 20px auto;
+    display: block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.gantt-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.gantt-button::before {
+    content: '📊 ';
+    font-size: 1.2em;
+}
+
+@media (max-width: 768px) {
+    .gantt-modal-content {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
+    
+    .gantt-button {
+        width: 90%;
+        font-size: 1em;
+    }
+}
 </style>
 </head>
 <body>
@@ -1987,6 +2086,16 @@ input:checked + .cookie-slider:before {
 <!-- ЗАМЕНА: Старый canvas удаляем, вставляем div для Highcharts -->
 <div class="chart-container" style="height: 500px; padding: 0; overflow: hidden;">
     <div id="timelineHighchart" style="width: 100%; height: 100%;"></div>
+</div>
+
+<!-- Кнопка для открытия диаграммы Ганта -->
+<div class="cta-container" style="margin-top: 30px;">
+    <button class="gantt-button" onclick="openGanttModal()">
+        Открыть детальную диаграмму Ганта
+    </button>
+    <p style="color: var(--text-secondary); font-size: 0.9em; margin-top: 10px;">
+        Интерактивная визуализация всех этапов строительства с точными датами
+    </p>
 </div>
 
 <h3>Гарантийные обязательства</h3>
@@ -2750,6 +2859,9 @@ input:checked + .cookie-slider:before {
             let timelineChartInstance = null;
 
             function updateTimelineChart(times) {
+                // Сохраняем данные в глобальную переменную для диаграммы Ганта
+                window.globalProjectTimes = times;
+                
                 if (typeof Highcharts === 'undefined') return;
 
     // Проверяем модуль timeline
@@ -3579,6 +3691,177 @@ input:checked + .cookie-slider:before {
         </div>
     </div>
 </div>
+
+<!-- МОДАЛЬНОЕ ОКНО ДИАГРАММЫ ГАНТА -->
+<div id="ganttModal" class="gantt-modal">
+    <span class="gantt-modal-close" onclick="closeGanttModal()">&times;</span>
+    <div class="gantt-modal-content">
+        <iframe id="ganttFrame" src="" style="display:none;"></iframe>
+    </div>
+</div>
+
+<script>
+// Функции для управления модальным окном Ганта
+function openGanttModal() {
+    const modal = document.getElementById('ganttModal');
+    const iframe = document.getElementById('ganttFrame');
+    
+    // Получаем данные из калькулятора
+    const times = window.globalProjectTimes || {
+        t_consult: 1,
+        t_design: 4,
+        t_prod: 10,
+        t_delivery: 2,
+        t_install: 10,
+        t_handover: 2,
+        totalDays: 43
+    };
+    
+    // Загружаем gantt.html
+    iframe.src = 'gantt.html';
+    
+    // Показываем iframe после загрузки
+    iframe.onload = function() {
+        iframe.style.display = 'block';
+        
+        // Отправляем данные в iframe
+        setTimeout(() => {
+            const ganttData = convertTimesToGanttData(times);
+            iframe.contentWindow.postMessage({
+                type: 'UPDATE_DATA',
+                projectData: ganttData,
+                projectName: `Строительство здания MKL (~${times.totalDays} дней)`
+            }, '*');
+        }, 500);
+    };
+    
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGanttModal() {
+    const modal = document.getElementById('ganttModal');
+    const iframe = document.getElementById('ganttFrame');
+    
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+    
+    // Очищаем iframe
+    setTimeout(() => {
+        iframe.src = '';
+        iframe.style.display = 'none';
+    }, 300);
+}
+
+// Конвертация данных из timeline в формат Gantt
+function convertTimesToGanttData(times) {
+    const t_consult = times.t_consult || 1;
+    const t_design = times.t_design || 4;
+    const t_prod = times.t_prod || 10;
+    const t_delivery = times.t_delivery || 2;
+    const t_install = times.t_install || 10;
+    const t_handover = times.t_handover || 2;
+    
+    // Рассчитываем начальные дни для каждого этапа
+    let currentDay = 0;
+    
+    const data = [
+        {
+            name: 'Подготовка проекта',
+            id: 'phase_design',
+            color: '#e0e0e0'
+        },
+        {
+            name: 'Консультация и ТЗ',
+            parent: 'phase_design',
+            start: currentDay,
+            end: (currentDay += t_consult),
+            color: '#546E7A'
+        },
+        {
+            name: 'Разработка КМ/КМД',
+            parent: 'phase_design',
+            start: currentDay,
+            end: (currentDay += t_design),
+            color: '#546E7A',
+            dependency: 'task_prod'
+        },
+        {
+            name: 'Производство и Снабжение',
+            id: 'phase_supply',
+            color: '#e0e0e0'
+        },
+        {
+            id: 'task_prod',
+            name: 'Изготовление конструкций',
+            parent: 'phase_supply',
+            start: currentDay,
+            end: (currentDay += t_prod),
+            color: '#0D47A1'
+        },
+        {
+            name: 'Доставка на объект',
+            parent: 'phase_supply',
+            start: currentDay,
+            end: (currentDay += t_delivery),
+            color: '#00796B',
+            dependency: 'task_frame'
+        },
+        {
+            name: 'Строительно-монтажные работы',
+            id: 'phase_build',
+            color: '#e0e0e0'
+        },
+        {
+            id: 'task_frame',
+            name: 'Монтаж металлокаркаса',
+            parent: 'phase_build',
+            start: currentDay,
+            end: currentDay + Math.floor(t_install * 0.4),
+            color: '#EF6C00'
+        },
+        {
+            name: 'Монтаж сэндвич-панелей',
+            parent: 'phase_build',
+            start: currentDay + Math.floor(t_install * 0.4),
+            end: currentDay + Math.floor(t_install * 0.9),
+            color: '#EF6C00'
+        },
+        {
+            name: 'Установка ворот и окон',
+            parent: 'phase_build',
+            start: currentDay + Math.floor(t_install * 0.9),
+            end: (currentDay += t_install),
+            color: '#EF6C00',
+            dependency: 'task_handover'
+        },
+        {
+            id: 'task_handover',
+            name: 'Сдача объекта',
+            start: currentDay + t_handover,
+            end: currentDay + t_handover,
+            milestone: true,
+            color: '#00796B'
+        }
+    ];
+    
+    return data;
+}
+
+// Закрытие по клавише ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeGanttModal();
+    }
+});
+
+// Закрытие при клике вне модального окна
+document.getElementById('ganttModal')?.addEventListener('click', function(e) {
+    if (e.target.id === 'ganttModal') {
+        closeGanttModal();
+    }
+});
+</script>
 
 </body>
 </html>
