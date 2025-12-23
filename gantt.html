@@ -46,8 +46,8 @@
         }
 
         .header h1 {
-            font-size: 2em;
-            margin-bottom: 5px;
+            font-size: 24px;
+            margin-bottom: 2px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
@@ -62,11 +62,33 @@
             width: 100%;
         }
 
-        /* Адаптив */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.5em;
-            }
+        /* Лоадер */
+        #loader {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 30px; height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0D47A1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Адаптив CSS */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 14px; }
+            .legend { display: none; } /* Экономим место в шапке */
         }
     </style>
 </head>
@@ -305,4 +327,5 @@
 </body>
 
 </html>
+
 
