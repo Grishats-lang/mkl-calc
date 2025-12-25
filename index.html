@@ -4,23 +4,38 @@
 
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      
-      <script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(105596286, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true,
+        ecommerce:"dataLayer"
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105596286" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+        
+<script>
     // ==========================================
-    // COOKIE MANAGER - ДОЛЖЕН БЫТЬ ПЕРВЫМ В HEAD
+    // COOKIE MANAGER (Только для Google Analytics)
     // ==========================================
         const CookieManager = {
             init() {
-            // Проверяем, есть ли сохраненные настройки
                 const consent = this.getConsent();
-                
                 if (consent === null) {
-                // Показываем баннер, если нет решения
                     setTimeout(() => {
                         document.getElementById('cookieBanner').classList.add('show');
                     }, 1000);
                 } else if (consent.analytics) {
-                // Если согласие дано, запускаем аналитику
                     this.loadAnalytics();
                 }
             },
@@ -36,14 +51,13 @@
                     date: new Date().toISOString()
                 };
                 localStorage.setItem('cookieConsent', JSON.stringify(consent));
-                
                 if (analytics) {
                     this.loadAnalytics();
                 }
             },
             
             loadAnalytics() {
-            // Загружаем Google Analytics только если дано согласие
+            // Google Analytics загружаем ТОЛЬКО по согласию
                 (function() {
                     var gaScript = document.createElement('script');
                     gaScript.async = true;
@@ -60,25 +74,10 @@
                     }
                     gtag('config', 'G-7NQ5RFMMJ5', ga_settings);
                 })();
-                
-            // Загружаем Яндекс.Метрику только если дано согласие
-                (function(m,e,t,r,i,k,a){
-                    m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-                    m[i].l=1*new Date();
-                    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-                        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-                })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
-
-                ym(105596286, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-                
-            // Добавляем noscript для Яндекс.Метрики
-                var noscript = document.createElement('noscript');
-                noscript.innerHTML = '<div><img src="https://mc.yandex.ru/watch/105596286" style="position:absolute; left:-9999px;" alt="" /></div>';
-                document.body.appendChild(noscript);
             }
         };
 
-    // Глобальные функции для вызова из HTML
+    // Глобальные функции
         window.acceptCookies = function() {
             CookieManager.saveConsent(true);
             document.getElementById('cookieBanner').classList.remove('show');
@@ -88,27 +87,9 @@
             CookieManager.saveConsent(false);
             document.getElementById('cookieBanner').classList.remove('show');
         };
+        
+        // ... остальные функции (showCookieSettings и т.д.) оставьте без изменений ...
 
-        window.showCookieSettings = function() {
-            const consent = CookieManager.getConsent();
-            if (consent) {
-                document.getElementById('analyticsToggle').checked = consent.analytics;
-            }
-            document.getElementById('cookieModal').classList.add('show');
-        };
-
-        window.closeCookieSettings = function() {
-            document.getElementById('cookieModal').classList.remove('show');
-        };
-
-        window.saveCookieSettings = function() {
-            const analytics = document.getElementById('analyticsToggle').checked;
-            CookieManager.saveConsent(analytics);
-            document.getElementById('cookieBanner').classList.remove('show');
-            document.getElementById('cookieModal').classList.remove('show');
-        };
-
-    // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             CookieManager.init();
         });
