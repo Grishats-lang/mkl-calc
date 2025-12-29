@@ -869,10 +869,23 @@
             align-items: center;
         }
 
+/* === СТИЛИ ДЛЯ ЗУМА (БЕЗ КНОПОК) === */
         .modal-content {
-            max-width: 90%;
+            /* Плавность трансформации */
+            transition: transform 0.1s ease-out; 
+            cursor: grab; /* Курсор "рука" */
+            transform-origin: center center; /* Зуммируем от центра */
+            
+            /* Ограничения, чтобы картинка не вылезала слишком сильно */
+            max-width: 90%; 
             max-height: 90%;
             object-fit: contain;
+        }
+        
+        /* Когда тащим картинку - курсор сжимается */
+        .modal-content.dragging {
+            cursor: grabbing;
+            transition: none; /* Убираем плавность при перетаскивании, чтобы не лагало */
         }
 
         .modal-close {
@@ -2452,6 +2465,7 @@ input:checked + .cookie-slider:before {
 
                 modal.style.display = 'flex';
                 modalImg.src = imageUrls[currentImageIndex];
+                resetZoom();
             }
 
             function closeModal(event) {
@@ -2482,6 +2496,7 @@ input:checked + .cookie-slider:before {
 
             // Обновляем картинку
                 document.getElementById('modalImage').src = imageUrls[currentImageIndex];
+                resetZoom();
             }
 
         // Управление клавишами (стрелки на клавиатуре)
@@ -2493,6 +2508,78 @@ input:checked + .cookie-slider:before {
                     if (e.key === 'Escape') closeModalForce();
                 }
             });
+// ==========================================
+        // ЛОГИКА ЗУМА КОЛЕСИКОМ (SCROLL ZOOM)
+        // ==========================================
+        let currentScale = 1;
+        let pannedX = 0;
+        let pannedY = 0;
+        let isDragging = false;
+        let startX, startY;
+
+        const imgElement = document.getElementById('modalImage');
+
+        // Функция применения трансформации
+        function updateTransform() {
+            imgElement.style.transform = `translate(${pannedX}px, ${pannedY}px) scale(${currentScale})`;
+        }
+
+        // 1. СБРОС ЗУМА (Вызывать при открытии и перелистывании)
+        function resetZoom() {
+            currentScale = 1;
+            pannedX = 0;
+            pannedY = 0;
+            updateTransform();
+            imgElement.style.cursor = 'grab';
+        }
+
+        // 2. ЗУМ КОЛЕСИКОМ
+        imgElement.addEventListener('wheel', function(e) {
+            e.preventDefault(); // Блокируем скролл самой страницы
+
+            // Определяем направление (вверх - приблизить, вниз - отдалить)
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            const newScale = currentScale + delta;
+
+            // Ограничиваем зум: минимум 1x (исходный), максимум 5x
+            if (newScale >= 1 && newScale <= 5) {
+                currentScale = newScale;
+                
+                // Если вернулись к 100%, сбрасываем позицию в центр
+                if (currentScale === 1) {
+                    pannedX = 0;
+                    pannedY = 0;
+                }
+                
+                updateTransform();
+            }
+        });
+
+        // 3. ПЕРЕТАСКИВАНИЕ (DRAG & DROP)
+        imgElement.addEventListener('mousedown', function(e) {
+            if (currentScale > 1) { // Таскать можно только если картинка приближена
+                isDragging = true;
+                startX = e.clientX - pannedX;
+                startY = e.clientY - pannedY;
+                imgElement.classList.add('dragging'); // Меняем курсор
+                e.preventDefault(); // Чтобы браузер не пытался перетащить картинку как файл
+            }
+        });
+
+        window.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                imgElement.classList.remove('dragging');
+            }
+        });
+
+        window.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            pannedX = e.clientX - startX;
+            pannedY = e.clientY - startY;
+            updateTransform();
+        });
 
 // ==========================================
     // 3D ВИЗУАЛИЗАЦИЯ
