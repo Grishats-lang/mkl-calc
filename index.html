@@ -3521,136 +3521,187 @@ input:checked + .cookie-slider:before {
                 });
 });
 
-    // ==========================================
-    // ГРАФИК 5: РЕГИОНЫ (ЧИСЛА СПРАВА)
-    // ==========================================
 // ==========================================
-// КАРТА РОССИИ (ФИНАЛЬНАЯ ВЕРСИЯ С ФИЛЬТРАМИ)
+// КАРТА РОССИИ (С ПОСТОЯННЫМИ ПОДПИСЯМИ)
 // ==========================================
-    document.addEventListener('DOMContentLoaded', function() {
-        const mapContainer = document.getElementById('russiaMap');
-        if (!mapContainer || typeof russiaTopology === 'undefined') return;
 
-// РАССШИРЕННЫЕ И РАССЕЯННЫЕ ДАННЫЕ
-        const projects2024 = [
-            // Москва и область (Высокая активность)
-            { name: 'МСК-Север', lat: 56.15, lon: 37.3, projects: 12 },
-            { name: 'Химки-Пром', lat: 55.90, lon: 37.4, projects: 8 },
-            { name: 'Одинцово ЛМК', lat: 55.67, lon: 36.7, projects: 5 },
-            // С-Пб и область
-            { name: 'СПб-Порт', lat: 59.95, lon: 30.2, projects: 15 },
-            { name: 'Гатчина-Склад', lat: 59.56, lon: 30.1, projects: 6 },
-            // Поволжье
-            { name: 'Н.Новгород', lat: 56.32, lon: 44.0, projects: 10 },
-            { name: 'Казань-Восток', lat: 55.75, lon: 49.2, projects: 4 },
-            // Юг
-            { name: 'Краснодар-1', lat: 45.05, lon: 39.0, projects: 8 },
-            { name: 'Новороссийск', lat: 44.72, lon: 37.7, projects: 5 },
-            // Урал
-            { name: 'Екб-Запад', lat: 56.85, lon: 60.5, projects: 3 }
-        ];
+document.addEventListener('DOMContentLoaded', function() {
+    const mapContainer = document.getElementById('russiaMap');
+    if (!mapContainer || typeof russiaTopology === 'undefined') return;
 
-        const projects2025 = [
-            // Москва и область
-            { name: 'МСК-Сити', lat: 55.75, lon: 37.6, projects: 14 },
-            { name: 'Подольск-Юг', lat: 55.42, lon: 37.5, projects: 18 },
-            { name: 'Балашиха-Тех', lat: 55.80, lon: 37.9, projects: 7 },
-            // С-Пб и область
-            { name: 'СПб-Центр', lat: 59.93, lon: 30.3, projects: 11 },
-            { name: 'Выборг-Ангар', lat: 60.71, lon: 28.7, projects: 6 },
-            // Поволжье
-            { name: 'Казань-Центр', lat: 55.83, lon: 49.1, projects: 9 },
-            { name: 'Самара-Склад', lat: 53.20, lon: 50.1, projects: 7 },
-            // Юг
-            { name: 'Ростов-на-Дону', lat: 47.23, lon: 39.7, projects: 8 },
-            { name: 'Сочи-Олимп', lat: 43.60, lon: 39.7, projects: 4 },
-            { name: 'Ставрополь', lat: 45.04, lon: 41.9, projects: 3 },
-            // Урал
-            { name: 'Челябинск', lat: 55.16, lon: 61.4, projects: 1 }
-        ];
+    // 1. Центральный ФО
+    const centralData = [
+        { name: 'Логистический центр «Внуково-2»', lat: 55.60, lon: 37.26 },
+        { name: 'Складской комплекс «Крекшино»', lat: 55.60, lon: 37.11 },
+        { name: 'PNK Парк Пушкино-2 (Ozon)', lat: 56.08, lon: 37.91 },
+        { name: 'PNK Парк Домодедово-2', lat: 55.38, lon: 37.86 },
+        { name: 'РЦ Wildberries «Электросталь»', lat: 55.78, lon: 38.45 },
+        { name: 'Индустриальный парк «PNK Жуковский»', lat: 55.58, lon: 38.10 },
+        { name: 'Логопарк «Софьино»', lat: 55.49, lon: 38.16 },
+        { name: 'Логистический парк «Истра»', lat: 55.90, lon: 36.83 },
+        { name: 'Логопарк «Чехов»', lat: 55.15, lon: 37.47 },
+        { name: 'Индустриальный парк «Есипово»', lat: 56.08, lon: 37.11 },
+        { name: 'PNK Парк Валищево', lat: 55.35, lon: 37.67 },
+        { name: 'РЦ Wildberries «Алексин»', lat: 54.52, lon: 37.08 },
+        { name: 'Индустриальный парк «Узловая»', lat: 53.95, lon: 38.03 },
+        { name: 'Индустриальный парк «Рязанский»', lat: 54.59, lon: 39.71 },
+        { name: 'Индустриальный парк «Ворсино»', lat: 55.23, lon: 36.65 },
+        { name: 'Индустриальный парк «Грабцево»', lat: 54.57, lon: 36.37 },
+        { name: 'Логистический хаб Ozon «Ярославль»', lat: 57.55, lon: 40.02 },
+        { name: 'Технопарк «Новоселки»', lat: 57.58, lon: 39.86 },
+        { name: 'Логистический терминал «Адмирал»', lat: 56.03, lon: 39.98 },
+        { name: 'Новый РЦ Wildberries «Владимир»', lat: 56.12, lon: 40.35 },
+        { name: 'Индустриальный парк «Масловский»', lat: 51.58, lon: 39.27 },
+        { name: 'РЦ «Пятерочка» (Воронеж)', lat: 51.87, lon: 39.32 },
+        { name: 'РЦ Wildberries «Тверь»', lat: 56.81, lon: 35.85 },
+        { name: 'Индустриальный парк «Боровлево-3»', lat: 56.80, lon: 35.95 },
+        { name: 'Промпарк «Северный»', lat: 50.68, lon: 36.57 },
+        { name: 'ОЭЗ «Липецк»', lat: 52.55, lon: 39.95 },
+        { name: 'Индустриальный парк «Котовск»', lat: 52.58, lon: 41.50 },
+        { name: 'Индустриальный парк «Юбилейный»', lat: 51.73, lon: 36.18 }
+    ];
 
-        Highcharts.mapChart('russiaMap', {
-            chart: {
-                backgroundColor: 'transparent',
-                style: { fontFamily: "'Inter', sans-serif" },
-            },
-            title: {
-                text: 'География объектов МК-Л',
-                style: { color: '#0D47A1', fontWeight: 'bold' }
-            },
-            mapView: {
-                projection: { name: 'WebMercator' },
-            center: [56, 54], // Смещено еще левее
+    // 2. Северо-Западный ФО
+    const nwData = [
+        { name: 'РЦ Wildberries «Шушары»', lat: 59.81, lon: 30.40 },
+        { name: 'Складской комплекс «Осиновая Роща»', lat: 60.11, lon: 30.26 },
+        { name: 'РЦ Ozon «Бугры»', lat: 60.09, lon: 30.35 },
+        { name: 'РЦ Wildberries «Красный Бор»', lat: 59.67, lon: 30.68 },
+        { name: 'Индустриальный парк «Горелово»', lat: 59.77, lon: 30.13 },
+        { name: 'Индустриальный парк «Федоровское»', lat: 59.67, lon: 30.57 },
+        { name: 'ОЭЗ «Новгородская»', lat: 58.58, lon: 31.28 },
+        { name: 'Агропарк «Новгород»', lat: 58.58, lon: 31.35 },
+        { name: 'ОЭЗ «Моглино»', lat: 57.78, lon: 28.23 },
+        { name: 'Пл. «BioniQ»', lat: 57.82, lon: 28.33 },
+        { name: 'РЦ X5 Group', lat: 59.22, lon: 39.89 },
+        { name: 'Индустриальный парк «Череповец»', lat: 59.13, lon: 37.92 }
+    ];
+
+    // 3. Приволжский ФО
+    const volgaData = [
+        { name: 'РЦ «Магнит»', lat: 56.23, lon: 43.45 },
+        { name: 'Складской комплекс «Кстово»', lat: 56.15, lon: 44.20 },
+        { name: 'ИП «Зеленодольск»', lat: 55.83, lon: 48.55 },
+        { name: 'Технополис «Новая Тура»', lat: 55.85, lon: 48.83 },
+        { name: 'ОЭЗ «Алабуга»', lat: 55.77, lon: 52.05 },
+        { name: 'Смарт Сити Казань', lat: 55.63, lon: 49.25 },
+        { name: 'Логопарк «Преображенка»', lat: 53.12, lon: 50.15 },
+        { name: 'ИП «Чапаевск»', lat: 52.97, lon: 49.72 },
+        { name: 'ЛЦ «Култаево» (Ozon)', lat: 57.90, lon: 55.93 },
+        { name: 'Логопарк «Паздерино»', lat: 57.92, lon: 56.05 },
+        { name: 'СК «Лидер»', lat: 57.93, lon: 56.27 },
+        { name: 'ИП «Уфимский»', lat: 54.73, lon: 55.95 },
+        { name: 'ЛЦ «Зубово»', lat: 54.63, lon: 55.88 },
+        { name: 'Складской парк «Сигма»', lat: 54.83, lon: 56.42 },
+        { name: 'РЦ Ozon «Саратов»', lat: 51.58, lon: 45.97 },
+        { name: 'Склады «Лидерс»', lat: 51.62, lon: 45.92 },
+        { name: 'Промпарк «Мастер»', lat: 51.48, lon: 46.12 }
+    ];
+
+    // 4. Южный ФО
+    const southData = [
+        { name: 'Логопарк «Дон»', lat: 47.27, lon: 39.87 },
+        { name: 'ИП «Новочеркасский»', lat: 47.42, lon: 40.08 },
+        { name: 'СК «Южный Хаб»', lat: 47.13, lon: 39.73 },
+        { name: 'ЛЦ Ozon «Адыгея»', lat: 44.98, lon: 39.07 },
+        { name: 'ИП «Краснодар»', lat: 45.03, lon: 39.15 },
+        { name: 'Склады «Юг-Логистика»', lat: 45.02, lon: 39.37 },
+        { name: 'РЦ Wildberries «Волгоград»', lat: 48.78, lon: 44.39 },
+        { name: 'ЛК «Солнечный»', lat: 48.82, lon: 44.45 },
+        { name: 'Терминал «Гумрак»', lat: 48.78, lon: 44.35 },
+        { name: 'ОЭЗ «Лотос»', lat: 46.47, lon: 47.97 },
+        { name: 'СЦ Ozon «Солянка»', lat: 46.37, lon: 47.98 },
+        { name: 'СК «Приволжский»', lat: 46.32, lon: 48.10 },
+        { name: 'ИП «СКИП Мастер»', lat: 45.05, lon: 41.98 }
+    ];
+
+    Highcharts.mapChart('russiaMap', {
+        chart: {
+            backgroundColor: 'transparent',
+            style: { fontFamily: "'Inter', sans-serif" },
+        },
+        title: {
+            text: 'География объектов МК-Л по регионам',
+            style: { color: '#0D47A1', fontWeight: 'bold' }
+        },
+        mapView: {
+            projection: { name: 'WebMercator' },
+            center: [56, 54],
             zoom: 4.3
         },
         mapNavigation: {
             enabled: true,
-            enableMouseWheelZoom: true, // ЗУМ КОЛЕСОМ ВКЛЮЧЕН
+            enableMouseWheelZoom: true,
             buttonOptions: { align: 'right' }
         },
         legend: {
             enabled: true,
             align: 'center',
-            verticalAlign: 'bottom'
+            verticalAlign: 'bottom',
+            layout: 'horizontal'
         },
         tooltip: {
             useHTML: true,
-            pointFormat: '<b>{point.name}</b><br>Проектов: <b>{point.projects}</b>'
+            headerFormat: '',
+            pointFormat: '<b>{point.name}</b>'
         },
-        series: [{
-            name: 'Регионы',
-            mapData: russiaTopology,
-            borderColor: '#546E7A', 
-            borderWidth: 0.7, // ЖИРНЫЕ ЛИНИИ ОБЛАСТЕЙ
-            nullColor: 'rgba(236, 239, 241, 0.4)',
-            showInLegend: false
-        }, {
-            type: 'mappoint',
-            name: 'Объекты 2024',
-        color: '#00796B', // Бирюзовый
-        data: projects2024,
-        marker: { 
-            radius: 10, 
-            symbol: 'circle',
-            lineWidth: 2,
-            lineColor: '#FFFFFF'
-        },
-        dataLabels: {
-            enabled: true,
-            format: '{point.name} ({point.projects})',
-            y: -16, // Над маркером
-            style: { 
-                fontSize: '12px', 
-                fontWeight: 'bold', 
-                textOutline: '3px white',
-                color: '#004D40' 
+        plotOptions: {
+            mappoint: {
+                dataLabels: {
+                    enabled: true, // ВКЛЮЧАЕМ ПОДПИСИ
+                    format: '{point.name}', // ВЫВОДИМ ТОЛЬКО ИМЯ
+                    y: -14, // Смещаем над точкой
+                    style: {
+                        fontSize: '11px',
+                        fontWeight: 'normal',
+                        textOutline: '2px white', // Белая обводка для читаемости
+                        color: '#333333'
+                    },
+                    allowOverlap: false // Highcharts скроет, если наезжают. Поставьте true, если хотите кашу, но все подписи.
+                }
             }
-        }
-    }, {        type: 'mappoint',
-        name: 'Объекты 2025',
-        color: '#EF6C00', // Оранжевый
-        data: projects2025,
-        marker: { 
-            radius: 12, 
-            symbol: 'circle',
-            lineWidth: 2,
-            lineColor: '#FFFFFF'
         },
-        dataLabels: {
-            enabled: true,
-            format: '{point.name} ({point.projects})',
-            y: -18, // Над маркером
-            style: { 
-                fontSize: '14px', 
-                fontWeight: '900', 
-                textOutline: '3px white',
-                color: '#E65100' 
-
+        series: [
+            {
+                name: 'Карта',
+                mapData: russiaTopology,
+                borderColor: '#546E7A', 
+                borderWidth: 0.7,
+                nullColor: 'rgba(236, 239, 241, 0.4)',
+                showInLegend: false
+            }, 
+            {
+                type: 'mappoint',
+                name: 'Центральный ФО',
+                color: '#1565C0',
+                data: centralData,
+                marker: { radius: 6, symbol: 'circle' }
+            }, 
+            {
+                type: 'mappoint',
+                name: 'Северо-Западный ФО',
+                color: '#00897B',
+                data: nwData,
+                marker: { radius: 6, symbol: 'circle' }
+            },
+            {
+                type: 'mappoint',
+                name: 'Приволжский ФО',
+                color: '#EF6C00',
+                data: volgaData,
+                marker: { radius: 6, symbol: 'circle' }
+            },
+            {
+                type: 'mappoint',
+                name: 'Южный ФО',
+                color: '#D81B60',
+                data: southData,
+                marker: { radius: 6, symbol: 'circle' }
             }
-        }
-    }]
-});
+        ]
     });
+});
+
 
         // ==========================================
         // АНИМАЦИЯ ПРИ СКРОЛЛЕ
