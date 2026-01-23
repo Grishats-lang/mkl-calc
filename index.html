@@ -2388,9 +2388,23 @@ input:checked + .cookie-slider:before {
             </label>
         </div>
         
-        <button type="submit" class="cta-button" style="width: 100%; border: none; cursor: pointer; background-color: #28a745; color: white; font-weight: bold;">
+        <button type="submit" class="cta-button" style="
+            width: 100%; 
+            box-sizing: border-box;  /* Самое важное: включает отступы в общую ширину */
+            display: block; 
+            margin: 20px 0 0 0;      /* Отступ только сверху */
+            padding: 15px; 
+            border: none; 
+            cursor: pointer; 
+            background-color: #28a745; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 1.1em; 
+            text-align: center;
+            border-radius: 4px;">
             Отправить заявку на расчёт
         </button>
+
     </form>
 </div>
 </section>
