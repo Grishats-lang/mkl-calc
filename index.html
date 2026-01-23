@@ -829,29 +829,68 @@
             color: var(--accent-orange);
         }
 
-        /* ============================================
-           ФУТЕР
+/* ============================================
+           ФУТЕР (ОБНОВЛЕННЫЙ)
            ============================================ */
-           .footer {
+        .footer {
             background-color: var(--gray-dark);
-            color: var(--gray-light);
+            color: #B0BEC5; /* Светло-серый текст */
             padding: 40px 20px;
-            text-align: center;
-            margin-top: 50px;
+            font-size: 0.9em;
+            border-top: 3px solid var(--accent-orange);
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .footer-col {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer h4 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.1em;
         }
 
         .footer p {
-            margin: 10px 0;
-            font-size: 0.95em;
+            margin-bottom: 10px;
+            line-height: 1.5;
         }
 
         .footer a {
             color: var(--accent-teal);
             text-decoration: none;
+            transition: 0.3s;
         }
 
         .footer a:hover {
             color: var(--accent-orange);
+            text-decoration: underline;
+        }
+
+        .footer-bottom {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #37474F;
+            text-align: center;
+            font-size: 0.8em;
+            color: #546E7A;
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+            }
         }
 
         /* ============================================
@@ -2435,12 +2474,45 @@ input:checked + .cookie-slider:before {
             <div class="modal-nav modal-next" onclick="changeSlide(1, event)">&#10095;</div>
         </div>
 
-    <!-- ============================================
+<!-- ============================================
          ФУТЕР
          ============================================ -->
-         <footer style="background: #212121; color: #fff; text-align: center; padding: 30px; margin-top: 50px;">
-            <p>© 2024 Партнер МК-Л. Все права защищены.</p>
-        </footer>
+    <footer class="footer">
+        <div class="footer-container">
+            
+            <!-- Колонка 1: О сайте -->
+            <div class="footer-col">
+                <h4>Calc-Angar.ru</h4>
+                <p>Онлайн-сервис расчета стоимости быстровозводимых зданий и ангаров.</p>
+                <p>Официальный партнер завода МК-Л.</p>
+                <p>г. Санкт-Петербург</p>
+            </div>
+
+            <!-- Колонка 2: Контакты владельца -->
+            <div class="footer-col">
+                <h4>Контакты</h4>
+                <p>Представитель: Царенко Г.В.</p>
+                <p>Тел: <a href="tel:+79118150915">+7 (911) 815-09-15</a></p>
+                <p>Email: <a href="mailto:zakaz-angar@inbox.ru">zakaz-angar@inbox.ru</a></p>
+            </div>
+
+<!-- Колонка 3: Информация -->
+            <div class="footer-col">
+                <h4>Клиентам</h4>
+                <!-- Ссылка на реальный файл -->
+                <p><a href="policy.html" target="_blank">Политика обработки персональных данных</a></p>
+                <p>Режим работы: Ежедневно 09:00 - 21:00</p>
+            </div>
+
+        <!-- Юридический подвал (Защита) -->
+        <div class="footer-bottom">
+            <p>
+                © 2026 Calc-Angar.ru. Все права защищены. <br>
+                Данный сайт носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями Статьи 437 ГК РФ. 
+                Итоговая стоимость рассчитывается после утверждения проекта.
+            </p>
+        </div>
+    </footer>
 
     <!-- ============================================
          JAVASCRIPT - ИНТЕРАКТИВНОСТЬ
