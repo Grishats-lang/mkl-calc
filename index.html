@@ -5,109 +5,80 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript" >
-   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-   m[i].l=1*new Date();
-   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    
+<!-- 1. Библиотека Cookies (Обязательно) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js"></script>
 
-   ym(105596286, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true,
-        webvisor:true,
-        ecommerce:"dataLayer"
-   });
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/105596286" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
+<script type="text/javascript">
+    // Функция запуска Метрики (Содержит и загрузчик, и инициализацию)
+    function initCounter() {
+        // 1. Защита: если уже запущено — выходим
+        if (window.metrikaStarted) return;
+        window.metrikaStarted = true;
+
+        console.log("🚀 ЗАГРУЗКА ЯНДЕКС.МЕТРИКИ...");
         
-<script>
-    // ==========================================
-    // COOKIE MANAGER (ИСПРАВЛЕННЫЙ)
-    // ==========================================
-    const CookieManager = {
-        init() {
-            const consent = this.getConsent();
-            if (consent === null) {
-                setTimeout(() => {
-                    document.getElementById('cookieBanner').classList.add('show');
-                }, 1000);
-            } else if (consent.analytics) {
-                this.loadAnalytics();
-            }
-        },
-        
-        getConsent() {
-            const saved = localStorage.getItem('cookieConsent');
-            return saved ? JSON.parse(saved) : null;
-        },
-        
-        saveConsent(analytics) {
-            const consent = {
-                analytics: analytics,
-                date: new Date().toISOString()
-            };
-            localStorage.setItem('cookieConsent', JSON.stringify(consent));
-            if (analytics) {
-                this.loadAnalytics();
-            }
-        },
-        
-        loadAnalytics() {
-            // Google Analytics загружаем ТОЛЬКО по согласию
-            if (window.googleAnalyticsLoaded) return; // Защита от повторной загрузки
-            window.googleAnalyticsLoaded = true;
+        // 2. Создаем dataLayer (чтобы не было ошибок)
+        window.dataLayer = window.dataLayer || [];
 
-            var gaScript = document.createElement('script');
-            gaScript.async = true;
-            gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-7NQ5RFMMJ5';
-            document.head.appendChild(gaScript);
-            
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-7NQ5RFMMJ5');
-        }
-    };
+        // 3. ТОТ САМЫЙ ЗАГРУЗЧИК (Перенесли его СЮДА)
+        // Теперь он сработает только если мы разрешим
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window, document,'script','https://mc.yandex.ru/metrika/tag.js', 'ym');
 
-    // Глобальные функции для кнопок
-    window.acceptCookies = function() {
-        CookieManager.saveConsent(true);
-        document.getElementById('cookieBanner').classList.remove('show');
-    };
+        // 4. Инициализация (Ваш ID)
+        ym(105596286, 'init', {
+            clickmap: true,
+            trackLinks: true,
+            accurateTrackBounce: true,
+            webvisor: true,
+            ecommerce: "dataLayer"
+        });
+    }
 
-    window.rejectCookies = function() {
-        CookieManager.saveConsent(false);
-        document.getElementById('cookieBanner').classList.remove('show');
-    };
-
-    // --- ВОТ ЭТИХ ФУНКЦИЙ НЕ ХВАТАЛО ---
-    window.showCookieSettings = function() {
-        document.getElementById('cookieModal').classList.add('show');
-        // Синхронизируем переключатель с текущим состоянием
-        const consent = CookieManager.getConsent();
-        const analyticsAllowed = consent ? consent.analytics : true;
-        document.getElementById('analyticsToggle').checked = analyticsAllowed;
-    };
-
-    window.closeCookieSettings = function() {
-        document.getElementById('cookieModal').classList.remove('show');
-    };
-
-    window.saveCookieSettings = function() {
-        const analyticsAllowed = document.getElementById('analyticsToggle').checked;
-        CookieManager.saveConsent(analyticsAllowed);
-        document.getElementById('cookieModal').classList.remove('show');
-        document.getElementById('cookieBanner').classList.remove('show');
-    };
-
+    // Основная логика
     document.addEventListener('DOMContentLoaded', function() {
-        CookieManager.init();
+        var banner = document.getElementById('cookieBanner');
+        var userChoice = Cookies.get('agreement');
+
+        // Проверка при входе
+        if (userChoice === '1') {
+            // Если кука '1' (Согласен) — запускаем
+            initCounter();
+        } else if (userChoice === '0') {
+            // Если кука '0' (Отказ) — ничего не делаем
+            console.log("🛑 Пользователь отказался от слежки. Скрипт не загружен.");
+        } else {
+            // Если куки нет — показываем баннер
+            setTimeout(function() {
+                if (banner) banner.classList.add('show');
+            }, 1000);
+        }
+
+        // Кнопка "СОГЛАСЕН"
+        var acceptBtn = document.querySelector('#cookieBanner .accept');
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', function() {
+                if (banner) banner.classList.remove('show');
+                Cookies.set('agreement', '1', { expires: 365 });
+                initCounter(); // <--- Только тут загрузится скрипт
+            });
+        }
+
+        // Кнопка "ОТКЛОНИТЬ"
+        var rejectBtn = document.querySelector('#cookieBanner .reject');
+        if (rejectBtn) {
+            rejectBtn.addEventListener('click', function() {
+                if (banner) banner.classList.remove('show');
+                Cookies.set('agreement', '0', { expires: 365 });
+                console.log("🛑 Отказ. Метрика не будет загружена.");
+                // initCounter() НЕ вызываем
+            });
+        }
     });
 </script>
+
 
     <!-- НОВЫЙ SEO ЗАГОЛОВОК -->
     <title>Калькулятор ангара онлайн: расчет стоимости ЛМК под ключ | МК-Л</title>
@@ -128,6 +99,9 @@
     <!-- НОВОЕ ОПИСАНИЕ ДЛЯ ЯНДЕКСА И GOOGLE -->
     <meta name="description" content="Онлайн расчет стоимости быстровозводимого здания за 1 минуту. Узнайте цену ангара, склада или цеха с монтажом. Собственное производство, работаем по всей России.">
     
+    <!-- Шрифты Google (Правильное подключение) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
@@ -1527,6 +1501,32 @@ input:checked + .cookie-slider:before {
         font-size: 1em;
     }
 }
+
+/* Адаптив для формы на мобильных */
+@media (max-width: 600px) {
+    .contact-form-container {
+        /* 1. Убираем внутренние отступы контейнера */
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+            padding-bottom: 40px !important; /* Добавьте воздуха снизу */
+    overflow: visible !important;    /* Разрешите контенту торчать, если что */
+        
+        /* 2. Убираем скругления, чтобы стыковалось с краями экрана */
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important; /* Можно убрать тень, чтобы не было "зазоров" */
+    }
+
+    /* 3. (ВАЖНО) Трюк с отрицательными отступами */
+    /* Если ваша основная секция <section> или <div class="container"> имеет padding (обычно 15px),
+       этот код "растянет" форму за пределы этих отступов прямо к краям экрана. */
+    .contact-form-container {
+        margin-left: -15px !important; 
+        margin-right: -15px !important;
+        width: calc(100% + 30px) !important; /* Компенсируем ширину */
+        
+    }
+}
 </style>
 </head>
 <body>
@@ -1864,7 +1864,7 @@ input:checked + .cookie-slider:before {
                     <span>Высота (по стене)</span>
                     <span class="calc-value"><span id="val-height">6</span> м</span>
                 </div>
-                <input type="range" id="input-height" min="3" max="12" value="6" step="0.5">
+                <input type="range" id="input-height" min="3" max="12" value="6" step="1">
             </div>
 
             <!-- 4. Окна ПВХ (Новый ползунок) -->
@@ -2345,72 +2345,28 @@ input:checked + .cookie-slider:before {
             </div>
     -->
     
-<!-- ФОРМА ОБРАТНОЙ СВЯЗИ -->
-<div class="contact-form-container">
-    <!-- ВСТАВЬТЕ ВАШУ ССЫЛКУ НИЖЕ ВМЕСТО https://formspree.io/f/YOUR_ID -->
-    <form action="https://formspree.io/f/mgvjbval" method="POST">
+<!-- БЛОК ФОРМЫ -->
+<div class="contact-form-container" id="yandex-form-section" style="max-width: 650px; margin: 0 auto;">
+    
+    <!--<h3 style="text-align: center; margin-bottom: 20px;">Оставить заявку на расчет</h3>
 
-        <!-- Имя и Телефон -->
-        <div class="form-group">
-            <label>Ваше имя</label>
-            <input type="text" name="name" class="form-input" placeholder="Иван Иванов" required>
-        </div>
-        
-        <div class="form-group">
-            <label>Телефон для связи (Обязательно)</label>
-            <input type="tel" name="phone" class="form-input" placeholder="+7 (999) 000-00-00" required>
-        </div>
+     Сама форма (без ссылки внутри) -->
+    <iframe 
+        id="order-frame"
+        name="order-frame"
+        frameborder="0" 
+        style="width: 100%; height: 796px; border: none; overflow: hidden;"
+        src="https://forms.yandex.ru/u/6979351395add5e8c2b46002/?iframe=1">
+    </iframe>
 
-        <!-- Габариты (в одну строку) -->
-        <div class="form-group">
-            <label>Желаемые габариты (Длина х Ширина х Высота)</label>
-            <div class="form-row">
-                <!-- Добавили id="form-length" -->
-                <input type="number" id="form-length" name="length" class="form-input" placeholder="Длина (м)">
-                <!-- Добавили id="form-width" -->
-                <input type="number" id="form-width" name="width" class="form-input" placeholder="Ширина (м)">
-                <!-- Добавили id="form-height" -->
-                <input type="number" id="form-height" name="height" class="form-input" placeholder="Высота (м)" step="0.5">
-            </div>
-        </div>
+    <!-- Ссылка на политику ПОД формой (Гарантированно работает) 
+    <div style="text-align: center; font-size: 12px; color: #666; margin-top: 10px;">
+        Нажимая кнопку «Отправить», вы принимаете условия 
+        <a href="/policy.html" target="_blank" style="text-decoration: underline; color: #546E7A;">
+            Политики конфиденциальности
+        </a>.
+    </div> -->
 
-        <!-- Комментарий -->
-        <div class="form-group">
-            <label>Дополнительные пожелания</label>
-            <textarea name="message" class="form-input" rows="4" placeholder="Например: нужно теплое здание под автосервис..."></textarea>
-        </div>
-
-        <!-- Согласие на обработку данных (НОВОЕ) -->
-        <div class="form-group" style="margin-top: 15px;">
-            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 14px; line-height: 1.4;">
-                <!-- Сам чекбокс -->
-                <input type="checkbox" name="policy_agreement" required style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
-                
-                <!-- Текст согласия -->
-                <span>
-                    Я согласен на <a href="/policy.html" target="_blank" style="text-decoration: underline;">обработку персональных данных</a>
-                </span>
-            </label>
-        </div>
-        
-        <button type="submit" class="cta-button" style="
-            width: 100%; 
-            box-sizing: border-box;  /* Самое важное: включает отступы в общую ширину */
-            display: block; 
-            margin: 20px 0 0 0;      /* Отступ только сверху */
-            padding: 15px; 
-            border: none; 
-            cursor: pointer; 
-            background-color: #28a745; 
-            color: white; 
-            font-weight: bold; 
-            font-size: 1.1em; 
-            text-align: center;
-            border-radius: 4px;">
-            Отправить заявку на расчёт
-        </button>
-
-    </form>
 </div>
 </section>
 
@@ -2503,14 +2459,21 @@ input:checked + .cookie-slider:before {
             <div class="footer-col">
                 <h4>Calc-Angar.ru</h4>
                 <p>Онлайн-сервис расчета стоимости быстровозводимых зданий и ангаров.</p>
-                <p>
-                    Официальный партнер <strong>ООО «МК-Л»</strong><br>
-                    <span style="font-size: 0.85em; opacity: 0.7;">ИНН: 3528245340 / ОГРН: 1163525055671</span>
-                </p>
-                <p>Офис партнера: г. Санкт-Петербург</p>
+                <div style="margin-top: 15px; font-size: 0.9em; line-height: 1.4;">
+                    <p style="margin-bottom: 5px;">
+                        Официальный партнер <strong>ООО «МК-Л»</strong>
+                    </p>
+                    <p style="opacity: 0.7; margin-bottom: 5px;">
+                        ИНН: 3528245340 / ОГРН: 1163525055671
+                    </p>
+                    <p style="opacity: 0.7;">
+                        📍 Адрес производства:<br>
+                        г. Череповец, Советский пр-кт, д. 8а
+                    </p>
+                </div>
             </div>
 
-<!-- Колонка 2: Контакты -->
+            <!-- Колонка 2: Контакты Партнера -->
             <div class="footer-col">
                 <h4>Контакты</h4>
                 <p>
@@ -2519,17 +2482,20 @@ input:checked + .cookie-slider:before {
                 </p>
                 <p>Тел: <a href="tel:+79118150915">+7 (911) 815-09-15</a></p>
                 <p>Email: <a href="mailto:zakaz-angar@inbox.ru">zakaz-angar@inbox.ru</a></p>
+                <p style="margin-top: 10px; opacity: 0.8; font-size: 0.85em;">
+                    Офис партнера: г. Санкт-Петербург
+                </p>
             </div>
 
-<!-- Колонка 3: Информация -->
+            <!-- Колонка 3: Информация -->
             <div class="footer-col">
                 <h4>Клиентам</h4>
-                <!-- Ссылка на реальный файл -->
                 <p><a href="policy.html" target="_blank">Политика обработки персональных данных</a></p>
                 <p>Режим работы: Ежедневно 9:00 - 17:00</p>
             </div>
+        </div>
 
-        <!-- Юридический подвал (Защита) -->
+        <!-- Юридический подвал -->
         <div class="footer-bottom">
             <p>
                 © 2025 Calc-Angar.ru. Все права защищены. <br>
@@ -2539,12 +2505,8 @@ input:checked + .cookie-slider:before {
         </div>
     </footer>
 
-    <!-- ============================================
-         JAVASCRIPT - ИНТЕРАКТИВНОСТЬ
-         ============================================ -->
-         <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 
-         <script>
+<script>
 // ==========================================
         // МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ (С ЛИСТАНИЕМ)
         // ==========================================
@@ -3316,7 +3278,13 @@ input:checked + .cookie-slider:before {
                     if (formL) formL.value = l;
                     if (formW) formW.value = w;
                     if (formH) formH.value = h;
-                }
+                
+
+        // 8. Яндекс.Форма: обновляем значения (Длина/Ширина/Высота)
+        if (typeof updateYandexFormUrl === 'function') {
+            updateYandexFormUrl();
+        }
+}
 
         // Слушатели событий
                 widthInput.addEventListener('input', calculate);
@@ -3861,13 +3829,14 @@ document.addEventListener('DOMContentLoaded', function() {
         section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(section);
     });
-
+    
         // ==========================================
         // CONSOLE LOG
         // ==========================================
     console.log('%c🏗️ MKL - Быстровозводимые Здания', 'color: #0D47A1; font-size: 20px; font-weight: bold;');
     console.log('%c10+ лет опыта | 500+ проектов | 5 лет гарантии', 'color: #00796B; font-size: 14px;');
     console.log('%cСвязаться: grishats@mail.ru | https://t.me/MKLcompany', 'color: #546E7A; font-size: 12px;');
+
 // ==========================================
         // УМНАЯ ШАПКА ДЛЯ МОБИЛЬНЫХ
         // ==========================================
@@ -3913,52 +3882,21 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- ============================================
      COOKIE БАННЕР (КОМПАКТНЫЙ)
      ============================================ -->
-     <div id="cookieBanner" class="cookie-banner">
-        <h3>🍪 Файлы cookie</h3>
-        <p>Сайт использует cookie для корректной работы и сбора статистики. 
-           Нажатие «Принять» подтверждает согласие с   
-           <a href="/policy.html" target="_blank">Политике обработки данных</a>.
-       </p>
-       <div class="cookie-buttons">
-        <button class="cookie-btn accept" onclick="acceptCookies()">Принять</button>
-        <button class="cookie-btn reject" onclick="rejectCookies()">Отклонить</button>
-        <button class="cookie-btn settings" onclick="showCookieSettings()">Настройки</button>
-    </div>
-</div>
-
-<!-- Модальное окно настроек -->
-<div id="cookieModal" class="cookie-modal">
-    <div class="cookie-modal-content">
-        <h3>Настройки cookie</h3>
-        
-        <div class="cookie-option">
-            <div class="cookie-option-info">
-                <h4>Обязательные cookies</h4>
-                <p>Эти файлы необходимы для работы сайта. Их нельзя отключить.</p>
-            </div>
-            <label class="cookie-switch">
-                <input type="checkbox" checked disabled>
-                <span class="cookie-slider"></span>
-            </label>
-        </div>
-        
-        <div class="cookie-option">
-            <div class="cookie-option-info">
-                <h4>Аналитические cookies (Google Analytics, Яндекс.Метрика)</h4>
-                <p>Помогают анализировать посещения сайта, улучшать контент и пользовательский опыт.</p>
-            </div>
-            <label class="cookie-switch">
-                <input type="checkbox" id="analyticsToggle" checked>
-                <span class="cookie-slider"></span>
-            </label>
-        </div>
-        
-        <div class="cookie-modal-buttons">
-            <button class="cookie-btn accept" onclick="saveCookieSettings()">Сохранить настройки</button>
-            <button class="cookie-btn settings" onclick="closeCookieSettings()">Отмена</button>
+    <div id="cookieBanner" class="cookie-banner">
+        <h3>🍪 Мы используем cookie</h3>
+        <p>
+            Сайт собирает статистику для улучшения качества обслуживания. 
+            Продолжая работу, вы соглашаетесь с 
+            <a href="/policy.html" target="_blank">Политикой конфиденциальности</a>.
+        </p>
+        <div class="cookie-buttons">
+            <!-- Кнопка Принять (Зеленая/Бирюзовая по вашим стилям) -->
+            <button class="cookie-btn accept">Хорошо, я согласен</button>
+            
+            <!-- Кнопка Отклонить (Серая) -->
+            <button class="cookie-btn reject">Отклонить</button>
         </div>
     </div>
-</div>
 
 <!-- МОДАЛЬНОЕ ОКНО ДИАГРАММЫ ГАНТА -->
 <div id="ganttModal" class="gantt-modal">
@@ -4130,6 +4068,49 @@ document.getElementById('ganttModal')?.addEventListener('click', function(e) {
     }
 });
 </script>
+<script>
+// =====================================================
+// YA FORMS: автозаполнение полей Длина/Ширина/Высота
+// Обновляет src у iframe #order-frame
+// =====================================================
+function updateYandexFormUrl() {
+    // Калькулятор (ползунки)
+    const lengthEl = document.getElementById('input-length');
+    const widthEl  = document.getElementById('input-width');
+    const heightEl = document.getElementById('input-height');
 
+    const lengthVal = lengthEl ? lengthEl.value : '';
+    const widthVal  = widthEl  ? widthEl.value  : '';
+    const heightVal = heightEl ? heightEl.value : '';
+
+    // Поля Яндекс.Формы (integer-вопросы)
+    const yLen = 'answer_integer_9008968806090804'; // длина
+    const yWid = 'answer_integer_9008968806419090'; // ширина
+    const yHei = 'answer_integer_9008968854486612'; // высота
+
+    const baseUrl = 'https://forms.yandex.ru/u/6979351395add5e8c2b46002/';
+
+    const finalUrl = `${baseUrl}?iframe=1`
+        + `&${yLen}=${encodeURIComponent(lengthVal)}`
+        + `&${yWid}=${encodeURIComponent(widthVal)}`
+        + `&${yHei}=${encodeURIComponent(heightVal)}`;
+
+    const iframe = document.getElementById('order-frame');
+    if (iframe && iframe.src !== finalUrl) {
+        iframe.src = finalUrl;
+    }
+}
+
+// Инициализация: чтобы форма сразу получила стартовые значения
+document.addEventListener('DOMContentLoaded', function () {
+    updateYandexFormUrl();
+
+    // Обновление "тут же" при движении ползунков
+    ['input-length', 'input-width', 'input-height'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateYandexFormUrl);
+    });
+});
+</script>
 </body>
 </html>
