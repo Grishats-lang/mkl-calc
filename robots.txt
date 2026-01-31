@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
-
+Disallow: /policy.html
+Disallow: /cdn-cgi/
 Sitemap: https://calc-angar.ru/sitemap.xml
+
+User-agent: Yandex
+Allow: /
+Disallow: /policy.html
+Host: https://calc-angar.ru
