@@ -3157,156 +3157,227 @@ input:checked + .cookie-slider:before {
                 }
             }
 
-            function initCalculator() {
-                const widthInput = document.getElementById('input-width');
-                const lengthInput = document.getElementById('input-length');
-                const heightInput = document.getElementById('input-height');
-                const thicknessInput = document.getElementById('input-thickness');
-                const windowsInput = document.getElementById('input-windows');
-                
-                const typeInputs = document.getElementsByName('build-type');
-                
-                const doorFrontSelect = document.getElementById('input-door-front');
-                const doorRearSelect = document.getElementById('input-door-rear');
-                
-                const valWidth = document.getElementById('val-width');
-                const valLength = document.getElementById('val-length');
-                const valHeight = document.getElementById('val-height');
-                const valThickness = document.getElementById('val-thickness');
-                const valWindows = document.getElementById('val-windows');
-                
-                const totalPriceEl = document.getElementById('total-price');
-                const resAreaEl = document.getElementById('res-area');
-                const resPriceM2El = document.getElementById('res-price-m2');
-                const resTimeEl = document.getElementById('res-time');
-                const resExtraCostEl = document.getElementById('res-extra-cost');
-                const thicknessGroup = document.getElementById('panel-thickness-group');
-
-                function calculate() {
-    // 1. Получаем значения из инпутов
-                    let w = parseFloat(document.getElementById('input-width').value);
-                    let l = parseFloat(document.getElementById('input-length').value);
-                    let h = parseFloat(document.getElementById('input-height').value);
-                    let thickness = parseFloat(document.getElementById('input-thickness').value);
-                    let windowsCount = parseInt(document.getElementById('input-windows').value);
+        function initCalculator() {
+            // 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ
+            const widthInput = document.getElementById('input-width');
+            const lengthInput = document.getElementById('input-length');
+            const heightInput = document.getElementById('input-height');
+            const thicknessInput = document.getElementById('input-thickness');
+            const windowsInput = document.getElementById('input-windows');
+            
+            const typeInputs = document.getElementsByName('build-type');
+            
+            const doorFrontSelect = document.getElementById('input-door-front');
+            const doorRearSelect = document.getElementById('input-door-rear');
+            
+            const valWidth = document.getElementById('val-width');
+            const valLength = document.getElementById('val-length');
+            const valHeight = document.getElementById('val-height');
+            const valThickness = document.getElementById('val-thickness');
+            const valWindows = document.getElementById('val-windows');
+            
+            const thicknessGroup = document.getElementById('panel-thickness-group');
+        
+            // =========================================================
+            // ЛОГИКА СОХРАНЕНИЯ (LOCAL STORAGE)
+            // =========================================================
+            
+            function saveCalculatorState() {
+                const state = {
+                    width: widthInput.value,
+                    length: lengthInput.value,
+                    height: heightInput.value,
+                    thickness: thicknessInput.value,
+                    windows: windowsInput.value,
+                    doorFront: doorFrontSelect.value,
+                    doorRear: doorRearSelect.value,
+                    // Находим выбранную радио-кнопку
+                    buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm'
+                };
+                localStorage.setItem('angarCalcState', JSON.stringify(state));
+                // console.log('Сохранено:', state); // Можно раскомментировать для отладки
+            }
+        
+            function loadCalculatorState() {
+                const raw = localStorage.getItem('angarCalcState');
+                if (!raw) return; // Если данных нет, выходим
+        
+                try {
+                    const state = JSON.parse(raw);
                     
-                    let typeEl = document.querySelector('input[name="build-type"]:checked');
-                    let type = typeEl ? typeEl.value : 'warm';
-                    let isWarm = (type === 'warm');
-
-                    let doorsFront = parseInt(document.getElementById('input-door-front').value);
-                    let doorsRear = parseInt(document.getElementById('input-door-rear').value);
-
-    // 2. Обновляем UI текст
-                    document.getElementById('val-width').textContent = w;
-                    document.getElementById('val-length').textContent = l;
-                    document.getElementById('val-height').textContent = h;
-                    document.getElementById('val-thickness').textContent = thickness;
-                    document.getElementById('val-windows').textContent = windowsCount;
-
-                    const thicknessGroup = document.getElementById('panel-thickness-group');
-                    if (!isWarm) {
-                        thicknessGroup.style.opacity = '0.3';
-                        thicknessGroup.style.pointerEvents = 'none';
-                    } else {
-                        thicknessGroup.style.opacity = '1';
-                        thicknessGroup.style.pointerEvents = 'auto';
+                    // Восстанавливаем значения, если они есть в сохраненке
+                    if (state.width) widthInput.value = state.width;
+                    if (state.length) lengthInput.value = state.length;
+                    if (state.height) heightInput.value = state.height;
+                    if (state.thickness) thicknessInput.value = state.thickness;
+                    if (state.windows) windowsInput.value = state.windows;
+                    if (state.doorFront) doorFrontSelect.value = state.doorFront;
+                    if (state.doorRear) doorRearSelect.value = state.doorRear;
+        
+                    // Восстанавливаем тип (Теплый/Холодный)
+                    if (state.buildType) {
+                        const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
+                        if (radio) radio.checked = true;
                     }
-
-    // 3. Расчет Цены
-                    let area = w * l;
-                    let basePricePerM2 = 4500; 
-                    let typeCost = isWarm ? 3500 : 1800;
-                    
-                    let heightFactor = 1 + ((h - 6) * 0.05);
-                    if (heightFactor < 1) heightFactor = 1;
-
-                    let thicknessCost = 0;
-                    if (isWarm) thicknessCost = (thickness - 100) * 15; 
-
-                    let priceM2 = (basePricePerM2 + typeCost + thicknessCost) * heightFactor;
-                    
-    // Скидки
-                    if (area > 500) priceM2 *= 0.95;
-                    if (area > 1000) priceM2 *= 0.90;
-
-                    let baseTotal = Math.floor(area * priceM2);
-                    let doorsCost = (doorsFront + doorsRear) * 45000;
-                    let oneWindowPrice = 1.8 * 8500;
-                    let windowsCost = windowsCount * oneWindowPrice;
-                    let extraCosts = doorsCost + windowsCost;
-                    let grandTotal = baseTotal + extraCosts;
-                    let finalPriceM2 = Math.floor(grandTotal / area);
-
-    // 4. === ЕДИНЫЙ РАСЧЕТ СРОКОВ (Скорректированный) ===
-                    const t_consult = 1;
-                    const t_design = 3 + Math.floor(area / 400); 
-                    
-    // Производство: 8-16 дней для средних зданий
-                    const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0); 
-                    
-                    const t_delivery = 2;
-                    
-    // Монтаж: 20-40 дней для 500-1000м2
-                    const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10); 
-                    
-                    const t_handover = 2;
-                    
-                    const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
-
-    // 5. Вывод
-                    document.getElementById('total-price').textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
-                    document.getElementById('res-area').textContent = area;
-                    document.getElementById('res-price-m2').textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
-                    document.getElementById('res-extra-cost').textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
-                    
-    // В поле "Срок монтажа" выводим именно время монтажа
-                    document.getElementById('res-time').textContent = t_install; 
-
-    // 6. Графики
+                } catch (e) {
+                    console.error('Ошибка загрузки сохранения калькулятора', e);
+                }
+            }
+        
+            // =========================================================
+            // ОСНОВНОЙ РАСЧЕТ
+            // =========================================================
+            function calculate() {
+                // 1. Получаем значения из инпутов
+                let w = parseFloat(widthInput.value);
+                let l = parseFloat(lengthInput.value);
+                let h = parseFloat(heightInput.value);
+                let thickness = parseFloat(thicknessInput.value);
+                let windowsCount = parseInt(windowsInput.value);
+                
+                let typeEl = document.querySelector('input[name="build-type"]:checked');
+                let type = typeEl ? typeEl.value : 'warm';
+                let isWarm = (type === 'warm');
+        
+                let doorsFront = parseInt(doorFrontSelect.value);
+                let doorsRear = parseInt(doorRearSelect.value);
+        
+                // 2. Обновляем UI текст
+                valWidth.textContent = w;
+                valLength.textContent = l;
+                valHeight.textContent = h;
+                valThickness.textContent = thickness;
+                valWindows.textContent = windowsCount;
+        
+                if (!isWarm) {
+                    thicknessGroup.style.opacity = '0.3';
+                    thicknessGroup.style.pointerEvents = 'none';
+                } else {
+                    thicknessGroup.style.opacity = '1';
+                    thicknessGroup.style.pointerEvents = 'auto';
+                }
+        
+                // 3. Расчет Цены
+                let area = w * l;
+                let basePricePerM2 = 4500; 
+                let typeCost = isWarm ? 3500 : 1800;
+                
+                let heightFactor = 1 + ((h - 6) * 0.05);
+                if (heightFactor < 1) heightFactor = 1;
+        
+                let thicknessCost = 0;
+                if (isWarm) thicknessCost = (thickness - 100) * 15; 
+        
+                let priceM2 = (basePricePerM2 + typeCost + thicknessCost) * heightFactor;
+                
+                // Скидки
+                if (area > 500) priceM2 *= 0.95;
+                if (area > 1000) priceM2 *= 0.90;
+        
+                let baseTotal = Math.floor(area * priceM2);
+                let doorsCost = (doorsFront + doorsRear) * 45000;
+                let oneWindowPrice = 1.8 * 8500;
+                let windowsCost = windowsCount * oneWindowPrice;
+                let extraCosts = doorsCost + windowsCost;
+                let grandTotal = baseTotal + extraCosts;
+                let finalPriceM2 = Math.floor(grandTotal / area);
+        
+                // 4. Расчет сроков
+                const t_consult = 1;
+                const t_design = 3 + Math.floor(area / 400); 
+                const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0); 
+                const t_delivery = 2;
+                const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10); 
+                const t_handover = 2;
+                const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
+        
+                // 5. Вывод
+                document.getElementById('total-price').textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
+                document.getElementById('res-area').textContent = area;
+                document.getElementById('res-price-m2').textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
+                document.getElementById('res-extra-cost').textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
+                document.getElementById('res-time').textContent = t_install; 
+        
+                // 6. Графики и 3D
+                if (typeof update3DModel === 'function') {
                     update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
+                }
+                if (typeof updatePricingChart === 'function') {
                     updatePricingChart(grandTotal);
-                    
+                }
+                if (typeof updateTimelineChart === 'function') {
                     updateTimelineChart({
                         t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays
                     });
-
-    // 7. Форма
-                    const formL = document.getElementById('form-length');
-                    const formW = document.getElementById('form-width');
-                    const formH = document.getElementById('form-height');
-                    if (formL) formL.value = l;
-                    if (formW) formW.value = w;
-                    if (formH) formH.value = h;
-                
-
-        // 8. Яндекс.Форма: обновляем значения (Длина/Ширина/Высота)
-        if (typeof updateYandexFormUrl === 'function') {
-            updateYandexFormUrl();
-        }
-}
-
-        // Слушатели событий
-                widthInput.addEventListener('input', calculate);
-                lengthInput.addEventListener('input', calculate);
-                heightInput.addEventListener('input', calculate);
-                thicknessInput.addEventListener('input', calculate);
-                windowsInput.addEventListener('input', calculate);
-                typeInputs.forEach(radio => radio.addEventListener('change', calculate));
-
-                doorFrontSelect.addEventListener('change', calculate);
-                doorRearSelect.addEventListener('change', calculate);
-
-        // Инициализация 3D
-                init3D();
-
-        // Первый запуск
-                calculate();
+                }
+        
+                // 7. Обновление скрытых полей формы
+                const formL = document.getElementById('form-length');
+                const formW = document.getElementById('form-width');
+                const formH = document.getElementById('form-height');
+                if (formL) formL.value = l;
+                if (formW) formW.value = w;
+                if (formH) formH.value = h;
+            
+                // 8. Яндекс.Форма (если используется)
+                if (typeof updateYandexFormUrl === 'function') {
+                    updateYandexFormUrl();
+                }
             }
-
-    // Запуск при загрузке
-            document.addEventListener('DOMContentLoaded', initCalculator);
-
+        
+            // =========================================================
+            // СЛУШАТЕЛИ СОБЫТИЙ
+            // =========================================================
+            
+            // Группа 1: Инпуты (слайдеры)
+            // 'input' - для мгновенного пересчета графики при перетаскивании
+            // 'change' - для сохранения (срабатывает, когда отпустили ползунок)
+            const inputs = [widthInput, lengthInput, heightInput, thicknessInput, windowsInput];
+            
+            inputs.forEach(input => {
+                // Пересчитываем визуально при движении
+                input.addEventListener('input', calculate);
+                
+                // Сохраняем состояние, когда пользователь закончил двигать
+                input.addEventListener('change', () => {
+                    calculate(); // На всякий случай
+                    saveCalculatorState();
+                });
+            });
+        
+            // Группа 2: Радиокнопки (Тип здания)
+            typeInputs.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    calculate();
+                    saveCalculatorState();
+                });
+            });
+        
+            // Группа 3: Селекты (Ворота)
+            [doorFrontSelect, doorRearSelect].forEach(select => {
+                select.addEventListener('change', () => {
+                    calculate();
+                    saveCalculatorState();
+                });
+            });
+        
+            // =========================================================
+            // ЗАПУСК
+            // =========================================================
+        
+            // 1. Инициализация 3D движка
+            if (typeof init3D === 'function') init3D();
+        
+            // 2. Сначала загружаем данные из памяти (если есть)
+            loadCalculatorState();
+        
+            // 3. Выполняем первый расчет с загруженными данными
+            calculate();
+        }
+        
+        // Запуск при загрузке DOM
+        document.addEventListener('DOMContentLoaded', initCalculator);
+    
         // ==========================================
         // ПЛАВНАЯ ПРОКРУТКА К ЯКОРЯМ
         // ==========================================
