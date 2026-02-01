@@ -3158,7 +3158,7 @@ input:checked + .cookie-slider:before {
             }
 
         function initCalculator() {
-            // 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ
+            // 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ (ВЕРНУЛ ВСЕ ПЕРЕМЕННЫЕ)
             const widthInput = document.getElementById('input-width');
             const lengthInput = document.getElementById('input-length');
             const heightInput = document.getElementById('input-height');
@@ -3170,19 +3170,36 @@ input:checked + .cookie-slider:before {
             const doorFrontSelect = document.getElementById('input-door-front');
             const doorRearSelect = document.getElementById('input-door-rear');
             
+            // Элементы для вывода значений (текст рядом с ползунками)
             const valWidth = document.getElementById('val-width');
             const valLength = document.getElementById('val-length');
             const valHeight = document.getElementById('val-height');
             const valThickness = document.getElementById('val-thickness');
             const valWindows = document.getElementById('val-windows');
             
+            // Элементы итогов (ВЕРНУЛ ИХ СЮДА)
+            const totalPriceEl = document.getElementById('total-price');
+            const resAreaEl = document.getElementById('res-area');
+            const resPriceM2El = document.getElementById('res-price-m2');
+            const resTimeEl = document.getElementById('res-time');
+            const resExtraCostEl = document.getElementById('res-extra-cost');
+            
             const thicknessGroup = document.getElementById('panel-thickness-group');
+        
+            // === ЦВЕТ: Находим кнопки по их onclick атрибуту ===
+            // Ищем все кнопки, у которых в onclick написано "changeColor"
+            const colorButtons = document.querySelectorAll('button[onclick^="changeColor"]');
         
             // =========================================================
             // ЛОГИКА СОХРАНЕНИЯ (LOCAL STORAGE)
             // =========================================================
             
             function saveCalculatorState() {
+                // Чтобы сохранить цвет, нам нужно знать, какой сейчас активен.
+                // Так как у кнопок нет класса "active" в вашем HTML, мы пойдем на хитрость:
+                // Мы будем сохранять цвет непосредственно в момент клика (см. ниже в слушателях).
+                // А здесь мы сохраняем только параметры формы.
+                
                 const state = {
                     width: widthInput.value,
                     length: lengthInput.value,
@@ -3191,36 +3208,44 @@ input:checked + .cookie-slider:before {
                     windows: windowsInput.value,
                     doorFront: doorFrontSelect.value,
                     doorRear: doorRearSelect.value,
-                    // Находим выбранную радио-кнопку
-                    buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm'
+                    buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm',
+                    // Цвет берем из localStorage (он сохраняется отдельно при клике)
+                    wallColor: localStorage.getItem('angarSavedColor') 
                 };
                 localStorage.setItem('angarCalcState', JSON.stringify(state));
-                // console.log('Сохранено:', state); // Можно раскомментировать для отладки
             }
         
             function loadCalculatorState() {
+                // 1. Восстанавливаем ползунки
                 const raw = localStorage.getItem('angarCalcState');
-                if (!raw) return; // Если данных нет, выходим
+                if (raw) {
+                    try {
+                        const state = JSON.parse(raw);
+                        if (state.width) widthInput.value = state.width;
+                        if (state.length) lengthInput.value = state.length;
+                        if (state.height) heightInput.value = state.height;
+                        if (state.thickness) thicknessInput.value = state.thickness;
+                        if (state.windows) windowsInput.value = state.windows;
+                        if (state.doorFront) doorFrontSelect.value = state.doorFront;
+                        if (state.doorRear) doorRearSelect.value = state.doorRear;
+                        if (state.buildType) {
+                            const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
+                            if (radio) radio.checked = true;
+                        }
+                    } catch (e) { console.error(e); }
+                }
         
-                try {
-                    const state = JSON.parse(raw);
-                    
-                    // Восстанавливаем значения, если они есть в сохраненке
-                    if (state.width) widthInput.value = state.width;
-                    if (state.length) lengthInput.value = state.length;
-                    if (state.height) heightInput.value = state.height;
-                    if (state.thickness) thicknessInput.value = state.thickness;
-                    if (state.windows) windowsInput.value = state.windows;
-                    if (state.doorFront) doorFrontSelect.value = state.doorFront;
-                    if (state.doorRear) doorRearSelect.value = state.doorRear;
-        
-                    // Восстанавливаем тип (Теплый/Холодный)
-                    if (state.buildType) {
-                        const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                } catch (e) {
-                    console.error('Ошибка загрузки сохранения калькулятора', e);
+                // 2. Восстанавливаем цвет
+                const savedColor = localStorage.getItem('angarSavedColor');
+                if (savedColor) {
+                    // Ищем кнопку, в onclick которой есть этот код цвета
+                    // Например, ищем '0x0D47A1' внутри строки 'changeColor(0x0D47A1)'
+                    colorButtons.forEach(btn => {
+                        if (btn.getAttribute('onclick').includes(savedColor)) {
+                            // Имитируем клик, чтобы сработал changeColor() и 3D обновилось
+                            btn.click();
+                        }
+                    });
                 }
             }
         
@@ -3228,7 +3253,7 @@ input:checked + .cookie-slider:before {
             // ОСНОВНОЙ РАСЧЕТ
             // =========================================================
             function calculate() {
-                // 1. Получаем значения из инпутов
+                // 1. Получаем значения
                 let w = parseFloat(widthInput.value);
                 let l = parseFloat(lengthInput.value);
                 let h = parseFloat(heightInput.value);
@@ -3236,13 +3261,12 @@ input:checked + .cookie-slider:before {
                 let windowsCount = parseInt(windowsInput.value);
                 
                 let typeEl = document.querySelector('input[name="build-type"]:checked');
-                let type = typeEl ? typeEl.value : 'warm';
-                let isWarm = (type === 'warm');
+                let isWarm = typeEl ? (typeEl.value === 'warm') : true;
         
                 let doorsFront = parseInt(doorFrontSelect.value);
                 let doorsRear = parseInt(doorRearSelect.value);
         
-                // 2. Обновляем UI текст
+                // 2. Обновляем текст UI
                 valWidth.textContent = w;
                 valLength.textContent = l;
                 valHeight.textContent = h;
@@ -3257,7 +3281,7 @@ input:checked + .cookie-slider:before {
                     thicknessGroup.style.pointerEvents = 'auto';
                 }
         
-                // 3. Расчет Цены
+                // 3. Расчет математики
                 let area = w * l;
                 let basePricePerM2 = 4500; 
                 let typeCost = isWarm ? 3500 : 1800;
@@ -3265,8 +3289,7 @@ input:checked + .cookie-slider:before {
                 let heightFactor = 1 + ((h - 6) * 0.05);
                 if (heightFactor < 1) heightFactor = 1;
         
-                let thicknessCost = 0;
-                if (isWarm) thicknessCost = (thickness - 100) * 15; 
+                let thicknessCost = isWarm ? (thickness - 100) * 15 : 0; 
         
                 let priceM2 = (basePricePerM2 + typeCost + thicknessCost) * heightFactor;
                 
@@ -3276,13 +3299,12 @@ input:checked + .cookie-slider:before {
         
                 let baseTotal = Math.floor(area * priceM2);
                 let doorsCost = (doorsFront + doorsRear) * 45000;
-                let oneWindowPrice = 1.8 * 8500;
-                let windowsCost = windowsCount * oneWindowPrice;
+                let windowsCost = windowsCount * (1.8 * 8500);
                 let extraCosts = doorsCost + windowsCost;
                 let grandTotal = baseTotal + extraCosts;
                 let finalPriceM2 = Math.floor(grandTotal / area);
         
-                // 4. Расчет сроков
+                // 4. Сроки
                 const t_consult = 1;
                 const t_design = 3 + Math.floor(area / 400); 
                 const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0); 
@@ -3291,14 +3313,14 @@ input:checked + .cookie-slider:before {
                 const t_handover = 2;
                 const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
         
-                // 5. Вывод
-                document.getElementById('total-price').textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
-                document.getElementById('res-area').textContent = area;
-                document.getElementById('res-price-m2').textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
-                document.getElementById('res-extra-cost').textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
-                document.getElementById('res-time').textContent = t_install; 
+                // 5. Вывод в HTML (Используем восстановленные переменные)
+                totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
+                resAreaEl.textContent = area;
+                resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
+                resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
+                resTimeEl.textContent = t_install; 
         
-                // 6. Графики и 3D
+                // 6. Обновление графики
                 if (typeof update3DModel === 'function') {
                     update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
                 }
@@ -3311,7 +3333,7 @@ input:checked + .cookie-slider:before {
                     });
                 }
         
-                // 7. Обновление скрытых полей формы
+                // 7. Обновление скрытых полей
                 const formL = document.getElementById('form-length');
                 const formW = document.getElementById('form-width');
                 const formH = document.getElementById('form-height');
@@ -3319,7 +3341,6 @@ input:checked + .cookie-slider:before {
                 if (formW) formW.value = w;
                 if (formH) formH.value = h;
             
-                // 8. Яндекс.Форма (если используется)
                 if (typeof updateYandexFormUrl === 'function') {
                     updateYandexFormUrl();
                 }
@@ -3329,23 +3350,17 @@ input:checked + .cookie-slider:before {
             // СЛУШАТЕЛИ СОБЫТИЙ
             // =========================================================
             
-            // Группа 1: Инпуты (слайдеры)
-            // 'input' - для мгновенного пересчета графики при перетаскивании
-            // 'change' - для сохранения (срабатывает, когда отпустили ползунок)
+            // Инпуты (ползунки)
             const inputs = [widthInput, lengthInput, heightInput, thicknessInput, windowsInput];
-            
             inputs.forEach(input => {
-                // Пересчитываем визуально при движении
-                input.addEventListener('input', calculate);
-                
-                // Сохраняем состояние, когда пользователь закончил двигать
-                input.addEventListener('change', () => {
-                    calculate(); // На всякий случай
+                input.addEventListener('input', calculate); // Мгновенно
+                input.addEventListener('change', () => {    // При отпускании
+                    calculate();
                     saveCalculatorState();
                 });
             });
         
-            // Группа 2: Радиокнопки (Тип здания)
+            // Радио (тип)
             typeInputs.forEach(radio => {
                 radio.addEventListener('change', () => {
                     calculate();
@@ -3353,7 +3368,7 @@ input:checked + .cookie-slider:before {
                 });
             });
         
-            // Группа 3: Селекты (Ворота)
+            // Ворота
             [doorFrontSelect, doorRearSelect].forEach(select => {
                 select.addEventListener('change', () => {
                     calculate();
@@ -3361,21 +3376,37 @@ input:checked + .cookie-slider:before {
                 });
             });
         
+            // === ЦВЕТ: Специальный слушатель для ваших кнопок ===
+            colorButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Вытаскиваем код цвета из атрибута onclick="changeColor(0x0D47A1)"
+                    const onClickText = this.getAttribute('onclick');
+                    // Ищем строку вида 0x...
+                    const match = onClickText.match(/0x[0-9A-Fa-f]+/);
+                    
+                    if (match) {
+                        // Сохраняем "0x0D47A1" в память
+                        localStorage.setItem('angarSavedColor', match[0]);
+                    }
+                    // Также сохраняем остальное состояние (на всякий случай)
+                    saveCalculatorState();
+                });
+            });
+        
             // =========================================================
-            // ЗАПУСК
+            // ЗАПУСК ПРИ СТАРТЕ
             // =========================================================
         
-            // 1. Инициализация 3D движка
             if (typeof init3D === 'function') init3D();
         
-            // 2. Сначала загружаем данные из памяти (если есть)
+            // 1. Загружаем всё (включая цвет)
             loadCalculatorState();
         
-            // 3. Выполняем первый расчет с загруженными данными
+            // 2. Считаем
             calculate();
         }
         
-        // Запуск при загрузке DOM
+        // Запуск
         document.addEventListener('DOMContentLoaded', initCalculator);
     
         // ==========================================
