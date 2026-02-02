@@ -1,3 +1,4 @@
 User-agent: *
 Disallow: /policy.html
+Disallow: /gantt.html
 Sitemap: https://calc-angar.ru/sitemap.xml
