@@ -4006,7 +4006,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // ==========================================
     let lastScrollTop = 0;
     const navBar = document.querySelector('.navigation');
-        const scrollThreshold = 5; // Чувствительность к скроллу (чтобы не дёргалось от 1 пикселя)
+        const scrollThreshold = 200; // Чувствительность к скроллу (чтобы не дёргалось от 1 пикселя)
 
         window.addEventListener('scroll', function() {
             // Проверяем ширину экрана. Если больше 768px (ПК), ничего не делаем
