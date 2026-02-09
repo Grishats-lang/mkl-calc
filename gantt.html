@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
     <title>Диаграмма Ганта Pro - Просмотр</title>
     
     <!-- Highcharts -->
@@ -14,6 +13,16 @@
     <script src="js/accessibility.js"></script>
     
     <style>
+        :root {
+            --primary-blue: #0D47A1;
+            --accent-teal: #00796B;
+            --accent-orange: #EF6C00;
+            --background-white: #FFFFFF;
+            --text-primary: #212121;
+            --text-secondary: #546E7A;
+            --font-main: 'Inter', sans-serif;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -21,82 +30,147 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-main);
+            /* Синий градиент согласно стилю */
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-teal) 100%);
             min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Экран "Поверните устройство" */
+        #orientation-lock {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--primary-blue);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
             padding: 20px;
         }
 
+        #orientation-lock .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: rotate-phone 2s infinite ease-in-out;
+        }
+
+        @keyframes rotate-phone {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* Показываем заглушку только на телефонах в портретном режиме */
+        @media screen and (max-width: 600px) and (orientation: portrait) {
+            #orientation-lock { display: flex; }
+            .container { display: none; }
+        }
+        
+        /* Кнопка "Я все равно хочу смотреть так" */
+        .force-view-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: 1px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-main);
+        }
+
+        /* Основной контейнер */
         .container {
+            width: 100%;
             max-width: 1600px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
+            background: var(--background-white);
+            border-radius: 8px; /* Более строгие углы */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
-            height: 95vh; /* Чтобы занимало почти весь экран */
+            /* Высота адаптируется, но не меньше экрана минус отступы */
+            height: calc(100vh - 20px); 
+            overflow: hidden;
+            position: relative;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
+            background: var(--background-white);
+            border-bottom: 1px solid #CFD8DC;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             flex-shrink: 0;
         }
 
         .header h1 {
-            font-size: 24px;
-            margin-bottom: 2px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 18px;
+            color: var(--primary-blue);
+            font-weight: 700;
         }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 1em;
-        }
-
-        #ganttChart {
-            padding: 20px;
-            flex-grow: 1; /* Занимает все доступное пространство */
-            width: 100%;
-        }
-
-        /* Лоадер */
-        #loader {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 14px;
-            color: #666;
+        /* Кнопки управления */
+        .controls {
             display: flex;
-            flex-direction: column;
-            align-items: center;
             gap: 10px;
         }
 
-        .spinner {
-            width: 30px; height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #0D47A1;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .btn-toggle {
+            background: var(--background-light);
+            border: 1px solid var(--primary-blue);
+            color: var(--primary-blue);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-toggle:hover, .btn-toggle.active {
+            background: var(--primary-blue);
+            color: white;
+        }
 
-        /* Адаптив CSS */
-        @media (max-width: 600px) {
-            .header h1 { font-size: 14px; }
-            .legend { display: none; } /* Экономим место в шапке */
+        /* Область графика */
+        #ganttChart {
+            flex-grow: 1;
+            width: 100%;
+            /* Разрешаем скролл внутри, если контент не влезает */
+            overflow-y: auto; 
+            overflow-x: hidden;
+        }
+
+        /* Адаптив */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .header h1 { font-size: 16px; }
+            .controls { width: 100%; justify-content: space-between; }
+            .btn-toggle { flex-grow: 1; text-align: center; }
         }
     </style>
 </head>
 <body>
+    
+        <!-- Заглушка для портретного режима -->
+    <div id="orientation-lock">
+        <div class="icon">📱 ➡️ 🔄</div>
+        <h2>Поверните устройство</h2>
+        <p>График работ лучше просматривать в горизонтальном положении.</p>
+        <button class="force-view-btn" onclick="document.getElementById('orientation-lock').style.display='none'; document.querySelector('.container').style.display='flex';">
+            Открыть все равно
+        </button>
+    </div>
+
     <div class="container">
-        <!-- Диаграмма Ганта -->
+         <!-- Диаграмма Ганта -->
         <div id="ganttChart"></div>
     </div>
 
@@ -211,6 +285,122 @@
             });
         }
 
+                // Функция переключения осей (Скрыть/Показать список задач слева)
+        function toggleAxis() {
+            isCompactMode = !isCompactMode;
+            const btn = document.getElementById('toggleAxisBtn');
+            
+            if (isCompactMode) {
+                btn.textContent = "➡ Показать список";
+                btn.classList.add('active');
+                
+                // Обновляем чарт: скрываем ось Y и сетку
+                chartInstance.update({
+                    yAxis: {
+                        labels: { enabled: false },
+                        visible: false // Скрывает саму ось и подписи
+                    },
+                    chart: {
+                        marginLeft: 10 // Убираем отступ слева
+                    }
+                });
+            } else {
+                btn.textContent = "⬅ Скрыть список";
+                btn.classList.remove('active');
+                
+                chartInstance.update({
+                    yAxis: {
+                        labels: { enabled: true },
+                        visible: true
+                    },
+                    chart: {
+                        marginLeft: null // Возвращаем авто-отступ
+                    }
+                });
+            }
+        }
+
+                function initChart() {
+            chartInstance = Highcharts.ganttChart('ganttChart', {
+                chart: {
+                    backgroundColor: '#FFFFFF',
+                    style: { fontFamily: "'Inter', sans-serif" },
+                    // scrollablePlotArea включает нативный скролл Highcharts, если данных много
+                    scrollablePlotArea: {
+                        minHeight: 500, // Минимальная высота графика
+                        scrollPositionY: 0
+                    }
+                },
+                title: { text: null },
+                credits: { enabled: false },
+                
+                // Навигация (скроллбар справа)
+                scrollbar: { enabled: true },
+                navigator: { enabled: true, height: 30 },
+                
+                xAxis: {
+                    currentDateIndicator: {
+                        color: '#EF6C00',
+                        width: 2,
+                        label: {
+                            format: 'Сегодня',
+                            style: { color: '#EF6C00', fontWeight: 'bold' }
+                        }
+                    },
+                    grid: { borderColor: '#ECEFF1' },
+                    labels: { style: { color: '#546E7A' } }
+                },
+
+                yAxis: {
+                    grid: { borderColor: '#ECEFF1' },
+                    labels: {
+                        style: { 
+                            color: '#212121', 
+                            fontSize: '13px', 
+                            textOverflow: 'ellipsis' 
+                        }
+                    }
+                },
+
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: '#CFD8DC',
+                    borderRadius: 4,
+                    shadow: true,
+                    style: { color: '#212121' },
+                    dateTimeLabelFormats: {
+                        day: '%e %b',
+                        week: '%e %b'
+                    }
+                },
+
+                series: [{
+                    name: 'Проект',
+                    data: seriesData,
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 1
+                }],
+                
+                rangeSelector: {
+                    enabled: true,
+                    selected: 1, // По умолчанию 3 месяца
+                    buttonTheme: {
+                        fill: 'none',
+                        stroke: 'none',
+                        'stroke-width': 0,
+                        r: 4,
+                        style: { color: '#0D47A1', fontWeight: 'bold' },
+                        states: { hover: { fill: '#E3F2FD' }, select: { fill: '#0D47A1', style: { color: 'white' } } }
+                    },
+                    buttons: [
+                        { type: 'month', count: 1, text: '1 мес' },
+                        { type: 'month', count: 3, text: '3 мес' }
+                    ]
+                }
+            });
+        }
+
+
         function updateChart() {
             const ganttData = convertToGanttData();
             
@@ -323,10 +513,4 @@
         });
     </script>
 </body>
-
 </html>
-
-
-
-
-
