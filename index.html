@@ -3272,15 +3272,13 @@ input:checked + .cookie-slider:before {
             const colorButtons = document.querySelectorAll('button[onclick^="changeColor"]');
         
             // =========================================================
-            // ЛОГИКА СОХРАНЕНИЯ (LOCAL STORAGE)
+            // ЛОГИКА СОХРАНЕНИЯ (LOCAL STORAGE) — ИСПРАВЛЕННАЯ
             // =========================================================
             
             function saveCalculatorState() {
-                // Чтобы сохранить цвет, нам нужно знать, какой сейчас активен.
-                // Так как у кнопок нет класса "active" в вашем HTML, мы пойдем на хитрость:
-                // Мы будем сохранять цвет непосредственно в момент клика (см. ниже в слушателях).
-                // А здесь мы сохраняем только параметры формы.
-                
+                // Находим элемент снегового района
+                const snowRegionEl = document.getElementById('input-snow-region');
+
                 const state = {
                     width: widthInput.value,
                     length: lengthInput.value,
@@ -3290,14 +3288,16 @@ input:checked + .cookie-slider:before {
                     doorFront: doorFrontSelect.value,
                     doorRear: doorRearSelect.value,
                     buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm',
-                    // Цвет берем из localStorage (он сохраняется отдельно при клике)
-                    wallColor: localStorage.getItem('angarSavedColor') 
+                    // Сохраняем цвет стен
+                    wallColor: localStorage.getItem('angarSavedColor'),
+                    // НОВОЕ: Сохраняем снеговой район (если он есть, иначе ставим 3 по умолчанию)
+                    snowRegion: snowRegionEl ? snowRegionEl.value : '3'
                 };
                 localStorage.setItem('angarCalcState', JSON.stringify(state));
             }
         
             function loadCalculatorState() {
-                // 1. Восстанавливаем ползунки
+                // 1. Восстанавливаем ползунки и селекты
                 const raw = localStorage.getItem('angarCalcState');
                 if (raw) {
                     try {
@@ -3309,21 +3309,26 @@ input:checked + .cookie-slider:before {
                         if (state.windows) windowsInput.value = state.windows;
                         if (state.doorFront) doorFrontSelect.value = state.doorFront;
                         if (state.doorRear) doorRearSelect.value = state.doorRear;
+                        
+                        // НОВОЕ: Восстанавливаем снеговой район
+                        if (state.snowRegion) {
+                            const snowRegionEl = document.getElementById('input-snow-region');
+                            if (snowRegionEl) snowRegionEl.value = state.snowRegion;
+                        }
+
                         if (state.buildType) {
                             const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
                             if (radio) radio.checked = true;
                         }
-                    } catch (e) { console.error(e); }
+                    } catch (e) { console.error("Ошибка загрузки настроек:", e); }
                 }
         
-                // 2. Восстанавливаем цвет
+                // 2. Восстанавливаем цвет (остается как было)
                 const savedColor = localStorage.getItem('angarSavedColor');
                 if (savedColor) {
-                    // Ищем кнопку, в onclick которой есть этот код цвета
-                    // Например, ищем '0x0D47A1' внутри строки 'changeColor(0x0D47A1)'
+                    const colorButtons = document.querySelectorAll('button[onclick^="changeColor"]');
                     colorButtons.forEach(btn => {
                         if (btn.getAttribute('onclick').includes(savedColor)) {
-                            // Имитируем клик, чтобы сработал changeColor() и 3D обновилось
                             btn.click();
                         }
                     });
