@@ -2034,6 +2034,25 @@ input:checked + .cookie-slider:before {
             </div>
 
             <button onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="calc-btn">Заказать расчёт</button>
+                                <!-- Снеговой район (Версия без ссылки) -->
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                <div style="margin-bottom: 8px;">
+                    <span style="font-size: 0.95em; font-weight: 600; color: white;">❄️ Снеговой район (РФ):</span>
+                </div>
+                
+                <!-- Стилизованный селект -->
+                <select id="input-snow-region" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3); background-color: rgba(255,255,255,0.1); color: white; font-family: 'Inter', sans-serif; cursor: pointer; outline: none; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 10px top 50%; background-size: 12px auto;">
+                    <option value="1" style="color: #333;">I район (80 кг/м²) - Юг</option>
+                    <option value="2" style="color: #333;">II район (120 кг/м²) - Центр</option>
+                    <option value="3" selected style="color: #333;">III район (180 кг/м²) - Москва</option>
+                    <option value="4" style="color: #333;">IV район (240 кг/м²) - Урал/Сибирь</option>
+                    <option value="5" style="color: #333;">V район (320 кг/м²) - Север</option>
+                </select>
+                
+                <div style="font-size: 0.75em; color: rgba(255,255,255,0.6); margin-top: 6px;">
+                    *Влияет на металлоемкость каркаса
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -3322,6 +3341,10 @@ input:checked + .cookie-slider:before {
                 let thickness = parseFloat(thicknessInput.value);
                 let windowsCount = parseInt(windowsInput.value);
                 
+                // НОВОЕ: Получаем снеговой район
+                let snowRegionEl = document.getElementById('input-snow-region');
+                let snowRegion = snowRegionEl ? parseInt(snowRegionEl.value) : 3;
+
                 let typeEl = document.querySelector('input[name="build-type"]:checked');
                 let isWarm = typeEl ? (typeEl.value === 'warm') : true;
         
@@ -3342,18 +3365,23 @@ input:checked + .cookie-slider:before {
                     thicknessGroup.style.opacity = '1';
                     thicknessGroup.style.pointerEvents = 'auto';
                 }
-        
-                // 3. Расчет математики
+
+                // 3. Расчет математики (ЕДИНЫЙ БЛОК)
                 let area = w * l;
                 let basePricePerM2 = 4500; 
                 let typeCost = isWarm ? 3500 : 1800;
                 
+                // Коэффициенты удорожания от снега
+                const snowCoeffs = {1: 0.90, 2: 0.95, 3: 1.00, 4: 1.10, 5: 1.25};
+                let snowFactor = snowCoeffs[snowRegion] || 1;
+
                 let heightFactor = 1 + ((h - 6) * 0.05);
                 if (heightFactor < 1) heightFactor = 1;
         
                 let thicknessCost = isWarm ? (thickness - 100) * 15 : 0; 
         
-                let priceM2 = (basePricePerM2 + typeCost + thicknessCost) * heightFactor;
+                // ФОРМУЛА
+                let priceM2 = ( (basePricePerM2 * snowFactor * heightFactor) + typeCost + thicknessCost );
                 
                 // Скидки
                 if (area > 500) priceM2 *= 0.95;
@@ -3437,6 +3465,12 @@ input:checked + .cookie-slider:before {
                     saveCalculatorState();
                 });
             });
+
+            //  Снеговой район
+            document.getElementById('input-snow-region').addEventListener('change', () => {
+                calculate();
+                saveCalculatorState(); // Если вы используете сохранение
+            });   
         
             // === ЦВЕТ: Специальный слушатель для ваших кнопок ===
             colorButtons.forEach(btn => {
