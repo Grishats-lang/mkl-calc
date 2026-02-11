@@ -2720,248 +2720,249 @@ input:checked + .cookie-slider:before {
             updateTransform();
         });
 
-// ==========================================
-    // 3D ВИЗУАЛИЗАЦИЯ
-    // ==========================================
+        // ==========================================
+            // 3D ВИЗУАЛИЗАЦИЯ
+            // ==========================================
             let scene, camera, renderer, controls;
             let hangarGroup;
             let wallMaterial, frameMaterial, roofMaterial, glassMaterial;
             let currentColor = 0x0D47A1;
-
-    // Угол наклона стен (в радианах)
-            const WALL_TILT = 0.05; 
-
+        
+            // Угол наклона стен (в радианах)
+            const WALL_TILT = 0.05;
+        
             function init3D() {
                 const container = document.getElementById('scene3d');
                 if (!container) return;
-                
+        
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xe0e0e0);
                 scene.fog = new THREE.Fog(0xe0e0e0, 100, 500);
-
+        
                 camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
                 camera.position.set(25, 15, 45);
-
+        
                 renderer = new THREE.WebGLRenderer({ antialias: true });
                 renderer.setSize(container.clientWidth, container.clientHeight);
                 renderer.shadowMap.enabled = true;
                 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 container.appendChild(renderer.domElement);
-
+        
                 controls = new THREE.OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
                 controls.maxPolarAngle = Math.PI / 2 - 0.05;
-
-        // Свет
+        
+                // Свет
                 const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
                 scene.add(ambLight);
                 const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
                 dirLight.position.set(30, 50, 20);
                 dirLight.castShadow = true;
                 scene.add(dirLight);
-
-        // Пол
+        
+                // Пол
                 const ground = new THREE.Mesh(
                     new THREE.PlaneGeometry(1000, 1000),
                     new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
-                    );
+                );
                 ground.rotation.x = -Math.PI / 2;
                 ground.receiveShadow = true;
                 scene.add(ground);
-
-        // Материалы
+        
+                // Материалы
                 wallMaterial = new THREE.MeshStandardMaterial({ color: currentColor, roughness: 0.5, side: THREE.DoubleSide });
                 frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
                 roofMaterial = new THREE.MeshStandardMaterial({ color: 0x455A64, roughness: 0.6, side: THREE.DoubleSide });
                 glassMaterial = new THREE.MeshStandardMaterial({ color: 0x81D4FA, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.7 });
-
+        
                 hangarGroup = new THREE.Group();
                 scene.add(hangarGroup);
-
+        
                 animate();
-                
+        
                 window.addEventListener('resize', () => {
                     camera.aspect = container.clientWidth / container.clientHeight;
                     camera.updateProjectionMatrix();
                     renderer.setSize(container.clientWidth, container.clientHeight);
                 });
             }
-
+        
             function animate() {
                 requestAnimationFrame(animate);
                 if (controls) controls.update();
                 if (renderer && scene && camera) renderer.render(scene, camera);
             }
-
+        
             function update3DModel(width, length, height, windowsCount, doorFrontCount, doorRearCount) {
                 if (!hangarGroup) return;
-
-        // Очистка
-                while(hangarGroup.children.length > 0){ 
-                    hangarGroup.remove(hangarGroup.children[0]); 
+        
+                // Очистка
+                while (hangarGroup.children.length > 0) {
+                    hangarGroup.remove(hangarGroup.children[0]);
                 }
-
-        // РАСЧЕТ ГЕОМЕТРИИ
+        
+                // РАСЧЕТ ГЕОМЕТРИИ
                 const tiltOffset = height * Math.tan(WALL_TILT);
-                const topWidth = width - (tiltOffset * 2); 
+                const topWidth = width - (tiltOffset * 2);
                 const roofHeight = width * 0.12;
                 const roofHalfWidth = topWidth / 2;
                 const angle = Math.atan(roofHeight / roofHalfWidth);
                 const roofSlopeLen = Math.sqrt(Math.pow(roofHalfWidth, 2) + Math.pow(roofHeight, 2));
-
-        // 1. КАРКАС
-                const frameStep = 3; 
+        
+                // 1. КАРКАС
+                const frameStep = 3;
                 const numFrames = Math.floor(length / frameStep);
-                
+                const frameSpacing = length / numFrames; // реальный шаг между секциями
+        
                 for (let i = 0; i <= numFrames; i++) {
-                    const zPos = (i * (length / numFrames)) - (length / 2);
+                    const zPos = (i * frameSpacing) - (length / 2);
                     createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen);
                 }
-
-        // 2. БОКОВЫЕ СТЕНЫ
+        
+                // 2. БОКОВЫЕ СТЕНЫ
                 const sideGeo = new THREE.BoxGeometry(0.1, height, length);
-                
+        
                 const leftW = new THREE.Mesh(sideGeo, wallMaterial);
                 leftW.rotation.z = -WALL_TILT;
-                leftW.position.set(-width/2 + (tiltOffset/2), height/2, 0);
+                leftW.position.set(-width / 2 + (tiltOffset / 2), height / 2, 0);
                 hangarGroup.add(leftW);
-
+        
                 const rightW = new THREE.Mesh(sideGeo, wallMaterial);
                 rightW.rotation.z = WALL_TILT;
-                rightW.position.set(width/2 - (tiltOffset/2), height/2, 0);
+                rightW.position.set(width / 2 - (tiltOffset / 2), height / 2, 0);
                 hangarGroup.add(rightW);
-
-        // 3. ОКНА (Исправлено: висят ровно, по центру секций)
+        
+                // 3. ОКНА — ИСПРАВЛЕНО!
                 if (windowsCount > 0) {
-                    createWindows(width, length, height, tiltOffset, windowsCount, frameStep);
+                    createWindows(width, length, height, tiltOffset, windowsCount, numFrames, frameSpacing);
                 }
-
-        // 4. ТОРЦЕВЫЕ СТЕНЫ И ВОРОТА (Исправлено: Front - спереди, Rear - сзади)
-        // Задние ворота (-Z)
-                createPolygonWall(-length/2, width, height, tiltOffset, roofHeight, doorRearCount); 
-        // Передние ворота (+Z)
-                createPolygonWall(length/2, width, height, tiltOffset, roofHeight, doorFrontCount); 
-
-        // 5. КРЫША
-                const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4); 
-
+        
+                // 4. ТОРЦЕВЫЕ СТЕНЫ И ВОРОТА
+                // Задние ворота (-Z)
+                createPolygonWall(-length / 2, width, height, tiltOffset, roofHeight, doorRearCount);
+                // Передние ворота (+Z)
+                createPolygonWall(length / 2, width, height, tiltOffset, roofHeight, doorFrontCount);
+        
+                // 5. КРЫША
+                const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4);
+        
                 const roofL = new THREE.Mesh(roofGeo, roofMaterial);
-                roofL.rotation.z = angle; 
-                roofL.position.set(-(width/2 - tiltOffset)/2, height + roofHeight/2, 0);
+                roofL.rotation.z = angle;
+                roofL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
                 hangarGroup.add(roofL);
-
+        
                 const roofR = new THREE.Mesh(roofGeo, roofMaterial);
                 roofR.rotation.z = -angle;
-                roofR.position.set((width/2 - tiltOffset)/2, height + roofHeight/2, 0);
+                roofR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
                 hangarGroup.add(roofR);
             }
-
-            function createWindows(width, length, height, tiltOffset, totalWindows, frameStep) {
+        
+            // ============= ИСПРАВЛЕННАЯ ФУНКЦИЯ СОЗДАНИЯ ОКОН =============
+            function createWindows(width, length, height, tiltOffset, totalWindows, numFrames, frameSpacing) {
                 const windowsPerSide = Math.ceil(totalWindows / 2);
-        // Размеры окна: Толщина 0.15, Высота 1.2, Ширина 1.5 (вдоль стены)
-                const winGeo = new THREE.BoxGeometry(0.15, 1.2, 1.5); 
-
-                const numBays = Math.floor(length / frameStep);
-                if (numBays < 1) return;
-
+                const winGeo = new THREE.BoxGeometry(0.15, 1.2, 1.5);
+        
+                if (numFrames < 1) return;
+        
                 for (let i = 0; i < windowsPerSide; i++) {
-            // Равномерное распределение по секциям
-                    const ratio = numBays / windowsPerSide;
+                    // Равномерное распределение окон по секциям
+                    const ratio = numFrames / windowsPerSide;
                     const bayIndex = Math.floor((i + 0.5) * ratio);
-                    
-                    if (bayIndex >= numBays) continue;
-
-                    const zPos = (-length / 2) + (bayIndex * frameStep) + (frameStep / 2);
-
-            // ЛЕВАЯ СТЕНА (без лишнего вращения Y, только наклон Z)
+                    if (bayIndex >= numFrames) continue;
+        
+                    // Точная позиция в центре секции (как у рам)
+                    const zPos = (-length / 2) + (bayIndex * frameSpacing) + (frameSpacing / 2);
+        
+                    // ЛЕВАЯ СТЕНА
                     const winL = new THREE.Mesh(winGeo, glassMaterial);
                     winL.rotation.z = -WALL_TILT;
-                    winL.position.set((-width/2 + (tiltOffset/2)) - 0.12, height / 2 + 0.5, zPos);
+                    winL.position.set((-width / 2 + (tiltOffset / 2)) - 0.12, height / 2 + 0.5, zPos);
                     hangarGroup.add(winL);
-
-            // ПРАВАЯ СТЕНА
+        
+                    // ПРАВАЯ СТЕНА
                     if ((i * 2) + 1 < totalWindows) {
                         const winR = new THREE.Mesh(winGeo, glassMaterial);
                         winR.rotation.z = WALL_TILT;
-                        winR.position.set((width/2 - (tiltOffset/2)) + 0.12, height / 2 + 0.5, zPos);
+                        winR.position.set((width / 2 - (tiltOffset / 2)) + 0.12, height / 2 + 0.5, zPos);
                         hangarGroup.add(winR);
                     }
                 }
             }
-
+            // =================================================================
+        
             function createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen) {
                 const bT = 0.25;
-
+        
                 const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
                 colL.rotation.z = -WALL_TILT;
-                colL.position.set(-width/2 + tiltOffset/2, height/2, zPos);
+                colL.position.set(-width / 2 + tiltOffset / 2, height / 2, zPos);
                 hangarGroup.add(colL);
-
+        
                 const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
                 colR.rotation.z = WALL_TILT;
-                colR.position.set(width/2 - tiltOffset/2, height/2, zPos);
+                colR.position.set(width / 2 - tiltOffset / 2, height / 2, zPos);
                 hangarGroup.add(colR);
-
+        
                 const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
-                
+        
                 const beamL = new THREE.Mesh(beamGeo, frameMaterial);
                 beamL.rotation.z = angle;
-                beamL.position.set(-(width/2 - tiltOffset)/2, height + roofHeight/2, zPos);
+                beamL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
                 hangarGroup.add(beamL);
-
+        
                 const beamR = new THREE.Mesh(beamGeo, frameMaterial);
                 beamR.rotation.z = -angle;
-                beamR.position.set((width/2 - tiltOffset)/2, height + roofHeight/2, zPos);
+                beamR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
                 hangarGroup.add(beamR);
             }
-
+        
             function createPolygonWall(zPos, width, height, tiltOffset, roofHeight, doorsCount) {
                 const shape = new THREE.Shape();
-
+        
                 const halfBottom = width / 2;
                 const halfTop = width / 2 - tiltOffset;
-
+        
                 shape.moveTo(-halfBottom, 0);
                 shape.lineTo(halfBottom, 0);
                 shape.lineTo(halfTop, height);
                 shape.lineTo(0, height + roofHeight);
                 shape.lineTo(-halfTop, height);
                 shape.lineTo(-halfBottom, 0);
-
+        
                 const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
                 const wall = new THREE.Mesh(geom, wallMaterial);
-                const offset = (zPos > 0) ? -0.1 : 0; 
+                const offset = (zPos > 0) ? -0.1 : 0;
                 wall.position.set(0, 0, zPos + offset);
                 hangarGroup.add(wall);
-
-        // Генерация ворот
+        
+                // Генерация ворот
                 if (doorsCount > 0) {
-                    const dW = Math.min(4, width * 0.4); 
-                    const dH = Math.min(4.5, height * 0.85); 
+                    const dW = Math.min(4, width * 0.4);
+                    const dH = Math.min(4.5, height * 0.85);
                     const doorGeo = new THREE.BoxGeometry(dW, dH, 0.2);
                     const doorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
                     const doorZ = zPos + ((zPos > 0) ? 0.05 : -0.05);
-
+        
                     if (doorsCount == 1) {
                         const door = new THREE.Mesh(doorGeo, doorMat);
-                        door.position.set(0, dH/2, doorZ);
+                        door.position.set(0, dH / 2, doorZ);
                         hangarGroup.add(door);
                     } else if (doorsCount == 2) {
                         const offsetX = width / 4;
                         const door1 = new THREE.Mesh(doorGeo, doorMat);
-                        door1.position.set(-offsetX, dH/2, doorZ);
+                        door1.position.set(-offsetX, dH / 2, doorZ);
                         hangarGroup.add(door1);
                         const door2 = new THREE.Mesh(doorGeo, doorMat);
-                        door2.position.set(offsetX, dH/2, doorZ);
+                        door2.position.set(offsetX, dH / 2, doorZ);
                         hangarGroup.add(door2);
                     }
                 }
             }
-
-            window.changeColor = function(c) {
+        
+            window.changeColor = function (c) {
                 currentColor = c;
-                if(wallMaterial) wallMaterial.color.setHex(c);
-            }
+                if (wallMaterial) wallMaterial.color.setHex(c);
+            };
 
     // ==========================================
         // 3. ФУНКЦИЯ ОБНОВЛЕНИЯ ДИАГРАММЫ (АДАПТИВНАЯ)
