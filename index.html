@@ -493,6 +493,27 @@
             transform: scale(1.1);
         }
 
+        /* Контейнер для двух ползунков в одной строке */
+        .calc-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px; /* при необходимости отступ снизу */
+        }
+
+        /* Каждый контрол внутри строки занимает равную ширину */
+        .calc-row .calc-control-group {
+            flex: 1;
+            margin-bottom: 0; /* убираем стандартный нижний отступ */
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 600px) {
+            .calc-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
         /* Радио-кнопки (Тип здания) */
         .calc-radio-group {
             display: flex;
@@ -1977,12 +1998,24 @@ input:checked + .cookie-slider:before {
             </div>
 
             <!-- 6. Толщина панелей (Перемещено ВЫШЕ типа) -->
-            <div class="calc-control-group" id="panel-thickness-group">
-                <div class="calc-label">
-                    <span>Толщина панелей</span>
-                    <span class="calc-value"><span id="val-thickness">100</span> мм</span>
+            <!-- ============================================= -->
+            <!-- ТОЛЩИНА СТЕН И КРОВЛИ (В ОДНОМ РЯДУ) -->
+            <!-- ============================================= -->
+            <div class="calc-row">
+                <div class="calc-control-group" id="wall-thickness-group">
+                    <div class="calc-label">
+                        <span>Толщина стен</span>
+                        <span class="calc-value"><span id="val-wall-thickness">100</span> мм</span>
+                    </div>
+                    <input type="range" id="input-wall-thickness" min="50" max="250" value="100" step="10">
                 </div>
-                <input type="range" id="input-thickness" min="50" max="250" value="100" step="10">
+                <div class="calc-control-group" id="roof-thickness-group">
+                    <div class="calc-label">
+                        <span>Толщина кровли</span>
+                        <span class="calc-value"><span id="val-roof-thickness">100</span> мм</span>
+                    </div>
+                    <input type="range" id="input-roof-thickness" min="50" max="250" value="100" step="10">
+                </div>
             </div>
 
             <!-- 7. Тип здания (Перемещено НИЖЕ) -->
@@ -2720,794 +2753,740 @@ input:checked + .cookie-slider:before {
             updateTransform();
         });
 
-        // ==========================================
-            // 3D ВИЗУАЛИЗАЦИЯ
-            // ==========================================
-            let scene, camera, renderer, controls;
-            let hangarGroup;
-            let wallMaterial, frameMaterial, roofMaterial, glassMaterial;
-            let currentColor = 0x0D47A1;
-        
-            // Угол наклона стен (в радианах)
-            const WALL_TILT = 0.05;
-        
-            function init3D() {
-                const container = document.getElementById('scene3d');
-                if (!container) return;
-        
-                scene = new THREE.Scene();
-                scene.background = new THREE.Color(0xe0e0e0);
-                scene.fog = new THREE.Fog(0xe0e0e0, 100, 500);
-        
-                camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-                camera.position.set(25, 15, 45);
-        
-                renderer = new THREE.WebGLRenderer({ antialias: true });
-                renderer.setSize(container.clientWidth, container.clientHeight);
-                renderer.shadowMap.enabled = true;
-                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-                container.appendChild(renderer.domElement);
-        
-                controls = new THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.maxPolarAngle = Math.PI / 2 - 0.05;
-        
-                // Свет
-                const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
-                scene.add(ambLight);
-                const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                dirLight.position.set(30, 50, 20);
-                dirLight.castShadow = true;
-                scene.add(dirLight);
-        
-                // Пол
-                const ground = new THREE.Mesh(
-                    new THREE.PlaneGeometry(1000, 1000),
-                    new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
-                );
-                ground.rotation.x = -Math.PI / 2;
-                ground.receiveShadow = true;
-                scene.add(ground);
-        
-                // Материалы
-                wallMaterial = new THREE.MeshStandardMaterial({ color: currentColor, roughness: 0.5, side: THREE.DoubleSide });
-                frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
-                roofMaterial = new THREE.MeshStandardMaterial({ color: 0x455A64, roughness: 0.6, side: THREE.DoubleSide });
-                glassMaterial = new THREE.MeshStandardMaterial({ color: 0x81D4FA, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.7 });
-        
-                hangarGroup = new THREE.Group();
-                scene.add(hangarGroup);
-        
-                animate();
-        
-                window.addEventListener('resize', () => {
-                    camera.aspect = container.clientWidth / container.clientHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(container.clientWidth, container.clientHeight);
-                });
+// ==========================================
+    // 3D ВИЗУАЛИЗАЦИЯ (ТОЛЩИНА ФИКСИРОВАНА)
+    // ==========================================
+    let scene, camera, renderer, controls;
+    let hangarGroup;
+    let wallMaterial, frameMaterial, roofMaterial, glassMaterial;
+    let currentColor = 0x0D47A1;
+
+    const WALL_TILT = 0.05; // угол наклона стен
+
+    function init3D() {
+        const container = document.getElementById('scene3d');
+        if (!container) return;
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xe0e0e0);
+        scene.fog = new THREE.Fog(0xe0e0e0, 100, 500);
+
+        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(25, 15, 45);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.maxPolarAngle = Math.PI / 2 - 0.05;
+
+        // Свет
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(30, 50, 20);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // Пол
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(1000, 1000),
+            new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
+        );
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Материалы
+        wallMaterial = new THREE.MeshStandardMaterial({ color: currentColor, roughness: 0.5, side: THREE.DoubleSide });
+        frameMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 });
+        roofMaterial = new THREE.MeshStandardMaterial({ color: 0x455A64, roughness: 0.6, side: THREE.DoubleSide });
+        glassMaterial = new THREE.MeshStandardMaterial({ color: 0x81D4FA, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.7 });
+
+        hangarGroup = new THREE.Group();
+        scene.add(hangarGroup);
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (controls) controls.update();
+        if (renderer && scene && camera) renderer.render(scene, camera);
+    }
+
+    // ==============================================
+    // ОБНОВЛЕНИЕ 3D МОДЕЛИ – БЕЗ ПАРАМЕТРОВ ТОЛЩИНЫ
+    // ==============================================
+    function update3DModel(width, length, height, windowsCount, doorFrontCount, doorRearCount) {
+        if (!hangarGroup) return;
+
+        // Очистка
+        while (hangarGroup.children.length > 0) {
+            hangarGroup.remove(hangarGroup.children[0]);
+        }
+
+        // РАСЧЕТ ГЕОМЕТРИИ
+        const tiltOffset = height * Math.tan(WALL_TILT);
+        const topWidth = width - (tiltOffset * 2);
+        const roofHeight = width * 0.12;
+        const roofHalfWidth = topWidth / 2;
+        const angle = Math.atan(roofHeight / roofHalfWidth);
+        const roofSlopeLen = Math.sqrt(Math.pow(roofHalfWidth, 2) + Math.pow(roofHeight, 2));
+
+        // --- 1. КАРКАС (без изменений) ---
+        const frameStep = 3;
+        const numFrames = Math.floor(length / frameStep);
+        const frameSpacing = length / numFrames;
+
+        for (let i = 0; i <= numFrames; i++) {
+            const zPos = (i * frameSpacing) - (length / 2);
+            createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen);
+        }
+
+        // --- 2. БОКОВЫЕ СТЕНЫ (толщина фиксирована 0.1) ---
+        const sideGeo = new THREE.BoxGeometry(0.1, height, length);
+
+        const leftW = new THREE.Mesh(sideGeo, wallMaterial);
+        leftW.rotation.z = -WALL_TILT;
+        leftW.position.set(-width / 2 + (tiltOffset / 2), height / 2, 0);
+        hangarGroup.add(leftW);
+
+        const rightW = new THREE.Mesh(sideGeo, wallMaterial);
+        rightW.rotation.z = WALL_TILT;
+        rightW.position.set(width / 2 - (tiltOffset / 2), height / 2, 0);
+        hangarGroup.add(rightW);
+
+        // --- 3. ОКНА (толщина окна 0.15, смещение фиксировано) ---
+        if (windowsCount > 0) {
+            createWindows(width, length, height, tiltOffset, windowsCount, numFrames, frameSpacing);
+        }
+
+        // --- 4. ТОРЦЕВЫЕ СТЕНЫ (глубина экструзии фиксирована 0.1) ---
+        createPolygonWall(-length / 2, width, height, tiltOffset, roofHeight, doorRearCount);  // задняя
+        createPolygonWall(length / 2, width, height, tiltOffset, roofHeight, doorFrontCount); // передняя
+
+        // --- 5. КРЫША (толщина фиксирована 0.1) ---
+        const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4);
+
+        const roofL = new THREE.Mesh(roofGeo, roofMaterial);
+        roofL.rotation.z = angle;
+        roofL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
+        hangarGroup.add(roofL);
+
+        const roofR = new THREE.Mesh(roofGeo, roofMaterial);
+        roofR.rotation.z = -angle;
+        roofR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
+        hangarGroup.add(roofR);
+    }
+
+    // ============= ОКНА – ФИКСИРОВАННОЕ СМЕЩЕНИЕ (КАК БЫЛО) =============
+    function createWindows(width, length, height, tiltOffset, totalWindows, numFrames, frameSpacing) {
+        const windowsPerSide = Math.ceil(totalWindows / 2);
+        const winGeo = new THREE.BoxGeometry(0.15, 1.2, 1.5); // толщина окна 0.15
+
+        if (numFrames < 1) return;
+
+        // Фиксированное смещение окна относительно центра стены (как в исходном коде)
+        const offsetX = 0.12; 
+
+        for (let i = 0; i < windowsPerSide; i++) {
+            const ratio = numFrames / windowsPerSide;
+            const bayIndex = Math.floor((i + 0.5) * ratio);
+            if (bayIndex >= numFrames) continue;
+
+            const zPos = (-length / 2) + (bayIndex * frameSpacing) + (frameSpacing / 2);
+
+            // ЛЕВАЯ СТЕНА
+            const winL = new THREE.Mesh(winGeo, glassMaterial);
+            winL.rotation.z = -WALL_TILT;
+            winL.position.set((-width / 2 + (tiltOffset / 2)) - offsetX, height / 2 + 0.5, zPos);
+            hangarGroup.add(winL);
+
+            // ПРАВАЯ СТЕНА
+            if ((i * 2) + 1 < totalWindows) {
+                const winR = new THREE.Mesh(winGeo, glassMaterial);
+                winR.rotation.z = WALL_TILT;
+                winR.position.set((width / 2 - (tiltOffset / 2)) + offsetX, height / 2 + 0.5, zPos);
+                hangarGroup.add(winR);
             }
-        
-            function animate() {
-                requestAnimationFrame(animate);
-                if (controls) controls.update();
-                if (renderer && scene && camera) renderer.render(scene, camera);
+        }
+    }
+
+    // ============= КАРКАС – БЕЗ ИЗМЕНЕНИЙ =============
+    function createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen) {
+        const bT = 0.25;
+
+        const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
+        colL.rotation.z = -WALL_TILT;
+        colL.position.set(-width / 2 + tiltOffset / 2, height / 2, zPos);
+        hangarGroup.add(colL);
+
+        const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
+        colR.rotation.z = WALL_TILT;
+        colR.position.set(width / 2 - tiltOffset / 2, height / 2, zPos);
+        hangarGroup.add(colR);
+
+        const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
+
+        const beamL = new THREE.Mesh(beamGeo, frameMaterial);
+        beamL.rotation.z = angle;
+        beamL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
+        hangarGroup.add(beamL);
+
+        const beamR = new THREE.Mesh(beamGeo, frameMaterial);
+        beamR.rotation.z = -angle;
+        beamR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
+        hangarGroup.add(beamR);
+    }
+
+    // ============= ТОРЦЕВЫЕ СТЕНЫ – ГЛУБИНА 0.1 (ФИКСИРОВАНА) =============
+    function createPolygonWall(zPos, width, height, tiltOffset, roofHeight, doorsCount) {
+        const shape = new THREE.Shape();
+
+        const halfBottom = width / 2;
+        const halfTop = width / 2 - tiltOffset;
+
+        shape.moveTo(-halfBottom, 0);
+        shape.lineTo(halfBottom, 0);
+        shape.lineTo(halfTop, height);
+        shape.lineTo(0, height + roofHeight);
+        shape.lineTo(-halfTop, height);
+        shape.lineTo(-halfBottom, 0);
+
+        const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false }); // глубина 0.1
+        const wall = new THREE.Mesh(geom, wallMaterial);
+        const offset = (zPos > 0) ? -0.1 : 0;
+        wall.position.set(0, 0, zPos + offset);
+        hangarGroup.add(wall);
+
+        // Генерация ворот (без изменений)
+        if (doorsCount > 0) {
+            const dW = Math.min(4, width * 0.4);
+            const dH = Math.min(4.5, height * 0.85);
+            const doorGeo = new THREE.BoxGeometry(dW, dH, 0.2);
+            const doorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+            const doorZ = zPos + ((zPos > 0) ? 0.05 : -0.05);
+
+            if (doorsCount == 1) {
+                const door = new THREE.Mesh(doorGeo, doorMat);
+                door.position.set(0, dH / 2, doorZ);
+                hangarGroup.add(door);
+            } else if (doorsCount == 2) {
+                const offsetX = width / 4;
+                const door1 = new THREE.Mesh(doorGeo, doorMat);
+                door1.position.set(-offsetX, dH / 2, doorZ);
+                hangarGroup.add(door1);
+                const door2 = new THREE.Mesh(doorGeo, doorMat);
+                door2.position.set(offsetX, dH / 2, doorZ);
+                hangarGroup.add(door2);
             }
-        
-            function update3DModel(width, length, height, windowsCount, doorFrontCount, doorRearCount) {
-                if (!hangarGroup) return;
-        
-                // Очистка
-                while (hangarGroup.children.length > 0) {
-                    hangarGroup.remove(hangarGroup.children[0]);
-                }
-        
-                // РАСЧЕТ ГЕОМЕТРИИ
-                const tiltOffset = height * Math.tan(WALL_TILT);
-                const topWidth = width - (tiltOffset * 2);
-                const roofHeight = width * 0.12;
-                const roofHalfWidth = topWidth / 2;
-                const angle = Math.atan(roofHeight / roofHalfWidth);
-                const roofSlopeLen = Math.sqrt(Math.pow(roofHalfWidth, 2) + Math.pow(roofHeight, 2));
-        
-                // 1. КАРКАС
-                const frameStep = 3;
-                const numFrames = Math.floor(length / frameStep);
-                const frameSpacing = length / numFrames; // реальный шаг между секциями
-        
-                for (let i = 0; i <= numFrames; i++) {
-                    const zPos = (i * frameSpacing) - (length / 2);
-                    createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen);
-                }
-        
-                // 2. БОКОВЫЕ СТЕНЫ
-                const sideGeo = new THREE.BoxGeometry(0.1, height, length);
-        
-                const leftW = new THREE.Mesh(sideGeo, wallMaterial);
-                leftW.rotation.z = -WALL_TILT;
-                leftW.position.set(-width / 2 + (tiltOffset / 2), height / 2, 0);
-                hangarGroup.add(leftW);
-        
-                const rightW = new THREE.Mesh(sideGeo, wallMaterial);
-                rightW.rotation.z = WALL_TILT;
-                rightW.position.set(width / 2 - (tiltOffset / 2), height / 2, 0);
-                hangarGroup.add(rightW);
-        
-                // 3. ОКНА — ИСПРАВЛЕНО!
-                if (windowsCount > 0) {
-                    createWindows(width, length, height, tiltOffset, windowsCount, numFrames, frameSpacing);
-                }
-        
-                // 4. ТОРЦЕВЫЕ СТЕНЫ И ВОРОТА
-                // Задние ворота (-Z)
-                createPolygonWall(-length / 2, width, height, tiltOffset, roofHeight, doorRearCount);
-                // Передние ворота (+Z)
-                createPolygonWall(length / 2, width, height, tiltOffset, roofHeight, doorFrontCount);
-        
-                // 5. КРЫША
-                const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4);
-        
-                const roofL = new THREE.Mesh(roofGeo, roofMaterial);
-                roofL.rotation.z = angle;
-                roofL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
-                hangarGroup.add(roofL);
-        
-                const roofR = new THREE.Mesh(roofGeo, roofMaterial);
-                roofR.rotation.z = -angle;
-                roofR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
-                hangarGroup.add(roofR);
-            }
-        
-            // ============= ИСПРАВЛЕННАЯ ФУНКЦИЯ СОЗДАНИЯ ОКОН =============
-            function createWindows(width, length, height, tiltOffset, totalWindows, numFrames, frameSpacing) {
-                const windowsPerSide = Math.ceil(totalWindows / 2);
-                const winGeo = new THREE.BoxGeometry(0.15, 1.2, 1.5);
-        
-                if (numFrames < 1) return;
-        
-                for (let i = 0; i < windowsPerSide; i++) {
-                    // Равномерное распределение окон по секциям
-                    const ratio = numFrames / windowsPerSide;
-                    const bayIndex = Math.floor((i + 0.5) * ratio);
-                    if (bayIndex >= numFrames) continue;
-        
-                    // Точная позиция в центре секции (как у рам)
-                    const zPos = (-length / 2) + (bayIndex * frameSpacing) + (frameSpacing / 2);
-        
-                    // ЛЕВАЯ СТЕНА
-                    const winL = new THREE.Mesh(winGeo, glassMaterial);
-                    winL.rotation.z = -WALL_TILT;
-                    winL.position.set((-width / 2 + (tiltOffset / 2)) - 0.12, height / 2 + 0.5, zPos);
-                    hangarGroup.add(winL);
-        
-                    // ПРАВАЯ СТЕНА
-                    if ((i * 2) + 1 < totalWindows) {
-                        const winR = new THREE.Mesh(winGeo, glassMaterial);
-                        winR.rotation.z = WALL_TILT;
-                        winR.position.set((width / 2 - (tiltOffset / 2)) + 0.12, height / 2 + 0.5, zPos);
-                        hangarGroup.add(winR);
-                    }
-                }
-            }
-            // =================================================================
-        
-            function createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen) {
-                const bT = 0.25;
-        
-                const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-                colL.rotation.z = -WALL_TILT;
-                colL.position.set(-width / 2 + tiltOffset / 2, height / 2, zPos);
-                hangarGroup.add(colL);
-        
-                const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-                colR.rotation.z = WALL_TILT;
-                colR.position.set(width / 2 - tiltOffset / 2, height / 2, zPos);
-                hangarGroup.add(colR);
-        
-                const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
-        
-                const beamL = new THREE.Mesh(beamGeo, frameMaterial);
-                beamL.rotation.z = angle;
-                beamL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
-                hangarGroup.add(beamL);
-        
-                const beamR = new THREE.Mesh(beamGeo, frameMaterial);
-                beamR.rotation.z = -angle;
-                beamR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
-                hangarGroup.add(beamR);
-            }
-        
-            function createPolygonWall(zPos, width, height, tiltOffset, roofHeight, doorsCount) {
-                const shape = new THREE.Shape();
-        
-                const halfBottom = width / 2;
-                const halfTop = width / 2 - tiltOffset;
-        
-                shape.moveTo(-halfBottom, 0);
-                shape.lineTo(halfBottom, 0);
-                shape.lineTo(halfTop, height);
-                shape.lineTo(0, height + roofHeight);
-                shape.lineTo(-halfTop, height);
-                shape.lineTo(-halfBottom, 0);
-        
-                const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
-                const wall = new THREE.Mesh(geom, wallMaterial);
-                const offset = (zPos > 0) ? -0.1 : 0;
-                wall.position.set(0, 0, zPos + offset);
-                hangarGroup.add(wall);
-        
-                // Генерация ворот
-                if (doorsCount > 0) {
-                    const dW = Math.min(4, width * 0.4);
-                    const dH = Math.min(4.5, height * 0.85);
-                    const doorGeo = new THREE.BoxGeometry(dW, dH, 0.2);
-                    const doorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-                    const doorZ = zPos + ((zPos > 0) ? 0.05 : -0.05);
-        
-                    if (doorsCount == 1) {
-                        const door = new THREE.Mesh(doorGeo, doorMat);
-                        door.position.set(0, dH / 2, doorZ);
-                        hangarGroup.add(door);
-                    } else if (doorsCount == 2) {
-                        const offsetX = width / 4;
-                        const door1 = new THREE.Mesh(doorGeo, doorMat);
-                        door1.position.set(-offsetX, dH / 2, doorZ);
-                        hangarGroup.add(door1);
-                        const door2 = new THREE.Mesh(doorGeo, doorMat);
-                        door2.position.set(offsetX, dH / 2, doorZ);
-                        hangarGroup.add(door2);
-                    }
-                }
-            }
-        
-            window.changeColor = function (c) {
-                currentColor = c;
-                if (wallMaterial) wallMaterial.color.setHex(c);
-            };
+        }
+    }
+
+    window.changeColor = function (c) {
+        currentColor = c;
+        if (wallMaterial) wallMaterial.color.setHex(c);
+    };
 
     // ==========================================
-        // 3. ФУНКЦИЯ ОБНОВЛЕНИЯ ДИАГРАММЫ (АДАПТИВНАЯ)
-        // ==========================================
-            let pricingChartInstance = null;
+    // 3. ФУНКЦИЯ ОБНОВЛЕНИЯ ДИАГРАММЫ (АДАПТИВНАЯ)
+    // ==========================================
+    let pricingChartInstance = null;
 
-            function updatePricingChart(totalPrice) {
-            // Проверка библиотеки
-                if (typeof Highcharts === 'undefined') {
-                // Пробуем снова через 500мс, если скрипт еще грузится
-                    setTimeout(() => updatePricingChart(totalPrice), 500);
-                    return;
-                }
-
-            // Ищем контейнер
-                const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
-                if (!chartContainer) return;
-
-                const distribution = {
-                    materials: Math.round(totalPrice * 0.45),
-                    montage: Math.round(totalPrice * 0.30),
-                    delivery: Math.round(totalPrice * 0.10),
-                    design: Math.round(totalPrice * 0.08),
-                    overhead: Math.round(totalPrice * 0.07)
-                };
-
-                const dataSeries = [
-                    ['Материалы (45%)', distribution.materials],
-                    ['Монтаж (30%)', distribution.montage],
-                    ['Доставка (10%)', distribution.delivery],
-                    ['Проектирование (8%)', distribution.design],
-                    ['Накладные (7%)', distribution.overhead]
-                ];
-
-                const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
-
-            // Обновляем данные, если график уже есть
-                if (pricingChartInstance) {
-                    pricingChartInstance.series[0].setData(dataSeries, true);
-                    pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
-                } else {
-                // Создаем новый график
-                    pricingChartInstance = Highcharts.chart(chartContainer.id, {
-                        chart: {
-                            type: 'pie',
-                            options3d: { enabled: true, alpha: 45, beta: 0 },
-                            backgroundColor: 'transparent',
-                            style: { fontFamily: "'Inter', sans-serif" }
-                        },
-                        title: {
-                            text: `Итого: ${formatRub(totalPrice)} ₽`,
-                            style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
-                        },
-                        tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
-
-                    // Настройки самого "пирога"
-                        plotOptions: {
-                            pie: {
-                                allowPointSelect: true,
-                                cursor: 'pointer',
-                                depth: 45,
-                                dataLabels: {
-                                enabled: true, // На ПК подписи включены
-                                format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
-                            },
-                            showInLegend: false, // На ПК легенда выключена
-                            colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
-                        }
-                    },
-                    
-                    // === МАГИЯ АДАПТИВНОСТИ ===
-                    responsive: {
-                        rules: [{
-                            condition: {
-                                maxWidth: 500 // Если экран уже 500px (телефон)
-                            },
-                            chartOptions: {
-                                chart: {
-                                    height: 350 // Фиксируем высоту
-                                },
-                                title: {
-                                    style: { fontSize: '16px' } // Шрифт чуть меньше
-                                },
-                                legend: {
-                                    enabled: true, // Включаем легенду снизу
-                                    align: 'center',
-                                    verticalAlign: 'bottom',
-                                    layout: 'horizontal'
-                                },
-                                plotOptions: {
-                                    pie: {
-                                        dataLabels: { enabled: false }, // ОТКЛЮЧАЕМ подписи (освобождаем место)
-                                        showInLegend: true, // Показываем данные в легенде
-                                        size: '110%', // Растягиваем круг на максимум
-                                        center: ['50%', '40%'] // Чуть поднимаем круг вверх
-                                    }
-                                }
-                            }
-                        }]
-                    },
-                    // ===========================
-
-                    series: [{
-                        type: 'pie',
-                        name: 'Сумма',
-                        data: dataSeries
-                    }],
-                    credits: { enabled: false }
-                });
-                }
-            }
-
-// ==========================================
-// ИНТЕРАКТИВНЫЙ ГРАФИК РАБОТЫ (VERTICAL CHESS LAYOUT)
-// ==========================================
-            let timelineChartInstance = null;
-
-            function updateTimelineChart(times) {
-                // Сохраняем данные в глобальную переменную для диаграммы Ганта
-                window.globalProjectTimes = times;
-                
-                if (typeof Highcharts === 'undefined') return;
-
-    // Проверяем модуль timeline
-                if (!Highcharts.seriesTypes.timeline) {
-                    console.warn('Модуль timeline.js не загружен!');
-                    return;
-                }
-
-                const container = document.getElementById('timelineHighchart');
-                if (!container) return;
-
-    // 1. Распаковка данных
-                const safeTime = (val) => (val && !isNaN(val)) ? val : 1;
-                const t_consult = safeTime(times.t_consult);
-                const t_design = safeTime(times.t_design);
-                const t_prod = safeTime(times.t_prod);
-                const t_delivery = safeTime(times.t_delivery);
-                const t_install = safeTime(times.t_install);
-                const t_handover = safeTime(times.t_handover);
-                const totalDays = times.totalDays || (t_consult + t_design + t_prod + t_delivery + t_install + t_handover);
-
-    // 2. Цвета
-                const colors = {
-                    consult: '#90A4AE', design: '#546E7A', prod: '#0D47A1',
-                    delivery:'#00796B', install: '#EF6C00', handover:'#2E7D32'
-                };
-
-    // 3. Данные
-                const minVisualDays = 8; 
-                const rawSteps = [
-                    { id: 'consult',  days: t_consult,  name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
-                    { id: 'design',   days: t_design,   name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
-                    { id: 'prod',     days: t_prod,     name: '3. Производство', desc: 'Заводское изготовление', color: colors.prod },
-                    { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
-                    { id: 'install',  days: t_install,  name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
-                    { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
-                ];
-
-                let currentVisualX = 0;
-                const seriesData = [];
-                const zones = [];
-
-                rawSteps.forEach((step) => {
-                    const visualDuration = Math.max(step.days, minVisualDays);
-                    currentVisualX += visualDuration;
-
-                    seriesData.push({
-                        x: currentVisualX, 
-                        name: step.name,
-                        label: `${step.days} дн.`,
-                        description: step.desc,
-                        color: step.color,
-                        dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
-                    });
-
-                    zones.push({ value: currentVisualX, color: step.color });
-                });
-
-    // 4. Отрисовка
-                if (timelineChartInstance) {
-                    timelineChartInstance.update({
-                        series: [{ data: seriesData, zones: zones }],
-                        title: { text: `Общий срок реализации: ~${totalDays} дней` }
-                    });
-                } else {
-                    timelineChartInstance = Highcharts.chart('timelineHighchart', {
-                        chart: {
-                            type: 'timeline',
-                            backgroundColor: 'transparent',
-                            style: { fontFamily: "'Inter', sans-serif" },
-                            height: 450
-                        },
-                        title: {
-                            text: `Общий срок реализации: ~${totalDays} дней`,
-                            style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
-                        },
-                        xAxis: { visible: false, min: 0 },
-                        yAxis: { visible: false },
-                        legend: { enabled: false },
-                        tooltip: { enabled: false },
-
-            // === АДАПТИВНОСТЬ (ШАХМАТНЫЙ ПОРЯДОК НА МОБИЛЬНОМ) ===
-                        responsive: {
-                            rules: [{
-                                condition: {
-                                    maxWidth: 768
-                                },
-                                chartOptions: {
-                                    chart: {
-                            inverted: true, // 1. Вертикально
-                            height: 1000,    // 2. Высокий блок
-                            marginLeft: 10,
-                            marginRight: 10
-                        },
-                        series: [{
-                            dataLabels: {
-                                alternate: true, // 3. ВКЛЮЧАЕМ ШАХМАТНЫЙ ПОРЯДОК (Влево-Вправо)
-                                distance: 25,    // Уменьшаем длину ножки, чтобы влезло в экран
-                                connectorWidth: 2,
-                                style: { 
-                                    width: '110px', // Сужаем карточки для мобильного
-                                    fontSize: '11px'
-                                }
-                            }
-                        }]
-                    }
-                }]
-            },
-            // ======================================================
-
-            series: [{
-                data: seriesData,
-                zones: zones,
-                zoneAxis: 'x',
-                lineWidth: 18,
-                marker: {
-                    enabled: true,
-                    symbol: 'square',
-                    radius: 8,
-                    lineColor: 'white',
-                    lineWidth: 2
-                },
-                dataLabels: {
-                    enabled: true,
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: 4,
-                    borderColor: '#CFD8DC',
-                    borderWidth: 1,
-                    shadow: true,
-                    padding: 6,
-                    connectorWidth: 2,
-                    connectorColor: '#CFD8DC',
-                    distance: 60, // Длинная ножка для ПК
-                    useHTML: true,
-                    formatter: function() {
-                        // Адаптивная ширина внутри HTML задается через style chartOptions выше, 
-                        // но здесь ставим 100% чтобы заполнить контейнер
-                        return `<div style="text-align: center; width: 100%;"> 
-                                    <div style="color: ${this.point.color}; font-weight: bold; font-size: 13px; margin-bottom: 3px;">${this.point.name}</div>
-                                    <div style="font-size: 12px; color: #333; border-top: 1px solid #eee; padding-top: 3px;">
-                                        🕒 <b>${this.point.label}</b><br>
-                                        <span style="font-size: 11px; color: #777;">${this.point.description}</span>
-                                    </div>
-                    </div>`;
-                },
-                    alternate: true // Шахматный порядок для ПК (верх/низ)
-                }
-            }],
-            credits: { enabled: false }
-        });
-                }
-            }
-
-        function initCalculator() {
-            // 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ (ВЕРНУЛ ВСЕ ПЕРЕМЕННЫЕ)
-            const widthInput = document.getElementById('input-width');
-            const lengthInput = document.getElementById('input-length');
-            const heightInput = document.getElementById('input-height');
-            const thicknessInput = document.getElementById('input-thickness');
-            const windowsInput = document.getElementById('input-windows');
-            
-            const typeInputs = document.getElementsByName('build-type');
-            
-            const doorFrontSelect = document.getElementById('input-door-front');
-            const doorRearSelect = document.getElementById('input-door-rear');
-            
-            // Элементы для вывода значений (текст рядом с ползунками)
-            const valWidth = document.getElementById('val-width');
-            const valLength = document.getElementById('val-length');
-            const valHeight = document.getElementById('val-height');
-            const valThickness = document.getElementById('val-thickness');
-            const valWindows = document.getElementById('val-windows');
-            
-            // Элементы итогов (ВЕРНУЛ ИХ СЮДА)
-            const totalPriceEl = document.getElementById('total-price');
-            const resAreaEl = document.getElementById('res-area');
-            const resPriceM2El = document.getElementById('res-price-m2');
-            const resTimeEl = document.getElementById('res-time');
-            const resExtraCostEl = document.getElementById('res-extra-cost');
-            
-            const thicknessGroup = document.getElementById('panel-thickness-group');
-        
-            // === ЦВЕТ: Находим кнопки по их onclick атрибуту ===
-            // Ищем все кнопки, у которых в onclick написано "changeColor"
-            const colorButtons = document.querySelectorAll('button[onclick^="changeColor"]');
-        
-            // =========================================================
-            // ЛОГИКА СОХРАНЕНИЯ (LOCAL STORAGE) — ИСПРАВЛЕННАЯ
-            // =========================================================
-            
-            function saveCalculatorState() {
-                // Находим элемент снегового района
-                const snowRegionEl = document.getElementById('input-snow-region');
-
-                const state = {
-                    width: widthInput.value,
-                    length: lengthInput.value,
-                    height: heightInput.value,
-                    thickness: thicknessInput.value,
-                    windows: windowsInput.value,
-                    doorFront: doorFrontSelect.value,
-                    doorRear: doorRearSelect.value,
-                    buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm',
-                    // Сохраняем цвет стен
-                    wallColor: localStorage.getItem('angarSavedColor'),
-                    // НОВОЕ: Сохраняем снеговой район (если он есть, иначе ставим 3 по умолчанию)
-                    snowRegion: snowRegionEl ? snowRegionEl.value : '3'
-                };
-                localStorage.setItem('angarCalcState', JSON.stringify(state));
-            }
-        
-            function loadCalculatorState() {
-                // 1. Восстанавливаем ползунки и селекты
-                const raw = localStorage.getItem('angarCalcState');
-                if (raw) {
-                    try {
-                        const state = JSON.parse(raw);
-                        if (state.width) widthInput.value = state.width;
-                        if (state.length) lengthInput.value = state.length;
-                        if (state.height) heightInput.value = state.height;
-                        if (state.thickness) thicknessInput.value = state.thickness;
-                        if (state.windows) windowsInput.value = state.windows;
-                        if (state.doorFront) doorFrontSelect.value = state.doorFront;
-                        if (state.doorRear) doorRearSelect.value = state.doorRear;
-                        
-                        // НОВОЕ: Восстанавливаем снеговой район
-                        if (state.snowRegion) {
-                            const snowRegionEl = document.getElementById('input-snow-region');
-                            if (snowRegionEl) snowRegionEl.value = state.snowRegion;
-                        }
-
-                        if (state.buildType) {
-                            const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
-                            if (radio) radio.checked = true;
-                        }
-                    } catch (e) { console.error("Ошибка загрузки настроек:", e); }
-                }
-        
-                // 2. Восстанавливаем цвет (остается как было)
-                const savedColor = localStorage.getItem('angarSavedColor');
-                if (savedColor) {
-                    const colorButtons = document.querySelectorAll('button[onclick^="changeColor"]');
-                    colorButtons.forEach(btn => {
-                        if (btn.getAttribute('onclick').includes(savedColor)) {
-                            btn.click();
-                        }
-                    });
-                }
-            }
-        
-            // =========================================================
-            // ОСНОВНОЙ РАСЧЕТ
-            // =========================================================
-            function calculate() {
-                // 1. Получаем значения
-                let w = parseFloat(widthInput.value);
-                let l = parseFloat(lengthInput.value);
-                let h = parseFloat(heightInput.value);
-                let thickness = parseFloat(thicknessInput.value);
-                let windowsCount = parseInt(windowsInput.value);
-                
-                // НОВОЕ: Получаем снеговой район
-                let snowRegionEl = document.getElementById('input-snow-region');
-                let snowRegion = snowRegionEl ? parseInt(snowRegionEl.value) : 3;
-
-                let typeEl = document.querySelector('input[name="build-type"]:checked');
-                let isWarm = typeEl ? (typeEl.value === 'warm') : true;
-        
-                let doorsFront = parseInt(doorFrontSelect.value);
-                let doorsRear = parseInt(doorRearSelect.value);
-        
-                // 2. Обновляем текст UI
-                valWidth.textContent = w;
-                valLength.textContent = l;
-                valHeight.textContent = h;
-                valThickness.textContent = thickness;
-                valWindows.textContent = windowsCount;
-        
-                if (!isWarm) {
-                    thicknessGroup.style.opacity = '0.3';
-                    thicknessGroup.style.pointerEvents = 'none';
-                } else {
-                    thicknessGroup.style.opacity = '1';
-                    thicknessGroup.style.pointerEvents = 'auto';
-                }
-
-                // 3. Расчет математики (ЕДИНЫЙ БЛОК)
-                let area = w * l;
-                let basePricePerM2 = 4500; 
-                let typeCost = isWarm ? 3500 : 1800;
-                
-                // Коэффициенты удорожания от снега
-                const snowCoeffs = {1: 0.90, 2: 0.95, 3: 1.00, 4: 1.10, 5: 1.25};
-                let snowFactor = snowCoeffs[snowRegion] || 1;
-
-                let heightFactor = 1 + ((h - 6) * 0.05);
-                if (heightFactor < 1) heightFactor = 1;
-        
-                let thicknessCost = isWarm ? (thickness - 100) * 15 : 0; 
-        
-                // ФОРМУЛА
-                let priceM2 = ( (basePricePerM2 * snowFactor * heightFactor) + typeCost + thicknessCost );
-                
-                // Скидки
-                if (area > 500) priceM2 *= 0.95;
-                if (area > 1000) priceM2 *= 0.90;
-        
-                let baseTotal = Math.floor(area * priceM2);
-                let doorsCost = (doorsFront + doorsRear) * 45000;
-                let windowsCost = windowsCount * (1.8 * 8500);
-                let extraCosts = doorsCost + windowsCost;
-                let grandTotal = baseTotal + extraCosts;
-                let finalPriceM2 = Math.floor(grandTotal / area);
-        
-                // 4. Сроки
-                const t_consult = 1;
-                const t_design = 3 + Math.floor(area / 400); 
-                const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0); 
-                const t_delivery = 2;
-                const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10); 
-                const t_handover = 2;
-                const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
-        
-                // 5. Вывод в HTML (Используем восстановленные переменные)
-                totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
-                resAreaEl.textContent = area;
-                resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
-                resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
-                resTimeEl.textContent = t_install; 
-        
-                // 6. Обновление графики
-                if (typeof update3DModel === 'function') {
-                    update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
-                }
-                if (typeof updatePricingChart === 'function') {
-                    updatePricingChart(grandTotal);
-                }
-                if (typeof updateTimelineChart === 'function') {
-                    updateTimelineChart({
-                        t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays
-                    });
-                }
-        
-                // 7. Обновление скрытых полей
-                const formL = document.getElementById('form-length');
-                const formW = document.getElementById('form-width');
-                const formH = document.getElementById('form-height');
-                if (formL) formL.value = l;
-                if (formW) formW.value = w;
-                if (formH) formH.value = h;
-            
-                if (typeof updateYandexFormUrl === 'function') {
-                    updateYandexFormUrl();
-                }
-            }
-        
-            // =========================================================
-            // СЛУШАТЕЛИ СОБЫТИЙ
-            // =========================================================
-            
-            // Инпуты (ползунки)
-            const inputs = [widthInput, lengthInput, heightInput, thicknessInput, windowsInput];
-            inputs.forEach(input => {
-                input.addEventListener('input', calculate); // Мгновенно
-                input.addEventListener('change', () => {    // При отпускании
-                    calculate();
-                    saveCalculatorState();
-                });
-            });
-        
-            // Радио (тип)
-            typeInputs.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    calculate();
-                    saveCalculatorState();
-                });
-            });
-        
-            // Ворота
-            [doorFrontSelect, doorRearSelect].forEach(select => {
-                select.addEventListener('change', () => {
-                    calculate();
-                    saveCalculatorState();
-                });
-            });
-
-            //  Снеговой район
-            document.getElementById('input-snow-region').addEventListener('change', () => {
-                calculate();
-                saveCalculatorState(); // Если вы используете сохранение
-            });   
-        
-            // === ЦВЕТ: Специальный слушатель для ваших кнопок ===
-            colorButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Вытаскиваем код цвета из атрибута onclick="changeColor(0x0D47A1)"
-                    const onClickText = this.getAttribute('onclick');
-                    // Ищем строку вида 0x...
-                    const match = onClickText.match(/0x[0-9A-Fa-f]+/);
-                    
-                    if (match) {
-                        // Сохраняем "0x0D47A1" в память
-                        localStorage.setItem('angarSavedColor', match[0]);
-                    }
-                    // Также сохраняем остальное состояние (на всякий случай)
-                    saveCalculatorState();
-                });
-            });
-        
-            // =========================================================
-            // ЗАПУСК ПРИ СТАРТЕ
-            // =========================================================
-        
-            if (typeof init3D === 'function') init3D();
-        
-            // 1. Загружаем всё (включая цвет)
-            loadCalculatorState();
-        
-            // 2. Считаем
-            calculate();
+    function updatePricingChart(totalPrice) {
+        if (typeof Highcharts === 'undefined') {
+            setTimeout(() => updatePricingChart(totalPrice), 500);
+            return;
         }
-        
-        // Запуск
-        document.addEventListener('DOMContentLoaded', initCalculator);
+
+        const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
+        if (!chartContainer) return;
+
+        const distribution = {
+            materials: Math.round(totalPrice * 0.45),
+            montage: Math.round(totalPrice * 0.30),
+            delivery: Math.round(totalPrice * 0.10),
+            design: Math.round(totalPrice * 0.08),
+            overhead: Math.round(totalPrice * 0.07)
+        };
+
+        const dataSeries = [
+            ['Материалы (45%)', distribution.materials],
+            ['Монтаж (30%)', distribution.montage],
+            ['Доставка (10%)', distribution.delivery],
+            ['Проектирование (8%)', distribution.design],
+            ['Накладные (7%)', distribution.overhead]
+        ];
+
+        const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
+
+        if (pricingChartInstance) {
+            pricingChartInstance.series[0].setData(dataSeries, true);
+            pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
+        } else {
+            pricingChartInstance = Highcharts.chart(chartContainer.id, {
+                chart: {
+                    type: 'pie',
+                    options3d: { enabled: true, alpha: 45, beta: 0 },
+                    backgroundColor: 'transparent',
+                    style: { fontFamily: "'Inter', sans-serif" }
+                },
+                title: {
+                    text: `Итого: ${formatRub(totalPrice)} ₽`,
+                    style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+                },
+                tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        depth: 45,
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
+                        },
+                        showInLegend: false,
+                        colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
+                    }
+                },
+                responsive: {
+                    rules: [{
+                        condition: { maxWidth: 500 },
+                        chartOptions: {
+                            chart: { height: 350 },
+                            title: { style: { fontSize: '16px' } },
+                            legend: { enabled: true, align: 'center', verticalAlign: 'bottom', layout: 'horizontal' },
+                            plotOptions: {
+                                pie: {
+                                    dataLabels: { enabled: false },
+                                    showInLegend: true,
+                                    size: '110%',
+                                    center: ['50%', '40%']
+                                }
+                            }
+                        }
+                    }]
+                },
+                series: [{
+                    type: 'pie',
+                    name: 'Сумма',
+                    data: dataSeries
+                }],
+                credits: { enabled: false }
+            });
+        }
+    }
+
+    // ==========================================
+    // ИНТЕРАКТИВНЫЙ ГРАФИК РАБОТЫ
+    // ==========================================
+    let timelineChartInstance = null;
+
+    function updateTimelineChart(times) {
+        window.globalProjectTimes = times;
+
+        if (typeof Highcharts === 'undefined') return;
+        if (!Highcharts.seriesTypes.timeline) {
+            console.warn('Модуль timeline.js не загружен!');
+            return;
+        }
+
+        const container = document.getElementById('timelineHighchart');
+        if (!container) return;
+
+        const safeTime = (val) => (val && !isNaN(val)) ? val : 1;
+        const t_consult = safeTime(times.t_consult);
+        const t_design = safeTime(times.t_design);
+        const t_prod = safeTime(times.t_prod);
+        const t_delivery = safeTime(times.t_delivery);
+        const t_install = safeTime(times.t_install);
+        const t_handover = safeTime(times.t_handover);
+        const totalDays = times.totalDays || (t_consult + t_design + t_prod + t_delivery + t_install + t_handover);
+
+        const colors = {
+            consult: '#90A4AE', design: '#546E7A', prod: '#0D47A1',
+            delivery: '#00796B', install: '#EF6C00', handover: '#2E7D32'
+        };
+
+        const minVisualDays = 8;
+        const rawSteps = [
+            { id: 'consult', days: t_consult, name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
+            { id: 'design', days: t_design, name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
+            { id: 'prod', days: t_prod, name: '3. Производство', desc: 'Заводское изготовление', color: colors.prod },
+            { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
+            { id: 'install', days: t_install, name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
+            { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
+        ];
+
+        let currentVisualX = 0;
+        const seriesData = [];
+        const zones = [];
+
+        rawSteps.forEach((step) => {
+            const visualDuration = Math.max(step.days, minVisualDays);
+            currentVisualX += visualDuration;
+
+            seriesData.push({
+                x: currentVisualX,
+                name: step.name,
+                label: `${step.days} дн.`,
+                description: step.desc,
+                color: step.color,
+                dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
+            });
+
+            zones.push({ value: currentVisualX, color: step.color });
+        });
+
+        if (timelineChartInstance) {
+            timelineChartInstance.update({
+                series: [{ data: seriesData, zones: zones }],
+                title: { text: `Общий срок реализации: ~${totalDays} дней` }
+            });
+        } else {
+            timelineChartInstance = Highcharts.chart('timelineHighchart', {
+                chart: {
+                    type: 'timeline',
+                    backgroundColor: 'transparent',
+                    style: { fontFamily: "'Inter', sans-serif" },
+                    height: 450
+                },
+                title: {
+                    text: `Общий срок реализации: ~${totalDays} дней`,
+                    style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
+                },
+                xAxis: { visible: false, min: 0 },
+                yAxis: { visible: false },
+                legend: { enabled: false },
+                tooltip: { enabled: false },
+                responsive: {
+                    rules: [{
+                        condition: { maxWidth: 768 },
+                        chartOptions: {
+                            chart: { inverted: true, height: 1000, marginLeft: 10, marginRight: 10 },
+                            series: [{
+                                dataLabels: {
+                                    alternate: true,
+                                    distance: 25,
+                                    connectorWidth: 2,
+                                    style: { width: '110px', fontSize: '11px' }
+                                }
+                            }]
+                        }
+                    }]
+                },
+                series: [{
+                    data: seriesData,
+                    zones: zones,
+                    zoneAxis: 'x',
+                    lineWidth: 18,
+                    marker: {
+                        enabled: true,
+                        symbol: 'square',
+                        radius: 8,
+                        lineColor: 'white',
+                        lineWidth: 2
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 4,
+                        borderColor: '#CFD8DC',
+                        borderWidth: 1,
+                        shadow: true,
+                        padding: 6,
+                        connectorWidth: 2,
+                        connectorColor: '#CFD8DC',
+                        distance: 60,
+                        useHTML: true,
+                        formatter: function () {
+                            return `<div style="text-align: center; width: 100%;"> 
+                                        <div style="color: ${this.point.color}; font-weight: bold; font-size: 13px; margin-bottom: 3px;">${this.point.name}</div>
+                                        <div style="font-size: 12px; color: #333; border-top: 1px solid #eee; padding-top: 3px;">
+                                            🕒 <b>${this.point.label}</b><br>
+                                            <span style="font-size: 11px; color: #777;">${this.point.description}</span>
+                                        </div>
+                                    </div>`;
+                        },
+                        alternate: true
+                    }
+                }],
+                credits: { enabled: false }
+            });
+        }
+    }
+
+    // ==========================================
+    // ИНИЦИАЛИЗАЦИЯ КАЛЬКУЛЯТОРА (С УЧЁТОМ ТОЛЩИНЫ В ЦЕНЕ)
+    // ==========================================
+    function initCalculator() {
+        // ---- 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ ----
+        const widthInput = document.getElementById('input-width');
+        const lengthInput = document.getElementById('input-length');
+        const heightInput = document.getElementById('input-height');
+        const wallThicknessInput = document.getElementById('input-wall-thickness');
+        const roofThicknessInput = document.getElementById('input-roof-thickness');
+        const windowsInput = document.getElementById('input-windows');
+
+        const typeInputs = document.getElementsByName('build-type');
+
+        const doorFrontSelect = document.getElementById('input-door-front');
+        const doorRearSelect = document.getElementById('input-door-rear');
+
+        // Элементы для вывода значений
+        const valWidth = document.getElementById('val-width');
+        const valLength = document.getElementById('val-length');
+        const valHeight = document.getElementById('val-height');
+        const valWallThickness = document.getElementById('val-wall-thickness');
+        const valRoofThickness = document.getElementById('val-roof-thickness');
+        const valWindows = document.getElementById('val-windows');
+
+        // Элементы итогов
+        const totalPriceEl = document.getElementById('total-price');
+        const resAreaEl = document.getElementById('res-area');
+        const resPriceM2El = document.getElementById('res-price-m2');
+        const resTimeEl = document.getElementById('res-time');
+        const resExtraCostEl = document.getElementById('res-extra-cost');
+
+        // Группы для блюра
+        const wallThicknessGroup = document.getElementById('wall-thickness-group');
+        const roofThicknessGroup = document.getElementById('roof-thickness-group');
+
+        // Цветовые кнопки
+        const colorButtons = document.querySelectorAll('button[onclick^="changeColor"]');
+
+        // ---- 2. СОХРАНЕНИЕ И ЗАГРУЗКА СОСТОЯНИЯ ----
+        function saveCalculatorState() {
+            const snowRegionEl = document.getElementById('input-snow-region');
+            const state = {
+                width: widthInput.value,
+                length: lengthInput.value,
+                height: heightInput.value,
+                wallThickness: wallThicknessInput.value,
+                roofThickness: roofThicknessInput.value,
+                windows: windowsInput.value,
+                doorFront: doorFrontSelect.value,
+                doorRear: doorRearSelect.value,
+                buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm',
+                wallColor: localStorage.getItem('angarSavedColor'),
+                snowRegion: snowRegionEl ? snowRegionEl.value : '3'
+            };
+            localStorage.setItem('angarCalcState', JSON.stringify(state));
+        }
+
+        function loadCalculatorState() {
+            const raw = localStorage.getItem('angarCalcState');
+            if (raw) {
+                try {
+                    const state = JSON.parse(raw);
+                    if (state.width) widthInput.value = state.width;
+                    if (state.length) lengthInput.value = state.length;
+                    if (state.height) heightInput.value = state.height;
+                    if (state.wallThickness) wallThicknessInput.value = state.wallThickness;
+                    if (state.roofThickness) roofThicknessInput.value = state.roofThickness;
+                    if (state.windows) windowsInput.value = state.windows;
+                    if (state.doorFront) doorFrontSelect.value = state.doorFront;
+                    if (state.doorRear) doorRearSelect.value = state.doorRear;
+                    if (state.snowRegion) {
+                        const snowRegionEl = document.getElementById('input-snow-region');
+                        if (snowRegionEl) snowRegionEl.value = state.snowRegion;
+                    }
+                    if (state.buildType) {
+                        const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                } catch (e) { console.error("Ошибка загрузки настроек:", e); }
+            }
+
+            const savedColor = localStorage.getItem('angarSavedColor');
+            if (savedColor) {
+                colorButtons.forEach(btn => {
+                    if (btn.getAttribute('onclick').includes(savedColor)) {
+                        btn.click();
+                    }
+                });
+            }
+        }
+
+        // ---- 3. ОСНОВНОЙ РАСЧЁТ (ТОЛЩИНА ВЛИЯЕТ НА ЦЕНУ) ----
+        function calculate() {
+            // Чтение значений
+            let w = parseFloat(widthInput.value);
+            let l = parseFloat(lengthInput.value);
+            let h = parseFloat(heightInput.value);
+            let wallThickness = parseFloat(wallThicknessInput.value);
+            let roofThickness = parseFloat(roofThicknessInput.value);
+            let windowsCount = parseInt(windowsInput.value);
+
+            let snowRegionEl = document.getElementById('input-snow-region');
+            let snowRegion = snowRegionEl ? parseInt(snowRegionEl.value) : 3;
+
+            let typeEl = document.querySelector('input[name="build-type"]:checked');
+            let isWarm = typeEl ? (typeEl.value === 'warm') : true;
+
+            let doorsFront = parseInt(doorFrontSelect.value);
+            let doorsRear = parseInt(doorRearSelect.value);
+
+            // Обновление отображаемых значений
+            valWidth.textContent = w;
+            valLength.textContent = l;
+            valHeight.textContent = h;
+            valWallThickness.textContent = wallThickness;
+            valRoofThickness.textContent = roofThickness;
+            valWindows.textContent = windowsCount;
+
+            // Блокировка ползунков толщины для холодного типа
+            if (!isWarm) {
+                wallThicknessGroup.style.opacity = '0.3';
+                wallThicknessGroup.style.pointerEvents = 'none';
+                roofThicknessGroup.style.opacity = '0.3';
+                roofThicknessGroup.style.pointerEvents = 'none';
+            } else {
+                wallThicknessGroup.style.opacity = '1';
+                wallThicknessGroup.style.pointerEvents = 'auto';
+                roofThicknessGroup.style.opacity = '1';
+                roofThicknessGroup.style.pointerEvents = 'auto';
+            }
+
+            // --- РАСЧЁТ СТОИМОСТИ ---
+            let area = w * l;
+            let basePricePerM2 = 4500;
+            let typeCost = isWarm ? 3500 : 1800;
+
+            // Коэффициенты снега
+            const snowCoeffs = { 1: 0.90, 2: 0.95, 3: 1.00, 4: 1.10, 5: 1.25 };
+            let snowFactor = snowCoeffs[snowRegion] || 1;
+
+            // Коэффициент высоты
+            let heightFactor = 1 + ((h - 6) * 0.05);
+            if (heightFactor < 1) heightFactor = 1;
+
+            // ДОБАВКА ЗА ТОЛЩИНУ (ТОЛЬКО ДЛЯ ТЁПЛОГО ТИПА)
+            let wallThicknessCost = isWarm ? (wallThickness - 100) * 15 : 0;
+            let roofThicknessCost = isWarm ? (roofThickness - 100) * 10 : 0;
+            let thicknessCost = wallThicknessCost + roofThicknessCost;
+
+            // Цена за м2
+            let priceM2 = ((basePricePerM2 * snowFactor * heightFactor) + typeCost + thicknessCost);
+
+            // Скидки за площадь
+            if (area > 500) priceM2 *= 0.95;
+            if (area > 1000) priceM2 *= 0.90;
+
+            let baseTotal = Math.floor(area * priceM2);
+            let doorsCost = (doorsFront + doorsRear) * 45000;
+            let windowsCost = windowsCount * (1.8 * 8500);
+            let extraCosts = doorsCost + windowsCost;
+            let grandTotal = baseTotal + extraCosts;
+            let finalPriceM2 = Math.floor(grandTotal / area);
+
+            // --- РАСЧЁТ СРОКОВ ---
+            const t_consult = 1;
+            const t_design = 3 + Math.floor(area / 400);
+            const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0);
+            const t_delivery = 2;
+            const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10);
+            const t_handover = 2;
+            const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
+
+            // --- ВЫВОД В HTML ---
+            totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
+            resAreaEl.textContent = area;
+            resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
+            resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
+            resTimeEl.textContent = t_install;
+
+            // --- ОБНОВЛЕНИЕ 3D МОДЕЛИ (БЕЗ ПАРАМЕТРОВ ТОЛЩИНЫ) ---
+            if (typeof update3DModel === 'function') {
+                update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
+            }
+
+            // --- ОБНОВЛЕНИЕ ГРАФИКОВ ---
+            if (typeof updatePricingChart === 'function') {
+                updatePricingChart(grandTotal);
+            }
+            if (typeof updateTimelineChart === 'function') {
+                updateTimelineChart({
+                    t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays
+                });
+            }
+
+            // --- СКРЫТЫЕ ПОЛЯ ДЛЯ ФОРМЫ ---
+            const formL = document.getElementById('form-length');
+            const formW = document.getElementById('form-width');
+            const formH = document.getElementById('form-height');
+            if (formL) formL.value = l;
+            if (formW) formW.value = w;
+            if (formH) formH.value = h;
+
+            if (typeof updateYandexFormUrl === 'function') {
+                updateYandexFormUrl();
+            }
+        }
+
+        // ---- 4. ПРИВЯЗКА СОБЫТИЙ ----
+        const inputs = [widthInput, lengthInput, heightInput, wallThicknessInput, roofThicknessInput, windowsInput];
+        inputs.forEach(input => {
+            input.addEventListener('input', calculate);
+            input.addEventListener('change', () => {
+                calculate();
+                saveCalculatorState();
+            });
+        });
+
+        typeInputs.forEach(radio => {
+            radio.addEventListener('change', () => {
+                calculate();
+                saveCalculatorState();
+            });
+        });
+
+        [doorFrontSelect, doorRearSelect].forEach(select => {
+            select.addEventListener('change', () => {
+                calculate();
+                saveCalculatorState();
+            });
+        });
+
+        const snowRegionEl = document.getElementById('input-snow-region');
+        if (snowRegionEl) {
+            snowRegionEl.addEventListener('change', () => {
+                calculate();
+                saveCalculatorState();
+            });
+        }
+
+        // Цветные кнопки – сохраняем цвет
+        colorButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const onClickText = this.getAttribute('onclick');
+                const match = onClickText.match(/0x[0-9A-Fa-f]+/);
+                if (match) {
+                    localStorage.setItem('angarSavedColor', match[0]);
+                }
+                saveCalculatorState();
+            });
+        });
+
+        // ---- 5. СТАРТ ----
+        if (typeof init3D === 'function') init3D();
+        loadCalculatorState();
+        calculate();
+    }
+
+    // Запуск после загрузки DOM
+    document.addEventListener('DOMContentLoaded', initCalculator);
     
         // ==========================================
         // ПЛАВНАЯ ПРОКРУТКА К ЯКОРЯМ
