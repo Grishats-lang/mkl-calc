@@ -625,257 +625,256 @@
             background-color: #D84315;
         }
 
-        /* ============================================
-           КОМПАКТНЫЙ ВЫБОР ЦВЕТА (ВСЕ В ОДНУ СТРОКУ)
-           ============================================ */
-        .colors-wrapper {
-            display: flex;
-            width: 100%;
-            background-color: white;
-            /* border: 1px solid var(--border-color, #e0e0e0); */ /* Убрано: внешняя рамка */
-            border-radius: 6px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        }
-        
-        .color-section {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            gap: 8px;
-            min-width: 0;
-        }
-        
-        /* Разделитель по центру */
-        .color-section:first-child {
-            /* border-right: 1px solid var(--border-color, #e0e0e0); */ /* Убрано: разделительная линия */
-        }
-        
-        .color-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-primary, #333);
-            white-space: nowrap;
-            margin-right: 2px;
-            flex-shrink: 0;
-        }
-        
-        /* Палитра 5 цветов - КРУЖОЧКИ */
-        .color-mini-palette {
-            display: flex;
-            gap: 4px;
-            margin: 0;
-            flex-shrink: 0;
-        }
-        
-        .color-mini-swatch {
-            width: 24px;
-            height: 24px;
-            border: 1px solid #ccc;
-            cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-            border-radius: 50% !important;
-        }
-        
-        .color-mini-swatch:hover {
-            transform: scale(1.15);
-            border-color: var(--accent-orange, #FF6B35);
-            z-index: 2;
-        }
-        
-        .color-mini-swatch.active {
-            border-color: var(--accent-orange, #FF6B35);
-            box-shadow: 0 0 0 2px var(--accent-orange, #FF6B35);
-            z-index: 1;
-        }
-        
-        /* Контейнер для списка */
-        .color-select-wrapper {
-            flex: 1;
-            min-width: 0;
-            position: relative;
-        }
-        
-        /* Стили для выпадающего списка с цветным кружком */
-        .color-select {
-            width: 100%;
-            padding: 6px 12px 6px 30px !important;
-            height: 32px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 12px;
-            background-color: white !important;
-            cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            color: #333 !important;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-            background-size: 14px;
-        }
-        
-        .color-select:hover {
-            border-color: #0D47A1;
-        }
-        
-        .color-select:focus {
-            outline: none;
-            border-color: #0D47A1;
-            box-shadow: 0 0 0 2px rgba(13, 71, 161, 0.1);
-        }
-        
-        /* Цветной кружок слева от выбранного значения */
-        .select-preview-dot {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 1px solid rgba(0,0,0,0.1);
-            z-index: 3;
-            pointer-events: none;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        /* Стили для опций в выпадающем списке */
-        .color-select option {
-            padding: 8px 12px 8px 30px !important;
-            font-size: 12px;
-            position: relative;
-        }
-        
-        /* Для Firefox */
-        @-moz-document url-prefix() {
-            .color-select {
-                text-indent: 18px;
-            }
-            .color-select option {
-                padding-left: 30px !important;
-            }
-        }
-        
-        /* ============================================
-           МОБИЛЬНАЯ АДАПТАЦИЯ - ТОЛЬКО ВЫПАДАЮЩИЙ СПИСОК
-           ============================================ */
-        
-        /* Планшеты */
-        @media (max-width: 1000px) {
-            .colors-wrapper {
-                flex-direction: row;
-            }
-            
-            .color-section {
-                padding: 6px 8px;
-            }
-            
-            .color-label {
-                font-size: 11px;
-            }
-            
-            .color-mini-swatch {
-                width: 20px;
-                height: 20px;
-            }
-            
-            .color-select {
-                padding: 4px 10px 4px 26px !important;
-                height: 28px;
-                font-size: 11px;
-            }
-        }
-        
-        /* Мобильные устройства - убираем всё лишнее, оставляем только select */
-        @media (max-width: 768px) {
-            .colors-wrapper {
-                flex-direction: row;
-                flex-wrap: nowrap;
-            }
-            
-            .color-section {
-                padding: 6px 8px;
-                gap: 0; /* Убираем gap */
-            }
-            
-            /* Прячем label "Стены:" и "Кровля:" */
-            .color-label {
-                display: none;
-            }
-            
-            /* Прячем мини-палитру с 5 цветами */
-            .color-mini-palette {
-                display: none;
-            }
-            
-            /* Контейнер для select занимает всю ширину */
-            .color-select-wrapper {
-                width: 100%;
-            }
-            
-            /* Делаем select на всю ширину */
-            .color-select {
-                padding: 6px 12px 6px 30px !important;
-                height: 36px;
-                font-size: 13px;
-                width: 100%;
-            }
-            
-            .select-preview-dot {
-                width: 16px;
-                height: 16px;
-                left: 10px;
-            }
-        }
-        
-        /* Маленькие мобильные устройства */
-        @media (max-width: 480px) {
-            .color-section {
-                padding: 5px 6px;
-            }
-            
-            .color-select {
-                padding: 5px 10px 5px 28px !important;
-                height: 34px;
-                font-size: 12px;
-            }
-            
-            .select-preview-dot {
-                width: 14px;
-                height: 14px;
-                left: 9px;
-            }
-        }
-        
-        /* Для устройств с тач-интерфейсом */
-        @media (hover: none) and (pointer: coarse) {
-            @media (max-width: 768px) {
-                .color-select {
-                    padding: 8px 12px 8px 32px !important;
-                    height: 44px;
-                    font-size: 14px;
-                }
-                
-                .select-preview-dot {
-                    width: 18px;
-                    height: 18px;
-                    left: 10px;
-                }
-            }
-        }
-        
-        /* Для Firefox на мобильных */
-        @-moz-document url-prefix() {
-            @media (max-width: 768px) {
-                .color-select {
-                    text-indent: 20px;
-                }
-            }
-        }
+/* ============================================
+   КОМПАКТНЫЙ ВЫБОР ЦВЕТА (ВСЕ В ОДНУ СТРОКУ)
+   ============================================ */
+.colors-wrapper {
+    display: flex;
+    width: 100%;
+    background-color: white;
+    /* border: 1px solid var(--border-color, #e0e0e0); */ /* Убрано: внешняя рамка */
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
 
+.color-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    gap: 8px;
+    min-width: 0;
+}
+
+/* Разделитель по центру */
+.color-section:first-child {
+    /* border-right: 1px solid var(--border-color, #e0e0e0); */ /* Убрано: разделительная линия */
+}
+
+.color-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary, #333);
+    white-space: nowrap;
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+/* Палитра 5 цветов - КРУЖОЧКИ */
+.color-mini-palette {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.color-mini-swatch {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    border-radius: 50% !important;
+}
+
+.color-mini-swatch:hover {
+    transform: scale(1.15);
+    border-color: var(--accent-orange, #FF6B35);
+    z-index: 2;
+}
+
+.color-mini-swatch.active {
+    border-color: var(--accent-orange, #FF6B35);
+    box-shadow: 0 0 0 2px var(--accent-orange, #FF6B35);
+    z-index: 1;
+}
+
+/* Контейнер для списка */
+.color-select-wrapper {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+}
+
+/* Стили для выпадающего списка с цветным кружком */
+.color-select {
+    width: 100%;
+    padding: 6px 12px 6px 30px !important;
+    height: 32px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    background-color: white !important;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    color: #333 !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 14px;
+}
+
+.color-select:hover {
+    border-color: #0D47A1;
+}
+
+.color-select:focus {
+    outline: none;
+    border-color: #0D47A1;
+    box-shadow: 0 0 0 2px rgba(13, 71, 161, 0.1);
+}
+
+/* Цветной кружок слева от выбранного значения */
+.select-preview-dot {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+    z-index: 3;
+    pointer-events: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Стили для опций в выпадающем списке */
+.color-select option {
+    padding: 8px 12px 8px 30px !important;
+    font-size: 12px;
+    position: relative;
+}
+
+/* Для Firefox */
+@-moz-document url-prefix() {
+    .color-select {
+        text-indent: 18px;
+    }
+    .color-select option {
+        padding-left: 30px !important;
+    }
+}
+
+/* ============================================
+   МОБИЛЬНАЯ АДАПТАЦИЯ - ТОЛЬКО ВЫПАДАЮЩИЙ СПИСОК
+   ============================================ */
+
+/* Планшеты */
+@media (max-width: 1000px) {
+    .colors-wrapper {
+        flex-direction: row;
+    }
+    
+    .color-section {
+        padding: 6px 8px;
+    }
+    
+    .color-label {
+        font-size: 11px;
+    }
+    
+    .color-mini-swatch {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .color-select {
+        padding: 4px 10px 4px 26px !important;
+        height: 28px;
+        font-size: 11px;
+    }
+}
+
+/* Мобильные устройства - убираем всё лишнее, оставляем только select */
+@media (max-width: 768px) {
+    .colors-wrapper {
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+    
+    .color-section {
+        padding: 6px 8px;
+        gap: 0; /* Убираем gap */
+    }
+    
+    /* Прячем label "Стены:" и "Кровля:" */
+    .color-label {
+        display: none;
+    }
+    
+    /* Прячем мини-палитру с 5 цветами */
+    .color-mini-palette {
+        display: none;
+    }
+    
+    /* Контейнер для select занимает всю ширину */
+    .color-select-wrapper {
+        width: 100%;
+    }
+    
+    /* Делаем select на всю ширину */
+    .color-select {
+        padding: 6px 12px 6px 30px !important;
+        height: 36px;
+        font-size: 13px;
+        width: 100%;
+    }
+    
+    .select-preview-dot {
+        width: 16px;
+        height: 16px;
+        left: 10px;
+    }
+}
+
+/* Маленькие мобильные устройства */
+@media (max-width: 480px) {
+    .color-section {
+        padding: 5px 6px;
+    }
+    
+    .color-select {
+        padding: 5px 10px 5px 28px !important;
+        height: 34px;
+        font-size: 12px;
+    }
+    
+    .select-preview-dot {
+        width: 14px;
+        height: 14px;
+        left: 9px;
+    }
+}
+
+/* Для устройств с тач-интерфейсом */
+@media (hover: none) and (pointer: coarse) {
+    @media (max-width: 768px) {
+        .color-select {
+            padding: 8px 12px 8px 32px !important;
+            height: 44px;
+            font-size: 14px;
+        }
+        
+        .select-preview-dot {
+            width: 18px;
+            height: 18px;
+            left: 10px;
+        }
+    }
+}
+
+/* Для Firefox на мобильных */
+@-moz-document url-prefix() {
+    @media (max-width: 768px) {
+        .color-select {
+            text-indent: 20px;
+        }
+    }
+}
         /* ============================================
            ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ
            ============================================ */
@@ -3336,7 +3335,33 @@ input:checked + .cookie-slider:before {
     };
 
 // ==============================================
-// ГЕНЕРАЦИЯ ИНТЕРФЕЙСА ВЫБОРА ЦВЕТА
+// КОНСТАНТЫ ЦЕН (легко редактировать под свои тарифы)
+// ==============================================
+const PRICE_CONSTANTS = {
+    // Каркас и фундамент (руб./м² пола)
+    FRAME_BASE: 2600,
+
+    // Стены
+    WALL_WARM: 2500,      // сэндвич-панель 100 мм (тёплый)
+    WALL_COLD: 1500,      // профлист / холодная панель
+    WALL_THICK_ADD: 15,   // добавка за мм сверх 100 (руб./м² стены)
+
+    // Кровля
+    ROOF_WARM: 2150,      // сэндвич-панель 100 мм (тёплый)
+    ROOF_COLD: 1200,      // холодная кровля
+    ROOF_THICK_ADD: 10,   // добавка за мм сверх 100 (руб./м² кровли)
+
+    // Базовая толщина (мм), от которой считаются добавки
+    BASE_THICKNESS: 100,
+
+    // Дополнительные элементы
+    DOOR_PRICE: 45000,    // за ворота
+    WINDOW_PRICE_PER_M2: 8500,
+    WINDOW_AREA: 1.8,     // площадь одного окна
+};
+
+// ==============================================
+// ГЕНЕРАЦИЯ ИНТЕРФЕЙСА ВЫБОРА ЦВЕТА (без изменений)
 // ==============================================
 function initColorSelectors() {
     if (typeof ralColors === 'undefined' || typeof quickRalColors === 'undefined') {
@@ -3345,26 +3370,24 @@ function initColorSelectors() {
     }
 
     // ================= СТЕНЫ =================
-
-    // 1. Мини-палитра стен (кружочки для всех устройств)
     const wallMiniPalette = document.getElementById('wall-mini-palette');
     if (wallMiniPalette) {
         wallMiniPalette.innerHTML = '';
         quickRalColors.forEach(color => {
             const hexUpper = color.hex.toUpperCase();
             const swatch = document.createElement('div');
-            swatch.className = 'color-mini-swatch'; // Базовый класс
+            swatch.className = 'color-mini-swatch';
             swatch.style.backgroundColor = hexUpper;
             swatch.setAttribute('data-hex', hexUpper);
             swatch.title = color.name;
-            
+
             swatch.addEventListener('click', function() {
                 document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => el.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 const hexNumber = parseInt(hexUpper.replace('#', '0x'), 16);
                 changeWallColor(hexNumber);
-                
+
                 const select = document.getElementById('wall-color-select');
                 if (select) {
                     select.value = hexUpper;
@@ -3375,15 +3398,10 @@ function initColorSelectors() {
         });
     }
 
-    // 2. Select стен
     const wallSelect = document.getElementById('wall-color-select');
     if (wallSelect) {
-        // Добавляем класс для кастомизации
         wallSelect.classList.add('color-select');
-        
         wallSelect.innerHTML = '<option value="">— Выберите RAL —</option>';
-        
-        // Создаем опции с цветным фоном и кружком
         ralColors.forEach(color => {
             const hexUpper = color.hex.toUpperCase();
             const option = document.createElement('option');
@@ -3391,36 +3409,23 @@ function initColorSelectors() {
             option.setAttribute('data-hex', hexUpper);
             option.setAttribute('data-name', color.name);
             option.setAttribute('data-desc', color.desc);
-            
-            // Текст опции будет содержать символ кружка и название
             option.textContent = `● ${color.name} - ${color.desc}`;
-            
-            // Устанавливаем цветной фон и контрастный текст
             option.style.backgroundColor = hexUpper;
             option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
             option.style.padding = '8px 12px 8px 32px';
             option.style.position = 'relative';
-            
             wallSelect.appendChild(option);
         });
-        
-        // Создаем кастомный select с превью
         createCustomSelectPreview(wallSelect, 'wall');
-        
         wallSelect.addEventListener('change', function() {
             if (this.value) {
                 const hexNumber = parseInt(this.value.replace('#', '0x'), 16);
                 changeWallColor(hexNumber);
-                
                 const selectedHex = this.value.toUpperCase();
                 const selectedOption = this.options[this.selectedIndex];
                 const colorName = selectedOption.getAttribute('data-name') || '';
                 const colorDesc = selectedOption.getAttribute('data-desc') || '';
-                
-                // Обновляем превью
                 updateSelectPreview(this, selectedHex, `${colorName} - ${colorDesc}`);
-                
-                // Активируем соответствующий swatch
                 document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
                     el.classList.remove('active');
                     const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
@@ -3433,26 +3438,24 @@ function initColorSelectors() {
     }
 
     // ================= КРОВЛЯ =================
-
-    // 1. Мини-палитра кровли (кружочки для всех устройств)
     const roofMiniPalette = document.getElementById('roof-mini-palette');
     if (roofMiniPalette) {
         roofMiniPalette.innerHTML = '';
         quickRalColors.forEach(color => {
             const hexUpper = color.hex.toUpperCase();
             const swatch = document.createElement('div');
-            swatch.className = 'color-mini-swatch'; // Базовый класс
+            swatch.className = 'color-mini-swatch';
             swatch.style.backgroundColor = hexUpper;
             swatch.setAttribute('data-hex', hexUpper);
             swatch.title = color.name;
-            
+
             swatch.addEventListener('click', function() {
                 document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => el.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 const hexNumber = parseInt(hexUpper.replace('#', '0x'), 16);
                 changeRoofColor(hexNumber);
-                
+
                 const select = document.getElementById('roof-color-select');
                 if (select) {
                     select.value = hexUpper;
@@ -3463,15 +3466,10 @@ function initColorSelectors() {
         });
     }
 
-    // 2. Select кровли
     const roofSelect = document.getElementById('roof-color-select');
     if (roofSelect) {
-        // Добавляем класс для кастомизации
         roofSelect.classList.add('color-select');
-        
         roofSelect.innerHTML = '<option value="">— Выберите RAL —</option>';
-        
-        // Создаем опции с цветным фоном и кружком
         ralColors.forEach(color => {
             const hexUpper = color.hex.toUpperCase();
             const option = document.createElement('option');
@@ -3479,36 +3477,23 @@ function initColorSelectors() {
             option.setAttribute('data-hex', hexUpper);
             option.setAttribute('data-name', color.name);
             option.setAttribute('data-desc', color.desc);
-            
-            // Текст опции будет содержать символ кружка и название
             option.textContent = `● ${color.name} - ${color.desc}`;
-            
-            // Устанавливаем цветной фон и контрастный текст
             option.style.backgroundColor = hexUpper;
             option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
             option.style.padding = '8px 12px 8px 32px';
             option.style.position = 'relative';
-            
             roofSelect.appendChild(option);
         });
-        
-        // Создаем кастомный select с превью
         createCustomSelectPreview(roofSelect, 'roof');
-        
         roofSelect.addEventListener('change', function() {
             if (this.value) {
                 const hexNumber = parseInt(this.value.replace('#', '0x'), 16);
                 changeRoofColor(hexNumber);
-                
                 const selectedHex = this.value.toUpperCase();
                 const selectedOption = this.options[this.selectedIndex];
                 const colorName = selectedOption.getAttribute('data-name') || '';
                 const colorDesc = selectedOption.getAttribute('data-desc') || '';
-                
-                // Обновляем превью
                 updateSelectPreview(this, selectedHex, `${colorName} - ${colorDesc}`);
-                
-                // Активируем соответствующий swatch
                 document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
                     el.classList.remove('active');
                     const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
@@ -3520,53 +3505,34 @@ function initColorSelectors() {
         });
     }
 
-    // Восстановление сохраненных цветов
     restoreSavedColors();
 }
 
-// Функция для создания кастомного превью выбранного цвета
 function createCustomSelectPreview(selectElement, type) {
     if (!selectElement) return;
-    
-    // Создаем контейнер для кастомного отображения
     const wrapper = selectElement.parentNode;
     wrapper.style.position = 'relative';
-    
-    // Удаляем старый кружок если есть
     const oldDot = wrapper.querySelector(`.select-preview-dot-${type}`);
     if (oldDot) oldDot.remove();
-    
-    // Создаем цветной кружок для превью
     const previewDot = document.createElement('span');
     previewDot.className = `select-preview-dot select-preview-dot-${type}`;
-    previewDot.style.backgroundColor = '#005387'; // цвет по умолчанию
+    previewDot.style.backgroundColor = '#005387';
     wrapper.appendChild(previewDot);
-    
-    // Сохраняем ссылку на кружок
     selectElement.previewDot = previewDot;
 }
 
-// Функция для обновления превью выбранного цвета
 function updateSelectPreview(selectElement, hexColor, text) {
     if (!selectElement) return;
-    
-    // Обновляем значение select
     selectElement.value = hexColor;
-    
-    // Обновляем цвет кружка
     if (selectElement.previewDot) {
         selectElement.previewDot.style.backgroundColor = hexColor;
     }
-    
-    // Устанавливаем белый фон для самого селекта
     selectElement.style.backgroundColor = '#ffffff';
     selectElement.style.color = '#333333';
 }
 
-// Функция для получения названия цвета по hex-коду
 function getColorNameByHex(hex) {
     if (typeof ralColors === 'undefined') return '';
-    
     hex = hex.toUpperCase();
     const color = ralColors.find(c => c.hex.toUpperCase() === hex);
     if (color) {
@@ -3575,7 +3541,6 @@ function getColorNameByHex(hex) {
     return '';
 }
 
-// Вспомогательная функция для определения цвета текста (чёрный/белый)
 function getContrastYIQ(hexcolor) {
     hexcolor = hexcolor.replace('#', '');
     const r = parseInt(hexcolor.substr(0,2),16);
@@ -3585,7 +3550,6 @@ function getContrastYIQ(hexcolor) {
     return yiq >= 128;
 }
 
-// Преобразование rgb(r,g,b) в hex (ВЕРХНИЙ регистр)
 function rgbToHex(rgb) {
     if (!rgb) return '';
     const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
@@ -3593,41 +3557,33 @@ function rgbToHex(rgb) {
     return '#' + ((1 << 24) + (parseInt(match[1]) << 16) + (parseInt(match[2]) << 8) + parseInt(match[3])).toString(16).slice(1).toUpperCase();
 }
 
-// Восстановление цветов из localStorage
 function restoreSavedColors() {
     const savedWallHex = localStorage.getItem('angarWallColorHex');
     if (savedWallHex) {
         const savedHexUpper = savedWallHex.toUpperCase();
         const hexNumber = parseInt(savedHexUpper.replace('#', '0x'), 16);
         changeWallColor(hexNumber);
-        
-        // Активировать соответствующий swatch
         document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
             const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
             if (swatchHex === savedHexUpper || rgbToHex(el.style.backgroundColor).toUpperCase() === savedHexUpper) {
                 el.classList.add('active');
             }
         });
-        
-        // Установить select и обновить превью
         const wallSelect = document.getElementById('wall-color-select');
         if (wallSelect) {
             wallSelect.value = savedHexUpper;
             updateSelectPreview(wallSelect, savedHexUpper, getColorNameByHex(savedHexUpper));
         }
     } else {
-        // По умолчанию RAL 5005
         const defaultHex = '#005387';
         const hexNumber = parseInt(defaultHex.replace('#', '0x'), 16);
         changeWallColor(hexNumber);
-        
         document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
             const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
             if (swatchHex === defaultHex) {
                 el.classList.add('active');
             }
         });
-        
         const wallSelect = document.getElementById('wall-color-select');
         if (wallSelect) {
             wallSelect.value = defaultHex;
@@ -3640,32 +3596,27 @@ function restoreSavedColors() {
         const savedHexUpper = savedRoofHex.toUpperCase();
         const hexNumber = parseInt(savedHexUpper.replace('#', '0x'), 16);
         changeRoofColor(hexNumber);
-        
         document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
             const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
             if (swatchHex === savedHexUpper || rgbToHex(el.style.backgroundColor).toUpperCase() === savedHexUpper) {
                 el.classList.add('active');
             }
         });
-        
         const roofSelect = document.getElementById('roof-color-select');
         if (roofSelect) {
             roofSelect.value = savedHexUpper;
             updateSelectPreview(roofSelect, savedHexUpper, getColorNameByHex(savedHexUpper));
         }
     } else {
-        // По умолчанию серый
         const defaultHex = '#455A64';
         const hexNumber = parseInt(defaultHex.replace('#', '0x'), 16);
         changeRoofColor(hexNumber);
-        
         document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
             const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
             if (swatchHex === defaultHex) {
                 el.classList.add('active');
             }
         });
-        
         const roofSelect = document.getElementById('roof-color-select');
         if (roofSelect) {
             roofSelect.value = defaultHex;
@@ -3674,23 +3625,19 @@ function restoreSavedColors() {
     }
 }
 
-// Обновляем функции changeWallColor и changeRoofColor
+// Функции смены цвета (исправлено: только одно объявление)
 window.changeWallColor = function(hexNumber) {
     if (wallMaterial) {
         wallMaterial.color.setHex(hexNumber);
     }
     const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
     localStorage.setItem('angarWallColorHex', hexString);
-    
     const indicator = document.getElementById('wall-color-indicator');
     if (indicator) indicator.style.backgroundColor = hexString;
-    
-    // Обновляем превью в select
     const wallSelect = document.getElementById('wall-color-select');
     if (wallSelect) {
         updateSelectPreview(wallSelect, hexString, getColorNameByHex(hexString));
     }
-    
     if (typeof window.currentCalculatorParams !== 'undefined') {
         const p = window.currentCalculatorParams;
         update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
@@ -3703,562 +3650,514 @@ window.changeRoofColor = function(hexNumber) {
     }
     const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
     localStorage.setItem('angarRoofColorHex', hexString);
-    
     const indicator = document.getElementById('roof-color-indicator');
     if (indicator) indicator.style.backgroundColor = hexString;
-    
-    // Обновляем превью в select
     const roofSelect = document.getElementById('roof-color-select');
     if (roofSelect) {
         updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
     }
-    
     if (typeof window.currentCalculatorParams !== 'undefined') {
         const p = window.currentCalculatorParams;
         update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
     }
 };
 
-window.changeRoofColor = function(hexNumber) {
-    if (roofMaterial) {
-        roofMaterial.color.setHex(hexNumber);
-    }
-    const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-    localStorage.setItem('angarRoofColorHex', hexString);
-    
-    const indicator = document.getElementById('roof-color-indicator');
-    if (indicator) indicator.style.backgroundColor = hexString;
-    
-    // Обновляем превью в select
-    const roofSelect = document.getElementById('roof-color-select');
-    if (roofSelect) {
-        updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
-    }
-    
-    if (typeof window.currentCalculatorParams !== 'undefined') {
-        const p = window.currentCalculatorParams;
-        update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-    }
-};
+// ==========================================
+// ФУНКЦИИ ДИАГРАММ (без изменений)
+// ==========================================
+let pricingChartInstance = null;
+let timelineChartInstance = null;
 
-window.changeRoofColor = function(hexNumber) {
-    if (roofMaterial) {
-        roofMaterial.color.setHex(hexNumber);
-    }
-    const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-    localStorage.setItem('angarRoofColorHex', hexString);
-    
-    const indicator = document.getElementById('roof-color-indicator');
-    if (indicator) indicator.style.backgroundColor = hexString;
-    
-    // Обновляем превью в select
-    const roofSelect = document.getElementById('roof-color-select');
-    if (roofSelect) {
-        updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
-    }
-    
-    if (typeof window.currentCalculatorParams !== 'undefined') {
-        const p = window.currentCalculatorParams;
-        update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-    }
-};
-
-window.changeRoofColor = function(hexNumber) {
-    if (roofMaterial) {
-        roofMaterial.color.setHex(hexNumber);
-    }
-    const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-    localStorage.setItem('angarRoofColorHex', hexString);
-    
-    const indicator = document.getElementById('roof-color-indicator');
-    if (indicator) indicator.style.backgroundColor = hexString;
-    
-    // Обновляем превью в select
-    const roofSelect = document.getElementById('roof-color-select');
-    if (roofSelect) {
-        updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
-    }
-    
-    if (typeof window.currentCalculatorParams !== 'undefined') {
-        const p = window.currentCalculatorParams;
-        update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-    }
-};
-
-    // ==========================================
-    // ФУНКЦИИ ДИАГРАММ (БЕЗ ИЗМЕНЕНИЙ)
-    // ==========================================
-    let pricingChartInstance = null;
-    let timelineChartInstance = null;
-
-    function updatePricingChart(totalPrice) {
-        if (typeof Highcharts === 'undefined') {
-            setTimeout(() => updatePricingChart(totalPrice), 500);
-            return;
-        }
-
-        const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
-        if (!chartContainer) return;
-
-        const distribution = {
-            materials: Math.round(totalPrice * 0.45),
-            montage: Math.round(totalPrice * 0.30),
-            delivery: Math.round(totalPrice * 0.10),
-            design: Math.round(totalPrice * 0.08),
-            overhead: Math.round(totalPrice * 0.07)
-        };
-
-        const dataSeries = [
-            ['Материалы (45%)', distribution.materials],
-            ['Монтаж (30%)', distribution.montage],
-            ['Доставка (10%)', distribution.delivery],
-            ['Проектирование (8%)', distribution.design],
-            ['Накладные (7%)', distribution.overhead]
-        ];
-
-        const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
-
-        if (pricingChartInstance) {
-            pricingChartInstance.series[0].setData(dataSeries, true);
-            pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
-        } else {
-            pricingChartInstance = Highcharts.chart(chartContainer.id, {
-                chart: {
-                    type: 'pie',
-                    options3d: { enabled: true, alpha: 45, beta: 0 },
-                    backgroundColor: 'transparent',
-                    style: { fontFamily: "'Inter', sans-serif" }
-                },
-                title: {
-                    text: `Итого: ${formatRub(totalPrice)} ₽`,
-                    style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
-                },
-                tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        depth: 45,
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
-                        },
-                        showInLegend: false,
-                        colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
-                    }
-                },
-                responsive: {
-                    rules: [{
-                        condition: { maxWidth: 500 },
-                        chartOptions: {
-                            chart: { height: 350 },
-                            title: { style: { fontSize: '16px' } },
-                            legend: { enabled: true, align: 'center', verticalAlign: 'bottom', layout: 'horizontal' },
-                            plotOptions: {
-                                pie: {
-                                    dataLabels: { enabled: false },
-                                    showInLegend: true,
-                                    size: '110%',
-                                    center: ['50%', '40%']
-                                }
-                            }
-                        }
-                    }]
-                },
-                series: [{
-                    type: 'pie',
-                    name: 'Сумма',
-                    data: dataSeries
-                }],
-                credits: { enabled: false }
-            });
-        }
+function updatePricingChart(totalPrice) {
+    if (typeof Highcharts === 'undefined') {
+        setTimeout(() => updatePricingChart(totalPrice), 500);
+        return;
     }
 
-    function updateTimelineChart(times) {
-        window.globalProjectTimes = times;
+    const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
+    if (!chartContainer) return;
 
-        if (typeof Highcharts === 'undefined') return;
-        if (!Highcharts.seriesTypes.timeline) {
-            console.warn('Модуль timeline.js не загружен!');
-            return;
-        }
+    const distribution = {
+        materials: Math.round(totalPrice * 0.45),
+        montage: Math.round(totalPrice * 0.30),
+        delivery: Math.round(totalPrice * 0.10),
+        design: Math.round(totalPrice * 0.08),
+        overhead: Math.round(totalPrice * 0.07)
+    };
 
-        const container = document.getElementById('timelineHighchart');
-        if (!container) return;
+    const dataSeries = [
+        ['Материалы (45%)', distribution.materials],
+        ['Монтаж (30%)', distribution.montage],
+        ['Доставка (10%)', distribution.delivery],
+        ['Проектирование (8%)', distribution.design],
+        ['Накладные (7%)', distribution.overhead]
+    ];
 
-        const safeTime = (val) => (val && !isNaN(val)) ? val : 1;
-        const t_consult = safeTime(times.t_consult);
-        const t_design = safeTime(times.t_design);
-        const t_prod = safeTime(times.t_prod);
-        const t_delivery = safeTime(times.t_delivery);
-        const t_install = safeTime(times.t_install);
-        const t_handover = safeTime(times.t_handover);
-        const totalDays = times.totalDays || (t_consult + t_design + t_prod + t_delivery + t_install + t_handover);
+    const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
 
-        const colors = {
-            consult: '#90A4AE', design: '#546E7A', prod: '#0D47A1',
-            delivery: '#00796B', install: '#EF6C00', handover: '#2E7D32'
-        };
-
-        const minVisualDays = 8;
-        const rawSteps = [
-            { id: 'consult', days: t_consult, name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
-            { id: 'design', days: t_design, name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
-            { id: 'prod', days: t_prod, name: '3. Производство', desc: 'Заводское изготовление', color: colors.prod },
-            { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
-            { id: 'install', days: t_install, name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
-            { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
-        ];
-
-        let currentVisualX = 0;
-        const seriesData = [];
-        const zones = [];
-
-        rawSteps.forEach((step) => {
-            const visualDuration = Math.max(step.days, minVisualDays);
-            currentVisualX += visualDuration;
-
-            seriesData.push({
-                x: currentVisualX,
-                name: step.name,
-                label: `${step.days} дн.`,
-                description: step.desc,
-                color: step.color,
-                dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
-            });
-
-            zones.push({ value: currentVisualX, color: step.color });
-        });
-
-        if (timelineChartInstance) {
-            timelineChartInstance.update({
-                series: [{ data: seriesData, zones: zones }],
-                title: { text: `Общий срок реализации: ~${totalDays} дней` }
-            });
-        } else {
-            timelineChartInstance = Highcharts.chart('timelineHighchart', {
-                chart: {
-                    type: 'timeline',
-                    backgroundColor: 'transparent',
-                    style: { fontFamily: "'Inter', sans-serif" },
-                    height: 450
-                },
-                title: {
-                    text: `Общий срок реализации: ~${totalDays} дней`,
-                    style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
-                },
-                xAxis: { visible: false, min: 0 },
-                yAxis: { visible: false },
-                legend: { enabled: false },
-                tooltip: { enabled: false },
-                responsive: {
-                    rules: [{
-                        condition: { maxWidth: 768 },
-                        chartOptions: {
-                            chart: { inverted: true, height: 1000, marginLeft: 10, marginRight: 10 },
-                            series: [{
-                                dataLabels: {
-                                    alternate: true,
-                                    distance: 25,
-                                    connectorWidth: 2,
-                                    style: { width: '110px', fontSize: '11px' }
-                                }
-                            }]
-                        }
-                    }]
-                },
-                series: [{
-                    data: seriesData,
-                    zones: zones,
-                    zoneAxis: 'x',
-                    lineWidth: 18,
-                    marker: {
-                        enabled: true,
-                        symbol: 'square',
-                        radius: 8,
-                        lineColor: 'white',
-                        lineWidth: 2
-                    },
+    if (pricingChartInstance) {
+        pricingChartInstance.series[0].setData(dataSeries, true);
+        pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
+    } else {
+        pricingChartInstance = Highcharts.chart(chartContainer.id, {
+            chart: {
+                type: 'pie',
+                options3d: { enabled: true, alpha: 45, beta: 0 },
+                backgroundColor: 'transparent',
+                style: { fontFamily: "'Inter', sans-serif" }
+            },
+            title: {
+                text: `Итого: ${formatRub(totalPrice)} ₽`,
+                style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+            },
+            tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    depth: 45,
                     dataLabels: {
                         enabled: true,
-                        backgroundColor: '#FFFFFF',
-                        borderRadius: 4,
-                        borderColor: '#CFD8DC',
-                        borderWidth: 1,
-                        shadow: true,
-                        padding: 6,
-                        connectorWidth: 2,
-                        connectorColor: '#CFD8DC',
-                        distance: 60,
-                        useHTML: true,
-                        formatter: function () {
-                            return `<div style="text-align: center; width: 100%;"> 
-                                        <div style="color: ${this.point.color}; font-weight: bold; font-size: 13px; margin-bottom: 3px;">${this.point.name}</div>
-                                        <div style="font-size: 12px; color: #333; border-top: 1px solid #eee; padding-top: 3px;">
-                                            🕒 <b>${this.point.label}</b><br>
-                                            <span style="font-size: 11px; color: #777;">${this.point.description}</span>
-                                        </div>
-                                    </div>`;
-                        },
-                        alternate: true
+                        format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
+                    },
+                    showInLegend: false,
+                    colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
+                }
+            },
+            responsive: {
+                rules: [{
+                    condition: { maxWidth: 500 },
+                    chartOptions: {
+                        chart: { height: 350 },
+                        title: { style: { fontSize: '16px' } },
+                        legend: { enabled: true, align: 'center', verticalAlign: 'bottom', layout: 'horizontal' },
+                        plotOptions: {
+                            pie: {
+                                dataLabels: { enabled: false },
+                                showInLegend: true,
+                                size: '110%',
+                                center: ['50%', '40%']
+                            }
+                        }
                     }
-                }],
-                credits: { enabled: false }
-            });
-        }
+                }]
+            },
+            series: [{
+                type: 'pie',
+                name: 'Сумма',
+                data: dataSeries
+            }],
+            credits: { enabled: false }
+        });
+    }
+}
+
+function updateTimelineChart(times) {
+    window.globalProjectTimes = times;
+
+    if (typeof Highcharts === 'undefined') return;
+    if (!Highcharts.seriesTypes.timeline) {
+        console.warn('Модуль timeline.js не загружен!');
+        return;
     }
 
-    // ==========================================
-    // ИНИЦИАЛИЗАЦИЯ КАЛЬКУЛЯТОРА
-    // ==========================================
-    function initCalculator() {
-        // ---- 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ ----
-        const widthInput = document.getElementById('input-width');
-        const lengthInput = document.getElementById('input-length');
-        const heightInput = document.getElementById('input-height');
-        const wallThicknessInput = document.getElementById('input-wall-thickness');
-        const roofThicknessInput = document.getElementById('input-roof-thickness');
-        const windowsInput = document.getElementById('input-windows');
+    const container = document.getElementById('timelineHighchart');
+    if (!container) return;
 
-        const typeInputs = document.getElementsByName('build-type');
+    const safeTime = (val) => (val && !isNaN(val)) ? val : 1;
+    const t_consult = safeTime(times.t_consult);
+    const t_design = safeTime(times.t_design);
+    const t_prod = safeTime(times.t_prod);
+    const t_delivery = safeTime(times.t_delivery);
+    const t_install = safeTime(times.t_install);
+    const t_handover = safeTime(times.t_handover);
+    const totalDays = times.totalDays || (t_consult + t_design + t_prod + t_delivery + t_install + t_handover);
 
-        const doorFrontSelect = document.getElementById('input-door-front');
-        const doorRearSelect = document.getElementById('input-door-rear');
+    const colors = {
+        consult: '#90A4AE', design: '#546E7A', prod: '#0D47A1',
+        delivery: '#00796B', install: '#EF6C00', handover: '#2E7D32'
+    };
 
-        // Элементы для вывода значений
-        const valWidth = document.getElementById('val-width');
-        const valLength = document.getElementById('val-length');
-        const valHeight = document.getElementById('val-height');
-        const valWallThickness = document.getElementById('val-wall-thickness');
-        const valRoofThickness = document.getElementById('val-roof-thickness');
-        const valWindows = document.getElementById('val-windows');
+    const minVisualDays = 8;
+    const rawSteps = [
+        { id: 'consult', days: t_consult, name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
+        { id: 'design', days: t_design, name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
+        { id: 'prod', days: t_prod, name: '3. Производство', desc: 'Заводское изготовление', color: colors.prod },
+        { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
+        { id: 'install', days: t_install, name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
+        { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
+    ];
 
-        // Элементы итогов
-        const totalPriceEl = document.getElementById('total-price');
-        const resAreaEl = document.getElementById('res-area');
-        const resPriceM2El = document.getElementById('res-price-m2');
-        const resTimeEl = document.getElementById('res-time');
-        const resExtraCostEl = document.getElementById('res-extra-cost');
+    let currentVisualX = 0;
+    const seriesData = [];
+    const zones = [];
 
-        // Группы для блюра
-        const wallThicknessGroup = document.getElementById('wall-thickness-group');
-        const roofThicknessGroup = document.getElementById('roof-thickness-group');
+    rawSteps.forEach((step) => {
+        const visualDuration = Math.max(step.days, minVisualDays);
+        currentVisualX += visualDuration;
 
-        // ---- 2. СОХРАНЕНИЕ И ЗАГРУЗКА СОСТОЯНИЯ ----
-        function saveCalculatorState() {
-            const snowRegionEl = document.getElementById('input-snow-region');
-            const state = {
-                width: widthInput.value,
-                length: lengthInput.value,
-                height: heightInput.value,
-                wallThickness: wallThicknessInput.value,
-                roofThickness: roofThicknessInput.value,
-                windows: windowsInput.value,
-                doorFront: doorFrontSelect.value,
-                doorRear: doorRearSelect.value,
-                buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm',
-                snowRegion: snowRegionEl ? snowRegionEl.value : '3',
-                // Сохраняем цвета
-                wallColor: localStorage.getItem('angarWallColorHex') || '#005387',
-                roofColor: localStorage.getItem('angarRoofColorHex') || '#455A64'
-            };
-            localStorage.setItem('angarCalcState', JSON.stringify(state));
-        }
+        seriesData.push({
+            x: currentVisualX,
+            name: step.name,
+            label: `${step.days} дн.`,
+            description: step.desc,
+            color: step.color,
+            dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
+        });
 
-        function loadCalculatorState() {
-            const raw = localStorage.getItem('angarCalcState');
-            if (raw) {
-                try {
-                    const state = JSON.parse(raw);
-                    if (state.width) widthInput.value = state.width;
-                    if (state.length) lengthInput.value = state.length;
-                    if (state.height) heightInput.value = state.height;
-                    if (state.wallThickness) wallThicknessInput.value = state.wallThickness;
-                    if (state.roofThickness) roofThicknessInput.value = state.roofThickness;
-                    if (state.windows) windowsInput.value = state.windows;
-                    if (state.doorFront) doorFrontSelect.value = state.doorFront;
-                    if (state.doorRear) doorRearSelect.value = state.doorRear;
-                    if (state.snowRegion) {
-                        const snowRegionEl = document.getElementById('input-snow-region');
-                        if (snowRegionEl) snowRegionEl.value = state.snowRegion;
+        zones.push({ value: currentVisualX, color: step.color });
+    });
+
+    if (timelineChartInstance) {
+        timelineChartInstance.update({
+            series: [{ data: seriesData, zones: zones }],
+            title: { text: `Общий срок реализации: ~${totalDays} дней` }
+        });
+    } else {
+        timelineChartInstance = Highcharts.chart('timelineHighchart', {
+            chart: {
+                type: 'timeline',
+                backgroundColor: 'transparent',
+                style: { fontFamily: "'Inter', sans-serif" },
+                height: 450
+            },
+            title: {
+                text: `Общий срок реализации: ~${totalDays} дней`,
+                style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
+            },
+            xAxis: { visible: false, min: 0 },
+            yAxis: { visible: false },
+            legend: { enabled: false },
+            tooltip: { enabled: false },
+            responsive: {
+                rules: [{
+                    condition: { maxWidth: 768 },
+                    chartOptions: {
+                        chart: { inverted: true, height: 1000, marginLeft: 10, marginRight: 10 },
+                        series: [{
+                            dataLabels: {
+                                alternate: true,
+                                distance: 25,
+                                connectorWidth: 2,
+                                style: { width: '110px', fontSize: '11px' }
+                            }
+                        }]
                     }
-                    if (state.buildType) {
-                        const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                    // Цвета восстановятся отдельно в restoreSavedColors
-                } catch (e) { console.error("Ошибка загрузки настроек:", e); }
-            }
-        }
-
-        // ---- 3. ОСНОВНОЙ РАСЧЁТ ----
-        function calculate() {
-            let w = parseFloat(widthInput.value);
-            let l = parseFloat(lengthInput.value);
-            let h = parseFloat(heightInput.value);
-            let wallThickness = parseFloat(wallThicknessInput.value);
-            let roofThickness = parseFloat(roofThicknessInput.value);
-            let windowsCount = parseInt(windowsInput.value);
-
-            let snowRegionEl = document.getElementById('input-snow-region');
-            let snowRegion = snowRegionEl ? parseInt(snowRegionEl.value) : 3;
-
-            let typeEl = document.querySelector('input[name="build-type"]:checked');
-            let isWarm = typeEl ? (typeEl.value === 'warm') : true;
-
-            let doorsFront = parseInt(doorFrontSelect.value);
-            let doorsRear = parseInt(doorRearSelect.value);
-
-            // Сохраняем текущие параметры для обновления 3D при смене цвета
-            window.currentCalculatorParams = {
-                w, l, h, windowsCount, doorsFront, doorsRear
-            };
-
-            // Обновление отображаемых значений
-            valWidth.textContent = w;
-            valLength.textContent = l;
-            valHeight.textContent = h;
-            valWallThickness.textContent = wallThickness;
-            valRoofThickness.textContent = roofThickness;
-            valWindows.textContent = windowsCount;
-
-            // Блокировка ползунков толщины для холодного типа
-            if (!isWarm) {
-                wallThicknessGroup.style.opacity = '0.3';
-                wallThicknessGroup.style.pointerEvents = 'none';
-                roofThicknessGroup.style.opacity = '0.3';
-                roofThicknessGroup.style.pointerEvents = 'none';
-            } else {
-                wallThicknessGroup.style.opacity = '1';
-                wallThicknessGroup.style.pointerEvents = 'auto';
-                roofThicknessGroup.style.opacity = '1';
-                roofThicknessGroup.style.pointerEvents = 'auto';
-            }
-
-            // --- РАСЧЁТ СТОИМОСТИ ---
-            let area = w * l;
-            let basePricePerM2 = 4500;
-            let typeCost = isWarm ? 3500 : 1800;
-
-            const snowCoeffs = { 1: 0.90, 2: 0.95, 3: 1.00, 4: 1.10, 5: 1.25 };
-            let snowFactor = snowCoeffs[snowRegion] || 1;
-
-            let heightFactor = 1 + ((h - 6) * 0.05);
-            if (heightFactor < 1) heightFactor = 1;
-
-            let wallThicknessCost = isWarm ? (wallThickness - 100) * 15 : 0;
-            let roofThicknessCost = isWarm ? (roofThickness - 100) * 10 : 0;
-            let thicknessCost = wallThicknessCost + roofThicknessCost;
-
-            let priceM2 = ((basePricePerM2 * snowFactor * heightFactor) + typeCost + thicknessCost);
-
-            if (area > 500) priceM2 *= 0.95;
-            if (area > 1000) priceM2 *= 0.90;
-
-            let baseTotal = Math.floor(area * priceM2);
-            let doorsCost = (doorsFront + doorsRear) * 45000;
-            let windowsCost = windowsCount * (1.8 * 8500);
-            let extraCosts = doorsCost + windowsCost;
-            let grandTotal = baseTotal + extraCosts;
-            let finalPriceM2 = Math.floor(grandTotal / area);
-
-            // --- РАСЧЁТ СРОКОВ ---
-            const t_consult = 1;
-            const t_design = 3 + Math.floor(area / 400);
-            const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0);
-            const t_delivery = 2;
-            const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10);
-            const t_handover = 2;
-            const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
-
-            // --- ВЫВОД В HTML ---
-            totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
-            resAreaEl.textContent = area;
-            resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
-            resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
-            resTimeEl.textContent = t_install;
-
-            // --- ОБНОВЛЕНИЕ 3D МОДЕЛИ ---
-            if (typeof update3DModel === 'function') {
-                update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
-            }
-
-            // --- ОБНОВЛЕНИЕ ГРАФИКОВ ---
-            if (typeof updatePricingChart === 'function') {
-                updatePricingChart(grandTotal);
-            }
-            if (typeof updateTimelineChart === 'function') {
-                updateTimelineChart({
-                    t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays
-                });
-            }
-
-            // --- СКРЫТЫЕ ПОЛЯ ---
-            const formL = document.getElementById('form-length');
-            const formW = document.getElementById('form-width');
-            const formH = document.getElementById('form-height');
-            if (formL) formL.value = l;
-            if (formW) formW.value = w;
-            if (formH) formH.value = h;
-
-            if (typeof updateYandexFormUrl === 'function') {
-                updateYandexFormUrl();
-            }
-            
-            // Сохраняем состояние
-            saveCalculatorState();
-        }
-
-        // ---- 4. ПРИВЯЗКА СОБЫТИЙ ----
-        const inputs = [widthInput, lengthInput, heightInput, wallThicknessInput, roofThicknessInput, windowsInput];
-        inputs.forEach(input => {
-            input.addEventListener('input', calculate);
-            input.addEventListener('change', () => {
-                calculate();
-                saveCalculatorState();
-            });
+                }]
+            },
+            series: [{
+                data: seriesData,
+                zones: zones,
+                zoneAxis: 'x',
+                lineWidth: 18,
+                marker: {
+                    enabled: true,
+                    symbol: 'square',
+                    radius: 8,
+                    lineColor: 'white',
+                    lineWidth: 2
+                },
+                dataLabels: {
+                    enabled: true,
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 4,
+                    borderColor: '#CFD8DC',
+                    borderWidth: 1,
+                    shadow: true,
+                    padding: 6,
+                    connectorWidth: 2,
+                    connectorColor: '#CFD8DC',
+                    distance: 60,
+                    useHTML: true,
+                    formatter: function () {
+                        return `<div style="text-align: center; width: 100%;"> 
+                                    <div style="color: ${this.point.color}; font-weight: bold; font-size: 13px; margin-bottom: 3px;">${this.point.name}</div>
+                                    <div style="font-size: 12px; color: #333; border-top: 1px solid #eee; padding-top: 3px;">
+                                        🕒 <b>${this.point.label}</b><br>
+                                        <span style="font-size: 11px; color: #777;">${this.point.description}</span>
+                                    </div>
+                                </div>`;
+                    },
+                    alternate: true
+                }
+            }],
+            credits: { enabled: false }
         });
+    }
+}
 
-        typeInputs.forEach(radio => {
-            radio.addEventListener('change', () => {
-                calculate();
-                saveCalculatorState();
-            });
-        });
+// ==========================================
+// ИНИЦИАЛИЗАЦИЯ КАЛЬКУЛЯТОРА (С ИСПРАВЛЕННОЙ calculate)
+// ==========================================
+function initCalculator() {
+    // ---- 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ ----
+    const widthInput = document.getElementById('input-width');
+    const lengthInput = document.getElementById('input-length');
+    const heightInput = document.getElementById('input-height');
+    const wallThicknessInput = document.getElementById('input-wall-thickness');
+    const roofThicknessInput = document.getElementById('input-roof-thickness');
+    const windowsInput = document.getElementById('input-windows');
 
-        [doorFrontSelect, doorRearSelect].forEach(select => {
-            select.addEventListener('change', () => {
-                calculate();
-                saveCalculatorState();
-            });
-        });
+    const typeInputs = document.getElementsByName('build-type');
 
+    const doorFrontSelect = document.getElementById('input-door-front');
+    const doorRearSelect = document.getElementById('input-door-rear');
+
+    const valWidth = document.getElementById('val-width');
+    const valLength = document.getElementById('val-length');
+    const valHeight = document.getElementById('val-height');
+    const valWallThickness = document.getElementById('val-wall-thickness');
+    const valRoofThickness = document.getElementById('val-roof-thickness');
+    const valWindows = document.getElementById('val-windows');
+
+    const totalPriceEl = document.getElementById('total-price');
+    const resAreaEl = document.getElementById('res-area');
+    const resPriceM2El = document.getElementById('res-price-m2');
+    const resTimeEl = document.getElementById('res-time');
+    const resExtraCostEl = document.getElementById('res-extra-cost');
+
+    const wallThicknessGroup = document.getElementById('wall-thickness-group');
+    const roofThicknessGroup = document.getElementById('roof-thickness-group');
+
+    // ---- 2. СОХРАНЕНИЕ И ЗАГРУЗКА СОСТОЯНИЯ ----
+    function saveCalculatorState() {
         const snowRegionEl = document.getElementById('input-snow-region');
-        if (snowRegionEl) {
-            snowRegionEl.addEventListener('change', () => {
-                calculate();
-                saveCalculatorState();
-            });
-        }
+        const state = {
+            width: widthInput.value,
+            length: lengthInput.value,
+            height: heightInput.value,
+            wallThickness: wallThicknessInput.value,
+            roofThickness: roofThicknessInput.value,
+            windows: windowsInput.value,
+            doorFront: doorFrontSelect.value,
+            doorRear: doorRearSelect.value,
+            buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm',
+            snowRegion: snowRegionEl ? snowRegionEl.value : '3',
+            wallColor: localStorage.getItem('angarWallColorHex') || '#005387',
+            roofColor: localStorage.getItem('angarRoofColorHex') || '#455A64'
+        };
+        localStorage.setItem('angarCalcState', JSON.stringify(state));
+    }
 
-        // ---- 5. СТАРТ (ИСПРАВЛЕН ПОРЯДОК) ----
-        if (typeof init3D === 'function') init3D();
-        loadCalculatorState();
-        calculate(); // Теперь calculate() создаст currentCalculatorParams
-        
-        // Инициализация цветовых селекторов ПОСЛЕ calculate()
-        if (typeof ralColors !== 'undefined') {
-            initColorSelectors();
-        } else {
-            setTimeout(() => {
-                if (typeof ralColors !== 'undefined') initColorSelectors();
-            }, 300);
+    function loadCalculatorState() {
+        const raw = localStorage.getItem('angarCalcState');
+        if (raw) {
+            try {
+                const state = JSON.parse(raw);
+                if (state.width) widthInput.value = state.width;
+                if (state.length) lengthInput.value = state.length;
+                if (state.height) heightInput.value = state.height;
+                if (state.wallThickness) wallThicknessInput.value = state.wallThickness;
+                if (state.roofThickness) roofThicknessInput.value = state.roofThickness;
+                if (state.windows) windowsInput.value = state.windows;
+                if (state.doorFront) doorFrontSelect.value = state.doorFront;
+                if (state.doorRear) doorRearSelect.value = state.doorRear;
+                if (state.snowRegion) {
+                    const snowRegionEl = document.getElementById('input-snow-region');
+                    if (snowRegionEl) snowRegionEl.value = state.snowRegion;
+                }
+                if (state.buildType) {
+                    const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
+                    if (radio) radio.checked = true;
+                }
+            } catch (e) { console.error("Ошибка загрузки настроек:", e); }
         }
     }
 
-    // Запуск после загрузки DOM
-    document.addEventListener('DOMContentLoaded', initCalculator);
+    // ---- 3. ОСНОВНОЙ РАСЧЁТ (ИСПРАВЛЕННАЯ ВЕРСИЯ) ----
+    function calculate() {
+        let w = parseFloat(widthInput.value);
+        let l = parseFloat(lengthInput.value);
+        let h = parseFloat(heightInput.value);
+        let wallThickness = parseFloat(wallThicknessInput.value);
+        let roofThickness = parseFloat(roofThicknessInput.value);
+        let windowsCount = parseInt(windowsInput.value);
+
+        let snowRegionEl = document.getElementById('input-snow-region');
+        let snowRegion = snowRegionEl ? parseInt(snowRegionEl.value) : 3;
+
+        let typeEl = document.querySelector('input[name="build-type"]:checked');
+        let isWarm = typeEl ? (typeEl.value === 'warm') : true;
+
+        let doorsFront = parseInt(doorFrontSelect.value);
+        let doorsRear = parseInt(doorRearSelect.value);
+
+        window.currentCalculatorParams = { w, l, h, windowsCount, doorsFront, doorsRear };
+
+        // Обновление отображаемых значений
+        valWidth.textContent = w;
+        valLength.textContent = l;
+        valHeight.textContent = h;
+        valWallThickness.textContent = wallThickness;
+        valRoofThickness.textContent = roofThickness;
+        valWindows.textContent = windowsCount;
+
+        // Блокировка толщин для холодного типа
+        if (!isWarm) {
+            wallThicknessGroup.style.opacity = '0.3';
+            wallThicknessGroup.style.pointerEvents = 'none';
+            roofThicknessGroup.style.opacity = '0.3';
+            roofThicknessGroup.style.pointerEvents = 'none';
+        } else {
+            wallThicknessGroup.style.opacity = '1';
+            wallThicknessGroup.style.pointerEvents = 'auto';
+            roofThicknessGroup.style.opacity = '1';
+            roofThicknessGroup.style.pointerEvents = 'auto';
+        }
+
+        // ---- ГЕОМЕТРИЧЕСКИЕ РАСЧЁТЫ ----
+        let area = w * l;                                 // площадь пола
+        let wallArea = 2 * (w + l) * h;                   // площадь стен
+
+        // Площадь двускатной кровли с углом наклона 12 градусов
+        const roofAngleDeg = 12;
+        const roofAngleRad = roofAngleDeg * Math.PI / 180;
+        let roofArea = area / Math.cos(roofAngleRad);     // = l * w / cos(12°)
+
+        // ---- КОЭФФИЦИЕНТЫ ----
+        const snowCoeffs = { 1: 0.90, 2: 0.95, 3: 1.00, 4: 1.10, 5: 1.25 };
+        let snowFactor = snowCoeffs[snowRegion] || 1;
+
+        let heightFactor = 1 + ((h - 6) * 0.05);
+        if (heightFactor < 1) heightFactor = 1;
+
+        // ---- РАСЧЁТ СОСТАВЛЯЮЩИХ СТОИМОСТИ ----
+        // 1. Каркас и фундамент
+        let frameCost = PRICE_CONSTANTS.FRAME_BASE * area * snowFactor * heightFactor;
+
+        // 2. Стены
+        let wallBasePrice = isWarm ? PRICE_CONSTANTS.WALL_WARM : PRICE_CONSTANTS.WALL_COLD;
+        let wallThicknessAdd = 0;
+        if (isWarm && wallThickness > PRICE_CONSTANTS.BASE_THICKNESS) {
+            wallThicknessAdd = (wallThickness - PRICE_CONSTANTS.BASE_THICKNESS) * PRICE_CONSTANTS.WALL_THICK_ADD;
+        }
+        let wallCost = wallArea * (wallBasePrice + wallThicknessAdd);
+
+        // 3. Кровля
+        let roofBasePrice = isWarm ? PRICE_CONSTANTS.ROOF_WARM : PRICE_CONSTANTS.ROOF_COLD;
+        let roofThicknessAdd = 0;
+        if (isWarm && roofThickness > PRICE_CONSTANTS.BASE_THICKNESS) {
+            roofThicknessAdd = (roofThickness - PRICE_CONSTANTS.BASE_THICKNESS) * PRICE_CONSTANTS.ROOF_THICK_ADD;
+        }
+        let roofCost = roofArea * (roofBasePrice + roofThicknessAdd);
+
+        // 4. Дополнительные элементы
+        let doorsCost = (doorsFront + doorsRear) * PRICE_CONSTANTS.DOOR_PRICE;
+        let windowsCost = windowsCount * (PRICE_CONSTANTS.WINDOW_AREA * PRICE_CONSTANTS.WINDOW_PRICE_PER_M2);
+        let extraCosts = doorsCost + windowsCost;
+
+        // ---- ИТОГОВАЯ СТОИМОСТЬ ----
+        let grandTotal = Math.floor(frameCost + wallCost + roofCost + extraCosts);
+        let finalPriceM2 = Math.floor(grandTotal / area);
+
+        // ---- РАСЧЁТ СРОКОВ ----
+        const t_consult = 1;
+        const t_design = 3 + Math.floor(area / 400);
+        const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0);
+        const t_delivery = 2;
+        const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10);
+        const t_handover = 2;
+        const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
+
+        // ---- ВЫВОД ----
+        totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
+        resAreaEl.textContent = area;                                   // площадь пола
+        resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
+        resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
+        resTimeEl.textContent = t_install;
+
+        // ---- 3D МОДЕЛЬ ----
+        if (typeof update3DModel === 'function') {
+            update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
+        }
+
+        // ---- ГРАФИКИ ----
+        if (typeof updatePricingChart === 'function') {
+            updatePricingChart(grandTotal);
+        }
+        if (typeof updateTimelineChart === 'function') {
+            updateTimelineChart({
+                t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays
+            });
+        }
+
+        // ---- СКРЫТЫЕ ПОЛЯ ----
+        const formL = document.getElementById('form-length');
+        const formW = document.getElementById('form-width');
+        const formH = document.getElementById('form-height');
+        if (formL) formL.value = l;
+        if (formW) formW.value = w;
+        if (formH) formH.value = h;
+
+        if (typeof updateYandexFormUrl === 'function') {
+            updateYandexFormUrl();
+        }
+
+        saveCalculatorState();
+    }
+
+    // ---- 4. ПРИВЯЗКА СОБЫТИЙ ----
+    const inputs = [widthInput, lengthInput, heightInput, wallThicknessInput, roofThicknessInput, windowsInput];
+    inputs.forEach(input => {
+        input.addEventListener('input', calculate);
+        input.addEventListener('change', () => {
+            calculate();
+            saveCalculatorState();
+        });
+    });
+
+    typeInputs.forEach(radio => {
+        radio.addEventListener('change', () => {
+            calculate();
+            saveCalculatorState();
+        });
+    });
+
+    [doorFrontSelect, doorRearSelect].forEach(select => {
+        select.addEventListener('change', () => {
+            calculate();
+            saveCalculatorState();
+        });
+    });
+
+    const snowRegionEl = document.getElementById('input-snow-region');
+    if (snowRegionEl) {
+        snowRegionEl.addEventListener('change', () => {
+            calculate();
+            saveCalculatorState();
+        });
+    }
+
+    // ---- 5. СТАРТ ----
+    if (typeof init3D === 'function') init3D();
+    loadCalculatorState();
+    calculate();
+
+    if (typeof ralColors !== 'undefined') {
+        initColorSelectors();
+    } else {
+        setTimeout(() => {
+            if (typeof ralColors !== 'undefined') initColorSelectors();
+        }, 300);
+    }
+}
+
+// Запуск после загрузки DOM
+document.addEventListener('DOMContentLoaded', initCalculator);
+
+// Плавная прокрутка к якорям
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
     
         // ==========================================
         // ПЛАВНАЯ ПРОКРУТКА К ЯКОРЯМ
