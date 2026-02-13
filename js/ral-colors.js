@@ -1,3 +1,5 @@
+--- START OF FILE ral-colors.js ---
+
 // =============================================
 // ПОЛНЫЙ МАССИВ ЦВЕТОВ RAL (200+)
 // =============================================
@@ -27,7 +29,7 @@ const ralColors = [
     { name: "RAL 1026", hex: "#FFFF00", code: "1026", desc: "Люминесцентный жёлтый" },
     { name: "RAL 1027", hex: "#B08C4C", code: "1027", desc: "Жёлтый карри" },
     { name: "RAL 1028", hex: "#FFB800", code: "1028", desc: "Дынно-жёлтый" },
-    { name: "RAL 1032", hex: "#E0A800", code: "1032", desc: "Жёлтый метеллик" },
+    { name: "RAL 1032", hex: "#E0A800", code: "1032", desc: "Жёлтый дрок" },
     { name: "RAL 1033", hex: "#F7B500", code: "1033", desc: "Георгиново-жёлтый" },
     { name: "RAL 1034", hex: "#EBAE6E", code: "1034", desc: "Пастельно-жёлтый" },
     { name: "RAL 1035", hex: "#A18C5E", code: "1035", desc: "Жемчужно-бежевый" },
@@ -48,6 +50,7 @@ const ralColors = [
     { name: "RAL 2011", hex: "#E5822C", code: "2011", desc: "Глубокий оранжевый" },
     { name: "RAL 2012", hex: "#DD7336", code: "2012", desc: "Лососевый" },
     { name: "RAL 2013", hex: "#A5502E", code: "2013", desc: "Перламутрово-оранжевый" },
+    { name: "RAL 2017", hex: "#F75E25", code: "2017", desc: "RAL оранжевый" },
 
     // RAL 3xxx – Красные
     { name: "RAL 3000", hex: "#AF2B1E", code: "3000", desc: "Огненно-красный" },
@@ -114,7 +117,7 @@ const ralColors = [
     { name: "RAL 5022", hex: "#2C3C7C", code: "5022", desc: "Ночной синий" },
     { name: "RAL 5023", hex: "#54748C", code: "5023", desc: "Дальний синий" },
     { name: "RAL 5024", hex: "#6C9CAC", code: "5024", desc: "Пастельно-синий" },
-    { name: "RAL 5025", hex: "#2C8C8C", code: "5025", desc: "Генциановый синий" },
+    { name: "RAL 5025", hex: "#2C8C8C", code: "5025", desc: "Перламутрово-генциановый" },
     { name: "RAL 5026", hex: "#1E3C5C", code: "5026", desc: "Перламутрово-синий" },
 
     // RAL 6xxx – Зелёные
@@ -154,6 +157,7 @@ const ralColors = [
     { name: "RAL 6036", hex: "#1E5C4C", code: "6036", desc: "Перламутрово-тёмно-зелёный" },
     { name: "RAL 6037", hex: "#2CAC3C", code: "6037", desc: "Чисто-зелёный" },
     { name: "RAL 6038", hex: "#2CCC3C", code: "6038", desc: "Люминесцентный зелёный" },
+    { name: "RAL 6039", hex: "#25312C", code: "6039", desc: "Волокнистый зелёный" },
 
     // RAL 7xxx – Серые
     { name: "RAL 7000", hex: "#8C9CAC", code: "7000", desc: "Беличья серость" },
@@ -228,6 +232,7 @@ const ralColors = [
     { name: "RAL 9007", hex: "#8C8C84", code: "9007", desc: "Серо-алюминиевый" },
     { name: "RAL 9010", hex: "#F1ECE1", code: "9010", desc: "Чисто-белый" },
     { name: "RAL 9011", hex: "#1C1C1C", code: "9011", desc: "Графитовый чёрный" },
+    { name: "RAL 9012", hex: "#E6E5D7", code: "9012", desc: "Белый для чистых помещений" },
     { name: "RAL 9016", hex: "#F6F6F6", code: "9016", desc: "Транспортный белый" },
     { name: "RAL 9017", hex: "#1E1E1E", code: "9017", desc: "Транспортный чёрный" },
     { name: "RAL 9018", hex: "#D0D0C8", code: "9018", desc: "Папирусно-белый" },
