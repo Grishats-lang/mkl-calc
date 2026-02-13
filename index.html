@@ -625,256 +625,256 @@
             background-color: #D84315;
         }
 
-/* ============================================
-   КОМПАКТНЫЙ ВЫБОР ЦВЕТА (ВСЕ В ОДНУ СТРОКУ)
-   ============================================ */
-.colors-wrapper {
-    display: flex;
-    width: 100%;
-    background-color: white;
-    border: 1px solid var(--border-color, #e0e0e0);
-    border-radius: 6px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-}
-
-.color-section {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    gap: 8px;
-    min-width: 0;
-}
-
-/* Разделитель по центру */
-.color-section:first-child {
-    border-right: 1px solid var(--border-color, #e0e0e0);
-}
-
-.color-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-primary, #333);
-    white-space: nowrap;
-    margin-right: 2px;
-    flex-shrink: 0;
-}
-
-/* Палитра 5 цветов - КРУЖОЧКИ */
-.color-mini-palette {
-    display: flex;
-    gap: 4px;
-    margin: 0;
-    flex-shrink: 0;
-}
-
-.color-mini-swatch {
-    width: 24px;
-    height: 24px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-    border-radius: 50% !important;
-}
-
-.color-mini-swatch:hover {
-    transform: scale(1.15);
-    border-color: var(--accent-orange, #FF6B35);
-    z-index: 2;
-}
-
-.color-mini-swatch.active {
-    border-color: var(--accent-orange, #FF6B35);
-    box-shadow: 0 0 0 2px var(--accent-orange, #FF6B35);
-    z-index: 1;
-}
-
-/* Контейнер для списка */
-.color-select-wrapper {
-    flex: 1;
-    min-width: 0;
-    position: relative;
-}
-
-/* Стили для выпадающего списка с цветным кружком */
-.color-select {
-    width: 100%;
-    padding: 6px 12px 6px 30px !important;
-    height: 32px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 12px;
-    background-color: white !important;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    color: #333 !important;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 14px;
-}
-
-.color-select:hover {
-    border-color: #0D47A1;
-}
-
-.color-select:focus {
-    outline: none;
-    border-color: #0D47A1;
-    box-shadow: 0 0 0 2px rgba(13, 71, 161, 0.1);
-}
-
-/* Цветной кружок слева от выбранного значения */
-.select-preview-dot {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.1);
-    z-index: 3;
-    pointer-events: none;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Стили для опций в выпадающем списке */
-.color-select option {
-    padding: 8px 12px 8px 30px !important;
-    font-size: 12px;
-    position: relative;
-}
-
-/* Для Firefox */
-@-moz-document url-prefix() {
-    .color-select {
-        text-indent: 18px;
-    }
-    .color-select option {
-        padding-left: 30px !important;
-    }
-}
-
-/* ============================================
-   МОБИЛЬНАЯ АДАПТАЦИЯ - ТОЛЬКО ВЫПАДАЮЩИЙ СПИСОК
-   ============================================ */
-
-/* Планшеты */
-@media (max-width: 1000px) {
-    .colors-wrapper {
-        flex-direction: row;
-    }
-    
-    .color-section {
-        padding: 6px 8px;
-    }
-    
-    .color-label {
-        font-size: 11px;
-    }
-    
-    .color-mini-swatch {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .color-select {
-        padding: 4px 10px 4px 26px !important;
-        height: 28px;
-        font-size: 11px;
-    }
-}
-
-/* Мобильные устройства - убираем всё лишнее, оставляем только select */
-@media (max-width: 768px) {
-    .colors-wrapper {
-        flex-direction: row;
-        flex-wrap: nowrap;
-    }
-    
-    .color-section {
-        padding: 6px 8px;
-        gap: 0; /* Убираем gap */
-    }
-    
-    /* Прячем label "Стены:" и "Кровля:" */
-    .color-label {
-        display: none;
-    }
-    
-    /* Прячем мини-палитру с 5 цветами */
-    .color-mini-palette {
-        display: none;
-    }
-    
-    /* Контейнер для select занимает всю ширину */
-    .color-select-wrapper {
-        width: 100%;
-    }
-    
-    /* Делаем select на всю ширину */
-    .color-select {
-        padding: 6px 12px 6px 30px !important;
-        height: 36px;
-        font-size: 13px;
-        width: 100%;
-    }
-    
-    .select-preview-dot {
-        width: 16px;
-        height: 16px;
-        left: 10px;
-    }
-}
-
-/* Маленькие мобильные устройства */
-@media (max-width: 480px) {
-    .color-section {
-        padding: 5px 6px;
-    }
-    
-    .color-select {
-        padding: 5px 10px 5px 28px !important;
-        height: 34px;
-        font-size: 12px;
-    }
-    
-    .select-preview-dot {
-        width: 14px;
-        height: 14px;
-        left: 9px;
-    }
-}
-
-/* Для устройств с тач-интерфейсом */
-@media (hover: none) and (pointer: coarse) {
-    @media (max-width: 768px) {
-        .color-select {
-            padding: 8px 12px 8px 32px !important;
-            height: 44px;
-            font-size: 14px;
+        /* ============================================
+           КОМПАКТНЫЙ ВЫБОР ЦВЕТА (ВСЕ В ОДНУ СТРОКУ)
+           ============================================ */
+        .colors-wrapper {
+            display: flex;
+            width: 100%;
+            background-color: white;
+            /* border: 1px solid var(--border-color, #e0e0e0); */ /* Убрано: внешняя рамка */
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
         
-        .select-preview-dot {
-            width: 18px;
-            height: 18px;
-            left: 10px;
+        .color-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            gap: 8px;
+            min-width: 0;
         }
-    }
-}
-
-/* Для Firefox на мобильных */
-@-moz-document url-prefix() {
-    @media (max-width: 768px) {
+        
+        /* Разделитель по центру */
+        .color-section:first-child {
+            /* border-right: 1px solid var(--border-color, #e0e0e0); */ /* Убрано: разделительная линия */
+        }
+        
+        .color-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary, #333);
+            white-space: nowrap;
+            margin-right: 2px;
+            flex-shrink: 0;
+        }
+        
+        /* Палитра 5 цветов - КРУЖОЧКИ */
+        .color-mini-palette {
+            display: flex;
+            gap: 4px;
+            margin: 0;
+            flex-shrink: 0;
+        }
+        
+        .color-mini-swatch {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            border-radius: 50% !important;
+        }
+        
+        .color-mini-swatch:hover {
+            transform: scale(1.15);
+            border-color: var(--accent-orange, #FF6B35);
+            z-index: 2;
+        }
+        
+        .color-mini-swatch.active {
+            border-color: var(--accent-orange, #FF6B35);
+            box-shadow: 0 0 0 2px var(--accent-orange, #FF6B35);
+            z-index: 1;
+        }
+        
+        /* Контейнер для списка */
+        .color-select-wrapper {
+            flex: 1;
+            min-width: 0;
+            position: relative;
+        }
+        
+        /* Стили для выпадающего списка с цветным кружком */
         .color-select {
-            text-indent: 20px;
+            width: 100%;
+            padding: 6px 12px 6px 30px !important;
+            height: 32px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            background-color: white !important;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            color: #333 !important;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 14px;
         }
-    }
-}
+        
+        .color-select:hover {
+            border-color: #0D47A1;
+        }
+        
+        .color-select:focus {
+            outline: none;
+            border-color: #0D47A1;
+            box-shadow: 0 0 0 2px rgba(13, 71, 161, 0.1);
+        }
+        
+        /* Цветной кружок слева от выбранного значения */
+        .select-preview-dot {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+            z-index: 3;
+            pointer-events: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        /* Стили для опций в выпадающем списке */
+        .color-select option {
+            padding: 8px 12px 8px 30px !important;
+            font-size: 12px;
+            position: relative;
+        }
+        
+        /* Для Firefox */
+        @-moz-document url-prefix() {
+            .color-select {
+                text-indent: 18px;
+            }
+            .color-select option {
+                padding-left: 30px !important;
+            }
+        }
+        
+        /* ============================================
+           МОБИЛЬНАЯ АДАПТАЦИЯ - ТОЛЬКО ВЫПАДАЮЩИЙ СПИСОК
+           ============================================ */
+        
+        /* Планшеты */
+        @media (max-width: 1000px) {
+            .colors-wrapper {
+                flex-direction: row;
+            }
+            
+            .color-section {
+                padding: 6px 8px;
+            }
+            
+            .color-label {
+                font-size: 11px;
+            }
+            
+            .color-mini-swatch {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .color-select {
+                padding: 4px 10px 4px 26px !important;
+                height: 28px;
+                font-size: 11px;
+            }
+        }
+        
+        /* Мобильные устройства - убираем всё лишнее, оставляем только select */
+        @media (max-width: 768px) {
+            .colors-wrapper {
+                flex-direction: row;
+                flex-wrap: nowrap;
+            }
+            
+            .color-section {
+                padding: 6px 8px;
+                gap: 0; /* Убираем gap */
+            }
+            
+            /* Прячем label "Стены:" и "Кровля:" */
+            .color-label {
+                display: none;
+            }
+            
+            /* Прячем мини-палитру с 5 цветами */
+            .color-mini-palette {
+                display: none;
+            }
+            
+            /* Контейнер для select занимает всю ширину */
+            .color-select-wrapper {
+                width: 100%;
+            }
+            
+            /* Делаем select на всю ширину */
+            .color-select {
+                padding: 6px 12px 6px 30px !important;
+                height: 36px;
+                font-size: 13px;
+                width: 100%;
+            }
+            
+            .select-preview-dot {
+                width: 16px;
+                height: 16px;
+                left: 10px;
+            }
+        }
+        
+        /* Маленькие мобильные устройства */
+        @media (max-width: 480px) {
+            .color-section {
+                padding: 5px 6px;
+            }
+            
+            .color-select {
+                padding: 5px 10px 5px 28px !important;
+                height: 34px;
+                font-size: 12px;
+            }
+            
+            .select-preview-dot {
+                width: 14px;
+                height: 14px;
+                left: 9px;
+            }
+        }
+        
+        /* Для устройств с тач-интерфейсом */
+        @media (hover: none) and (pointer: coarse) {
+            @media (max-width: 768px) {
+                .color-select {
+                    padding: 8px 12px 8px 32px !important;
+                    height: 44px;
+                    font-size: 14px;
+                }
+                
+                .select-preview-dot {
+                    width: 18px;
+                    height: 18px;
+                    left: 10px;
+                }
+            }
+        }
+        
+        /* Для Firefox на мобильных */
+        @-moz-document url-prefix() {
+            @media (max-width: 768px) {
+                .color-select {
+                    text-indent: 20px;
+                }
+            }
+        }
 
         /* ============================================
            ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ
