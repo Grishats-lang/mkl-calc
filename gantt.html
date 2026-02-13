@@ -2,8 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
     <title>Диаграмма Ганта Pro - Просмотр</title>
     
     <!-- Highcharts -->
@@ -13,112 +12,176 @@
     <script src="js/modules/export-data.js"></script>
     <script src="js/accessibility.js"></script>
     
-    <style>
-        /* Переменные для удобства, если захочешь поменять оттенки */
-        :root {
-            --primary-blue: #0D47A1;
-            --accent-teal: #00796B;
-        }
+<style>
+    /* Переменные для удобства, если захочешь поменять оттенки */
+    :root {
+        --primary-blue: #0D47A1;
+        --accent-teal: #00796B;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Фон страницы: Градиент от Синего к Бирюзовому */
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-teal) 100%);
+        min-height: 100vh;
+        padding: 20px;
+        /* Разрешаем зум на всей странице */
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+
+    .container {
+        max-width: 1600px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 95vh;
+        /* Разрешаем зум внутри контейнера */
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+
+    .header {
+        /* Фон шапки: Тот же градиент для целостности */
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-teal) 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .header h1 {
+        font-size: 24px;
+        margin-bottom: 2px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+        opacity: 0.9;
+        font-size: 1em;
+    }
+
+    /* Легенда */
+    .legend {
+        display: flex;
+        gap: 10px;
+        font-size: 11px;
+        justify-content: center;
+        margin-top: 5px;
+    }
     
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-    
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    #ganttChart {
+        flex-grow: 1;
+        width: 100%;
+        overflow: hidden;
+        /* Разрешаем все жесты: pan и зум */
+        touch-action: pan-x pan-y pinch-zoom;
+        -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+    }
+
+    /* Лоадер (цвета тоже обновлены) */
+    #loader {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 14px;
+        color: #666;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .spinner {
+        width: 30px; height: 30px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary-blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Стили для мобильных устройств */
+    @media (max-width: 768px) {
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* Фон страницы: Градиент от Синего к Бирюзовому */
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-teal) 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-    
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 95vh;
-        }
-    
-        .header {
-            /* Фон шапки: Тот же градиент для целостности */
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-teal) 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-    
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 2px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-    
-        .header p {
-            opacity: 0.9;
-            font-size: 1em;
-        }
-    
-        /* Легенда */
-        .legend {
-            display: flex;
-            gap: 10px;
-            font-size: 11px;
-            justify-content: center;
-            margin-top: 5px;
+            padding: 10px;
+            touch-action: pan-x pan-y pinch-zoom;
         }
         
-        .legend-item { display: flex; align-items: center; gap: 4px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
-    
+        .container {
+            height: 98vh;
+            border-radius: 15px;
+            touch-action: pan-x pan-y pinch-zoom;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+        }
+        
+        .header p {
+            font-size: 0.9em;
+        }
+        
         #ganttChart {
-            flex-grow: 1;
-            width: 100%;
-            overflow: hidden;
-            touch-action: pan-x pan-y; 
+            touch-action: pan-x pan-y pinch-zoom;
         }
-    
-        /* Лоадер (цвета тоже обновлены) */
-        #loader {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+    }
+
+    @media (max-width: 600px) {
+        body { 
+            padding: 5px; 
+        }
+        .header h1 { 
+            font-size: 16px; 
+        }
+        .legend { 
+            display: none; 
+        }
+        .container {
+            height: 99vh;
+            border-radius: 10px;
+        }
+    }
+
+    /* Стили для устройств с touch-экраном */
+    @media (hover: none) and (pointer: coarse) {
+        #ganttChart {
+            touch-action: pan-x pan-y pinch-zoom;
+            cursor: grab;
+        }
+        
+        #ganttChart:active {
+            cursor: grabbing;
+        }
+    }
+
+    /* Адаптация для очень маленьких экранов */
+    @media (max-width: 480px) {
+        .header {
+            padding: 10px;
+        }
+        
+        .header h1 {
             font-size: 14px;
-            color: #666;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
         }
-    
-        .spinner {
-            width: 30px; height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-    
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-        /* Адаптив */
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .header h1 { font-size: 16px; }
-            .legend { display: none; }
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
     <div class="container">
-        <!-- Диаграмма Ганта -->
+         <!-- Диаграмма Ганта -->
         <div id="ganttChart"></div>
     </div>
 
@@ -245,7 +308,32 @@
                 chart: {
                     // height: config.chartHeight, // Автоматическая высота
                     backgroundColor: backgroundColor,
-                    style: { fontFamily: "'Segoe UI', sans-serif" }
+                    style: { fontFamily: "'Segoe UI', sans-serif" },
+                    // Включаем поддержку touch-событий для зума
+                    zooming: {
+                        type: 'x',
+                        pinchType: 'x', // Разрешаем зум пальцами по оси X
+                        resetButton: {
+                            position: {
+                                x: 10,
+                                y: 10
+                            }
+                        }
+                    },
+                    // Оптимизация для touch-устройств
+                    panning: {
+                        enabled: true,
+                        type: 'x'
+                    },
+                    pinchType: 'x', // Пинч-зум по оси X
+                    options3d: {
+                        enabled: false
+                    },
+                    // Увеличиваем чувствительность для touch
+                    touch: {
+                        enabled: true,
+                        panSensitivity: 2
+                    }
                 },
                 title: {
                     text: config.projectName,
@@ -268,7 +356,14 @@
                     grid: { 
                         borderWidth: 1, 
                         borderColor: gridColor 
-                    }
+                    },
+                    // Настройки для touch-взаимодействия
+                    minRange: 24 * 3600 * 1000, // Минимальный диапазон - 1 день
+                    maxRange: 365 * 24 * 3600 * 1000, // Максимальный диапазон - 1 год
+                    startOnTick: true,
+                    endOnTick: true,
+                    showFirstLabel: true,
+                    showLastLabel: true
                 }],
                 yAxis: {
                     uniqueNames: true,
@@ -279,13 +374,21 @@
                     },
                     labels: {
                         style: { color: textColor, fontSize: '13px', fontWeight: '500' }
-                    }
+                    },
+                    // Настройки для touch
+                    minPadding: 0.05,
+                    maxPadding: 0.05
                 },
                 tooltip: {
                     pointFormat: '<span>{point.name}</span><br/>' +
                         'Начало: <b>{point.start:%e %b}</b><br/>' +
                         'Конец: <b>{point.end:%e %b}</b>',
-                    style: { fontSize: '12px' }
+                    style: { fontSize: '12px' },
+                    // Оптимизация для touch
+                    touch: {
+                        enabled: true,
+                        hideDelay: 300
+                    }
                 },
                 plotOptions: {
                     series: {
@@ -296,17 +399,52 @@
                             style: {
                                 color: 'white',
                                 textOutline: 'none',
-                                fontWeight: 'normal'
+                                fontWeight: 'normal',
+                                fontSize: '11px'
+                            }
+                        },
+                        // Включаем touch-события для серий
+                        point: {
+                            events: {
+                                // Добавляем поддержку touch
+                                click: function(e) {
+                                    // Обработка касания
+                                    if (e.point) {
+                                        console.log('Touched point:', e.point.name);
+                                    }
+                                }
                             }
                         }
                     }
                 },
                 series: [{
                     name: config.projectName,
-                    data: ganttData
+                    data: ganttData,
+                    // Оптимизация для мобильных устройств
+                    turboThreshold: 1000,
+                    boostThreshold: 1000
                 }],
-                navigator: { enabled: true },
-                scrollbar: { enabled: true },
+                navigator: { 
+                    enabled: true,
+                    // Настройки для мобильных
+                    handles: {
+                        backgroundColor: '#f2f2f2',
+                        borderColor: '#999'
+                    },
+                    margin: 30,
+                    outlineWidth: 1,
+                    outlineColor: '#ddd'
+                },
+                scrollbar: { 
+                    enabled: true,
+                    // Увеличиваем область касания для мобильных
+                    barBackgroundColor: '#e6e6e6',
+                    barBorderRadius: 4,
+                    buttonBorderRadius: 4,
+                    rifleColor: '#666',
+                    trackBackgroundColor: '#f2f2f2',
+                    trackBorderRadius: 4
+                },
                 rangeSelector: {
                     enabled: true,
                     buttons: [
@@ -314,20 +452,107 @@
                         { type: 'month', count: 3, text: '3 мес' },
                         { type: 'all', text: 'Все' }
                     ],
-                    selected: 2
+                    selected: 2,
+                    // Настройки для мобильных
+                    buttonTheme: {
+                        width: 60,
+                        padding: 8,
+                        style: {
+                            fontSize: '12px',
+                            fontWeight: 'normal'
+                        },
+                        states: {
+                            hover: {
+                                backgroundColor: '#f0f0f0'
+                            },
+                            select: {
+                                backgroundColor: '#0D47A1',
+                                color: 'white'
+                            }
+                        }
+                    },
+                    inputPosition: {
+                        align: 'right',
+                        y: 0
+                    },
+                    inputStyle: {
+                        fontSize: '14px',
+                        padding: '4px',
+                        color: '#333'
+                    }
                 },
-                credits: { enabled: false }
+                credits: { enabled: false },
+                // Глобальные настройки для touch
+                accessibility: {
+                    enabled: true,
+                    screenReaderSection: {
+                        beforeChartFormat: ''
+                    }
+                }
             });
+
+            // Добавляем обработчики touch-событий для контейнера
+            const chartContainer = document.getElementById('ganttChart');
+            if (chartContainer) {
+                chartContainer.addEventListener('touchstart', function(e) {
+                    // Предотвращаем стандартное поведение только если это не мультитач
+                    if (e.touches.length > 1) {
+                        e.preventDefault(); // Разрешаем пинч-зум
+                    }
+                }, { passive: false });
+
+                chartContainer.addEventListener('touchmove', function(e) {
+                    if (e.touches.length > 1) {
+                        e.preventDefault(); // Разрешаем пинч-зум при движении
+                    }
+                }, { passive: false });
+
+                chartContainer.addEventListener('touchend', function(e) {
+                    // Сбрасываем состояние при окончании касания
+                });
+            }
+        }
+
+        // Функция для проверки мобильного устройства
+        function isMobileDevice() {
+            return (typeof window.orientation !== "undefined") || 
+                   (navigator.userAgent.indexOf('IEMobile') !== -1) ||
+                   (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent));
         }
 
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', () => {
+            // Применяем настройки для мобильных устройств
+            if (isMobileDevice()) {
+                // Увеличиваем область касания для мобильных
+                const style = document.createElement('style');
+                style.textContent = `
+                    .highcharts-handle {
+                        width: 16px !important;
+                        height: 16px !important;
+                    }
+                    .highcharts-range-selector-buttons button {
+                        padding: 10px !important;
+                        min-width: 70px !important;
+                    }
+                    .highcharts-scrollbar {
+                        height: 20px !important;
+                    }
+                    .highcharts-scrollbar-button {
+                        width: 20px !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
             updateChart();
         });
         
         // Автоматический ресайз при изменении размера окна
         window.addEventListener('resize', () => {
-            if(chartInstance) chartInstance.reflow();
+            if(chartInstance) {
+                chartInstance.reflow();
+            }
         });
 
         // Слушатель для получения данных (если будет использоваться как модалка)
@@ -345,9 +570,4 @@
         });
     </script>
 </body>
-
 </html>
-
-
-
-
