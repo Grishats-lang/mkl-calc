@@ -3334,911 +3334,955 @@ input:checked + .cookie-slider:before {
         }
     };
 
-    // ==============================================
-    // КОНСТАНТЫ ЦЕН (по умолчанию, можно менять в техменю)
-    // ==============================================
-    const DEFAULT_PRICE_CONSTANTS = {
-        FRAME_BASE: 2600,
-        WALL_WARM: 2500,
-        WALL_COLD: 1500,
-        WALL_THICK_ADD: 15,
-        ROOF_WARM: 2150,
-        ROOF_COLD: 1200,
-        ROOF_THICK_ADD: 10,
-        BASE_THICKNESS: 100,
-        DOOR_PRICE: 45000,
-        WINDOW_PRICE_PER_M2: 8500,
-        WINDOW_AREA: 1.8,
-    };
-
-    let PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS };
-
-    function loadPriceConstants() {
-        const saved = localStorage.getItem('angarPriceConstants');
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS, ...parsed };
-            } catch (e) {}
-        }
-    }
-    loadPriceConstants();
-
-    function savePriceConstants() {
-        localStorage.setItem('angarPriceConstants', JSON.stringify(PRICE_CONSTANTS));
-    }
-
-    // ==============================================
-    // СКРЫТОЕ ТЕХНИЧЕСКОЕ МЕНЮ (Ctrl+Shift+P)
-    // ==============================================
-    (function initTechMenu() {
-        const menuHtml = `
-            <div id="tech-menu" style="display: none; position: fixed; top: 20px; right: 20px; background: white; border: 2px solid #0D47A1; padding: 20px; z-index: 10000; max-width: 400px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-radius: 12px; font-family: 'Inter', sans-serif;">
-                <h3 style="margin-top: 0; color: #0D47A1;">Техническое меню (цены)</h3>
-                <div style="display: grid; gap: 12px;">
-                    <label>Каркас (руб/м² пола) <input type="number" id="tech-FRAME_BASE" value="${PRICE_CONSTANTS.FRAME_BASE}" step="10"></label>
-                    <label>Стены тёплые (руб/м²) <input type="number" id="tech-WALL_WARM" value="${PRICE_CONSTANTS.WALL_WARM}" step="10"></label>
-                    <label>Стены холодные (руб/м²) <input type="number" id="tech-WALL_COLD" value="${PRICE_CONSTANTS.WALL_COLD}" step="10"></label>
-                    <label>Добавка за мм стен (руб/м²) <input type="number" id="tech-WALL_THICK_ADD" value="${PRICE_CONSTANTS.WALL_THICK_ADD}" step="1"></label>
-                    <label>Кровля тёплая (руб/м²) <input type="number" id="tech-ROOF_WARM" value="${PRICE_CONSTANTS.ROOF_WARM}" step="10"></label>
-                    <label>Кровля холодная (руб/м²) <input type="number" id="tech-ROOF_COLD" value="${PRICE_CONSTANTS.ROOF_COLD}" step="10"></label>
-                    <label>Добавка за мм кровли (руб/м²) <input type="number" id="tech-ROOF_THICK_ADD" value="${PRICE_CONSTANTS.ROOF_THICK_ADD}" step="1"></label>
-                    <label>Базовая толщина (мм) <input type="number" id="tech-BASE_THICKNESS" value="${PRICE_CONSTANTS.BASE_THICKNESS}" step="5"></label>
-                    <label>Цена ворот (руб) <input type="number" id="tech-DOOR_PRICE" value="${PRICE_CONSTANTS.DOOR_PRICE}" step="1000"></label>
-                    <label>Цена окна за м² (руб) <input type="number" id="tech-WINDOW_PRICE_PER_M2" value="${PRICE_CONSTANTS.WINDOW_PRICE_PER_M2}" step="100"></label>
-                    <label>Площадь окна (м²) <input type="number" id="tech-WINDOW_AREA" value="${PRICE_CONSTANTS.WINDOW_AREA}" step="0.1"></label>
-                </div>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button id="tech-save" style="background: #0D47A1; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Сохранить и пересчитать</button>
-                    <button id="tech-reset" style="background: #B0BEC5; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Сбросить</button>
-                    <button id="tech-close" style="background: #EF6C00; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Закрыть</button>
-                </div>
-            </div>
-        `;
-        const div = document.createElement('div');
-        div.innerHTML = menuHtml;
-        document.body.appendChild(div);
-
-        const menu = document.getElementById('tech-menu');
-        const inputs = {
-            FRAME_BASE: document.getElementById('tech-FRAME_BASE'),
-            WALL_WARM: document.getElementById('tech-WALL_WARM'),
-            WALL_COLD: document.getElementById('tech-WALL_COLD'),
-            WALL_THICK_ADD: document.getElementById('tech-WALL_THICK_ADD'),
-            ROOF_WARM: document.getElementById('tech-ROOF_WARM'),
-            ROOF_COLD: document.getElementById('tech-ROOF_COLD'),
-            ROOF_THICK_ADD: document.getElementById('tech-ROOF_THICK_ADD'),
-            BASE_THICKNESS: document.getElementById('tech-BASE_THICKNESS'),
-            DOOR_PRICE: document.getElementById('tech-DOOR_PRICE'),
-            WINDOW_PRICE_PER_M2: document.getElementById('tech-WINDOW_PRICE_PER_M2'),
-            WINDOW_AREA: document.getElementById('tech-WINDOW_AREA'),
+        // ==============================================
+        // КОНСТАНТЫ ЦЕН (по умолчанию, можно менять в техменю)
+        // ==============================================
+        const DEFAULT_PRICE_CONSTANTS = {
+            FRAME_BASE: 2600,
+            WALL_WARM: 2500,
+            WALL_COLD: 1500,
+            WALL_THICK_ADD: 15,
+            ROOF_WARM: 2150,
+            ROOF_COLD: 1200,
+            ROOF_THICK_ADD: 10,
+            BASE_THICKNESS: 100,
+            DOOR_PRICE: 45000,
+            DOOR_AREA: 9,                // площадь одних ворот (м²)
+            WINDOW_PRICE_PER_M2: 8500,
+            WINDOW_AREA: 1.8,
+            DEDUCT_OPENINGS: true,       // вычитать проёмы из площади стен
         };
 
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.shiftKey && e.code === 'KeyP') {
-                e.preventDefault();
-                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-                for (let key in inputs) inputs[key].value = PRICE_CONSTANTS[key];
+        let PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS };
+
+        function loadPriceConstants() {
+            const saved = localStorage.getItem('angarPriceConstants');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS, ...parsed };
+                } catch (e) {}
             }
-        });
+        }
+        loadPriceConstants();
 
-        document.getElementById('tech-save').addEventListener('click', () => {
-            for (let key in inputs) {
-                let val = parseFloat(inputs[key].value);
-                if (!isNaN(val)) PRICE_CONSTANTS[key] = val;
-            }
-            savePriceConstants();
-            if (typeof calculate === 'function') calculate();
-            menu.style.display = 'none';
-        });
-
-        document.getElementById('tech-reset').addEventListener('click', () => {
-            PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS };
-            for (let key in inputs) inputs[key].value = PRICE_CONSTANTS[key];
-            savePriceConstants();
-            if (typeof calculate === 'function') calculate();
-        });
-
-        document.getElementById('tech-close').addEventListener('click', () => {
-            menu.style.display = 'none';
-        });
-    })();
-
-    // ==============================================
-    // ГЕНЕРАЦИЯ ИНТЕРФЕЙСА ВЫБОРА ЦВЕТА (без изменений)
-    // ==============================================
-    function initColorSelectors() {
-        if (typeof ralColors === 'undefined' || typeof quickRalColors === 'undefined') {
-            console.error('Массивы ralColors не загружены!');
-            return;
+        function savePriceConstants() {
+            localStorage.setItem('angarPriceConstants', JSON.stringify(PRICE_CONSTANTS));
         }
 
-        // ================= СТЕНЫ =================
-        const wallMiniPalette = document.getElementById('wall-mini-palette');
-        if (wallMiniPalette) {
-            wallMiniPalette.innerHTML = '';
-            quickRalColors.forEach(color => {
-                const hexUpper = color.hex.toUpperCase();
-                const swatch = document.createElement('div');
-                swatch.className = 'color-mini-swatch';
-                swatch.style.backgroundColor = hexUpper;
-                swatch.setAttribute('data-hex', hexUpper);
-                swatch.title = color.name;
+        // ==============================================
+        // СКРЫТОЕ ТЕХНИЧЕСКОЕ МЕНЮ (Ctrl+Shift+P)
+        // ==============================================
+        (function initTechMenu() {
+            const menuHtml = `
+                <div id="tech-menu" style="display: none; position: fixed; top: 20px; right: 20px; background: white; border: 2px solid #0D47A1; padding: 20px; z-index: 10000; max-width: 450px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-radius: 12px; font-family: 'Inter', sans-serif;">
+                    <h3 style="margin-top: 0; color: #0D47A1;">Техническое меню (цены)</h3>
+                    <div style="display: grid; gap: 12px;">
+                        <label>Каркас (руб/м² пола) <input type="number" id="tech-FRAME_BASE" value="${PRICE_CONSTANTS.FRAME_BASE}" step="10"></label>
+                        <label>Стены тёплые (руб/м²) <input type="number" id="tech-WALL_WARM" value="${PRICE_CONSTANTS.WALL_WARM}" step="10"></label>
+                        <label>Стены холодные (руб/м²) <input type="number" id="tech-WALL_COLD" value="${PRICE_CONSTANTS.WALL_COLD}" step="10"></label>
+                        <label>Добавка за мм стен (руб/м²) <input type="number" id="tech-WALL_THICK_ADD" value="${PRICE_CONSTANTS.WALL_THICK_ADD}" step="1"></label>
+                        <label>Кровля тёплая (руб/м²) <input type="number" id="tech-ROOF_WARM" value="${PRICE_CONSTANTS.ROOF_WARM}" step="10"></label>
+                        <label>Кровля холодная (руб/м²) <input type="number" id="tech-ROOF_COLD" value="${PRICE_CONSTANTS.ROOF_COLD}" step="10"></label>
+                        <label>Добавка за мм кровли (руб/м²) <input type="number" id="tech-ROOF_THICK_ADD" value="${PRICE_CONSTANTS.ROOF_THICK_ADD}" step="1"></label>
+                        <label>Базовая толщина (мм) <input type="number" id="tech-BASE_THICKNESS" value="${PRICE_CONSTANTS.BASE_THICKNESS}" step="5"></label>
+                        <label>Цена ворот (руб) <input type="number" id="tech-DOOR_PRICE" value="${PRICE_CONSTANTS.DOOR_PRICE}" step="1000"></label>
+                        <label>Площадь ворот (м²) <input type="number" id="tech-DOOR_AREA" value="${PRICE_CONSTANTS.DOOR_AREA}" step="0.5"></label>
+                        <label>Цена окна за м² (руб) <input type="number" id="tech-WINDOW_PRICE_PER_M2" value="${PRICE_CONSTANTS.WINDOW_PRICE_PER_M2}" step="100"></label>
+                        <label>Площадь окна (м²) <input type="number" id="tech-WINDOW_AREA" value="${PRICE_CONSTANTS.WINDOW_AREA}" step="0.1"></label>
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="tech-DEDUCT_OPENINGS" ${PRICE_CONSTANTS.DEDUCT_OPENINGS ? 'checked' : ''}>
+                            Вычитать проёмы из площади стен
+                        </label>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button id="tech-save" style="background: #0D47A1; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Сохранить и пересчитать</button>
+                        <button id="tech-reset" style="background: #B0BEC5; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Сбросить</button>
+                        <button id="tech-close" style="background: #EF6C00; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Закрыть</button>
+                    </div>
+                </div>
+            `;
+            const div = document.createElement('div');
+            div.innerHTML = menuHtml;
+            document.body.appendChild(div);
 
-                swatch.addEventListener('click', function() {
-                    document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => el.classList.remove('active'));
-                    this.classList.add('active');
+            const menu = document.getElementById('tech-menu');
+            const inputs = {
+                FRAME_BASE: document.getElementById('tech-FRAME_BASE'),
+                WALL_WARM: document.getElementById('tech-WALL_WARM'),
+                WALL_COLD: document.getElementById('tech-WALL_COLD'),
+                WALL_THICK_ADD: document.getElementById('tech-WALL_THICK_ADD'),
+                ROOF_WARM: document.getElementById('tech-ROOF_WARM'),
+                ROOF_COLD: document.getElementById('tech-ROOF_COLD'),
+                ROOF_THICK_ADD: document.getElementById('tech-ROOF_THICK_ADD'),
+                BASE_THICKNESS: document.getElementById('tech-BASE_THICKNESS'),
+                DOOR_PRICE: document.getElementById('tech-DOOR_PRICE'),
+                DOOR_AREA: document.getElementById('tech-DOOR_AREA'),
+                WINDOW_PRICE_PER_M2: document.getElementById('tech-WINDOW_PRICE_PER_M2'),
+                WINDOW_AREA: document.getElementById('tech-WINDOW_AREA'),
+                DEDUCT_OPENINGS: document.getElementById('tech-DEDUCT_OPENINGS'),
+            };
 
-                    const hexNumber = parseInt(hexUpper.replace('#', '0x'), 16);
-                    changeWallColor(hexNumber);
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && e.code === 'KeyP') {
+                    e.preventDefault();
+                    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+                    // Обновить значения в полях
+                    inputs.FRAME_BASE.value = PRICE_CONSTANTS.FRAME_BASE;
+                    inputs.WALL_WARM.value = PRICE_CONSTANTS.WALL_WARM;
+                    inputs.WALL_COLD.value = PRICE_CONSTANTS.WALL_COLD;
+                    inputs.WALL_THICK_ADD.value = PRICE_CONSTANTS.WALL_THICK_ADD;
+                    inputs.ROOF_WARM.value = PRICE_CONSTANTS.ROOF_WARM;
+                    inputs.ROOF_COLD.value = PRICE_CONSTANTS.ROOF_COLD;
+                    inputs.ROOF_THICK_ADD.value = PRICE_CONSTANTS.ROOF_THICK_ADD;
+                    inputs.BASE_THICKNESS.value = PRICE_CONSTANTS.BASE_THICKNESS;
+                    inputs.DOOR_PRICE.value = PRICE_CONSTANTS.DOOR_PRICE;
+                    inputs.DOOR_AREA.value = PRICE_CONSTANTS.DOOR_AREA;
+                    inputs.WINDOW_PRICE_PER_M2.value = PRICE_CONSTANTS.WINDOW_PRICE_PER_M2;
+                    inputs.WINDOW_AREA.value = PRICE_CONSTANTS.WINDOW_AREA;
+                    inputs.DEDUCT_OPENINGS.checked = PRICE_CONSTANTS.DEDUCT_OPENINGS;
+                }
+            });
 
-                    const select = document.getElementById('wall-color-select');
-                    if (select) {
-                        select.value = hexUpper;
-                        updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper));
+            document.getElementById('tech-save').addEventListener('click', () => {
+                for (let key in inputs) {
+                    if (key === 'DEDUCT_OPENINGS') {
+                        PRICE_CONSTANTS[key] = inputs[key].checked;
+                    } else {
+                        let val = parseFloat(inputs[key].value);
+                        if (!isNaN(val)) PRICE_CONSTANTS[key] = val;
                     }
-                });
-                wallMiniPalette.appendChild(swatch);
+                }
+                savePriceConstants();
+                if (typeof calculate === 'function') calculate();
+                menu.style.display = 'none';
             });
-        }
 
-        const wallSelect = document.getElementById('wall-color-select');
-        if (wallSelect) {
-            wallSelect.classList.add('color-select');
-            wallSelect.innerHTML = '<option value="">— Выберите RAL —</option>';
-            ralColors.forEach(color => {
-                const hexUpper = color.hex.toUpperCase();
-                const option = document.createElement('option');
-                option.value = hexUpper;
-                option.setAttribute('data-hex', hexUpper);
-                option.setAttribute('data-name', color.name);
-                option.setAttribute('data-desc', color.desc);
-                option.textContent = `● ${color.name} - ${color.desc}`;
-                option.style.backgroundColor = hexUpper;
-                option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
-                option.style.padding = '8px 12px 8px 32px';
-                option.style.position = 'relative';
-                wallSelect.appendChild(option);
+            document.getElementById('tech-reset').addEventListener('click', () => {
+                PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS };
+                inputs.FRAME_BASE.value = PRICE_CONSTANTS.FRAME_BASE;
+                inputs.WALL_WARM.value = PRICE_CONSTANTS.WALL_WARM;
+                inputs.WALL_COLD.value = PRICE_CONSTANTS.WALL_COLD;
+                inputs.WALL_THICK_ADD.value = PRICE_CONSTANTS.WALL_THICK_ADD;
+                inputs.ROOF_WARM.value = PRICE_CONSTANTS.ROOF_WARM;
+                inputs.ROOF_COLD.value = PRICE_CONSTANTS.ROOF_COLD;
+                inputs.ROOF_THICK_ADD.value = PRICE_CONSTANTS.ROOF_THICK_ADD;
+                inputs.BASE_THICKNESS.value = PRICE_CONSTANTS.BASE_THICKNESS;
+                inputs.DOOR_PRICE.value = PRICE_CONSTANTS.DOOR_PRICE;
+                inputs.DOOR_AREA.value = PRICE_CONSTANTS.DOOR_AREA;
+                inputs.WINDOW_PRICE_PER_M2.value = PRICE_CONSTANTS.WINDOW_PRICE_PER_M2;
+                inputs.WINDOW_AREA.value = PRICE_CONSTANTS.WINDOW_AREA;
+                inputs.DEDUCT_OPENINGS.checked = PRICE_CONSTANTS.DEDUCT_OPENINGS;
+                savePriceConstants();
+                if (typeof calculate === 'function') calculate();
             });
-            createCustomSelectPreview(wallSelect, 'wall');
-            wallSelect.addEventListener('change', function() {
-                if (this.value) {
-                    const hexNumber = parseInt(this.value.replace('#', '0x'), 16);
-                    changeWallColor(hexNumber);
-                    const selectedHex = this.value.toUpperCase();
-                    const selectedOption = this.options[this.selectedIndex];
-                    const colorName = selectedOption.getAttribute('data-name') || '';
-                    const colorDesc = selectedOption.getAttribute('data-desc') || '';
-                    updateSelectPreview(this, selectedHex, `${colorName} - ${colorDesc}`);
-                    document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
-                        el.classList.remove('active');
-                        const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-                        if (swatchHex === selectedHex || rgbToHex(el.style.backgroundColor).toUpperCase() === selectedHex) {
-                            el.classList.add('active');
+
+            document.getElementById('tech-close').addEventListener('click', () => {
+                menu.style.display = 'none';
+            });
+        })();
+
+        // ==============================================
+        // ГЕНЕРАЦИЯ ИНТЕРФЕЙСА ВЫБОРА ЦВЕТА (без изменений)
+        // ==============================================
+        function initColorSelectors() {
+            if (typeof ralColors === 'undefined' || typeof quickRalColors === 'undefined') {
+                console.error('Массивы ralColors не загружены!');
+                return;
+            }
+
+            // ================= СТЕНЫ =================
+            const wallMiniPalette = document.getElementById('wall-mini-palette');
+            if (wallMiniPalette) {
+                wallMiniPalette.innerHTML = '';
+                quickRalColors.forEach(color => {
+                    const hexUpper = color.hex.toUpperCase();
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-mini-swatch';
+                    swatch.style.backgroundColor = hexUpper;
+                    swatch.setAttribute('data-hex', hexUpper);
+                    swatch.title = color.name;
+
+                    swatch.addEventListener('click', function() {
+                        document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => el.classList.remove('active'));
+                        this.classList.add('active');
+
+                        const hexNumber = parseInt(hexUpper.replace('#', '0x'), 16);
+                        changeWallColor(hexNumber);
+
+                        const select = document.getElementById('wall-color-select');
+                        if (select) {
+                            select.value = hexUpper;
+                            updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper));
                         }
                     });
-                }
-            });
-        }
+                    wallMiniPalette.appendChild(swatch);
+                });
+            }
 
-        // ================= КРОВЛЯ =================
-        const roofMiniPalette = document.getElementById('roof-mini-palette');
-        if (roofMiniPalette) {
-            roofMiniPalette.innerHTML = '';
-            quickRalColors.forEach(color => {
-                const hexUpper = color.hex.toUpperCase();
-                const swatch = document.createElement('div');
-                swatch.className = 'color-mini-swatch';
-                swatch.style.backgroundColor = hexUpper;
-                swatch.setAttribute('data-hex', hexUpper);
-                swatch.title = color.name;
-
-                swatch.addEventListener('click', function() {
-                    document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => el.classList.remove('active'));
-                    this.classList.add('active');
-
-                    const hexNumber = parseInt(hexUpper.replace('#', '0x'), 16);
-                    changeRoofColor(hexNumber);
-
-                    const select = document.getElementById('roof-color-select');
-                    if (select) {
-                        select.value = hexUpper;
-                        updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper));
+            const wallSelect = document.getElementById('wall-color-select');
+            if (wallSelect) {
+                wallSelect.classList.add('color-select');
+                wallSelect.innerHTML = '<option value="">— Выберите RAL —</option>';
+                ralColors.forEach(color => {
+                    const hexUpper = color.hex.toUpperCase();
+                    const option = document.createElement('option');
+                    option.value = hexUpper;
+                    option.setAttribute('data-hex', hexUpper);
+                    option.setAttribute('data-name', color.name);
+                    option.setAttribute('data-desc', color.desc);
+                    option.textContent = `● ${color.name} - ${color.desc}`;
+                    option.style.backgroundColor = hexUpper;
+                    option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
+                    option.style.padding = '8px 12px 8px 32px';
+                    option.style.position = 'relative';
+                    wallSelect.appendChild(option);
+                });
+                createCustomSelectPreview(wallSelect, 'wall');
+                wallSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        const hexNumber = parseInt(this.value.replace('#', '0x'), 16);
+                        changeWallColor(hexNumber);
+                        const selectedHex = this.value.toUpperCase();
+                        const selectedOption = this.options[this.selectedIndex];
+                        const colorName = selectedOption.getAttribute('data-name') || '';
+                        const colorDesc = selectedOption.getAttribute('data-desc') || '';
+                        updateSelectPreview(this, selectedHex, `${colorName} - ${colorDesc}`);
+                        document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
+                            el.classList.remove('active');
+                            const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
+                            if (swatchHex === selectedHex || rgbToHex(el.style.backgroundColor).toUpperCase() === selectedHex) {
+                                el.classList.add('active');
+                            }
+                        });
                     }
                 });
-                roofMiniPalette.appendChild(swatch);
-            });
-        }
+            }
 
-        const roofSelect = document.getElementById('roof-color-select');
-        if (roofSelect) {
-            roofSelect.classList.add('color-select');
-            roofSelect.innerHTML = '<option value="">— Выберите RAL —</option>';
-            ralColors.forEach(color => {
-                const hexUpper = color.hex.toUpperCase();
-                const option = document.createElement('option');
-                option.value = hexUpper;
-                option.setAttribute('data-hex', hexUpper);
-                option.setAttribute('data-name', color.name);
-                option.setAttribute('data-desc', color.desc);
-                option.textContent = `● ${color.name} - ${color.desc}`;
-                option.style.backgroundColor = hexUpper;
-                option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
-                option.style.padding = '8px 12px 8px 32px';
-                option.style.position = 'relative';
-                roofSelect.appendChild(option);
-            });
-            createCustomSelectPreview(roofSelect, 'roof');
-            roofSelect.addEventListener('change', function() {
-                if (this.value) {
-                    const hexNumber = parseInt(this.value.replace('#', '0x'), 16);
-                    changeRoofColor(hexNumber);
-                    const selectedHex = this.value.toUpperCase();
-                    const selectedOption = this.options[this.selectedIndex];
-                    const colorName = selectedOption.getAttribute('data-name') || '';
-                    const colorDesc = selectedOption.getAttribute('data-desc') || '';
-                    updateSelectPreview(this, selectedHex, `${colorName} - ${colorDesc}`);
-                    document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
-                        el.classList.remove('active');
-                        const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-                        if (swatchHex === selectedHex || rgbToHex(el.style.backgroundColor).toUpperCase() === selectedHex) {
-                            el.classList.add('active');
+            // ================= КРОВЛЯ =================
+            const roofMiniPalette = document.getElementById('roof-mini-palette');
+            if (roofMiniPalette) {
+                roofMiniPalette.innerHTML = '';
+                quickRalColors.forEach(color => {
+                    const hexUpper = color.hex.toUpperCase();
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-mini-swatch';
+                    swatch.style.backgroundColor = hexUpper;
+                    swatch.setAttribute('data-hex', hexUpper);
+                    swatch.title = color.name;
+
+                    swatch.addEventListener('click', function() {
+                        document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => el.classList.remove('active'));
+                        this.classList.add('active');
+
+                        const hexNumber = parseInt(hexUpper.replace('#', '0x'), 16);
+                        changeRoofColor(hexNumber);
+
+                        const select = document.getElementById('roof-color-select');
+                        if (select) {
+                            select.value = hexUpper;
+                            updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper));
                         }
                     });
-                }
-            });
-        }
-
-        restoreSavedColors();
-    }
-
-    function createCustomSelectPreview(selectElement, type) {
-        if (!selectElement) return;
-        const wrapper = selectElement.parentNode;
-        wrapper.style.position = 'relative';
-        const oldDot = wrapper.querySelector(`.select-preview-dot-${type}`);
-        if (oldDot) oldDot.remove();
-        const previewDot = document.createElement('span');
-        previewDot.className = `select-preview-dot select-preview-dot-${type}`;
-        previewDot.style.backgroundColor = '#005387';
-        wrapper.appendChild(previewDot);
-        selectElement.previewDot = previewDot;
-    }
-
-    function updateSelectPreview(selectElement, hexColor, text) {
-        if (!selectElement) return;
-        selectElement.value = hexColor;
-        if (selectElement.previewDot) {
-            selectElement.previewDot.style.backgroundColor = hexColor;
-        }
-        selectElement.style.backgroundColor = '#ffffff';
-        selectElement.style.color = '#333333';
-    }
-
-    function getColorNameByHex(hex) {
-        if (typeof ralColors === 'undefined') return '';
-        hex = hex.toUpperCase();
-        const color = ralColors.find(c => c.hex.toUpperCase() === hex);
-        if (color) {
-            return `${color.name} - ${color.desc}`;
-        }
-        return '';
-    }
-
-    function getContrastYIQ(hexcolor) {
-        hexcolor = hexcolor.replace('#', '');
-        const r = parseInt(hexcolor.substr(0,2),16);
-        const g = parseInt(hexcolor.substr(2,2),16);
-        const b = parseInt(hexcolor.substr(4,2),16);
-        const yiq = ((r*299)+(g*587)+(b*114))/1000;
-        return yiq >= 128;
-    }
-
-    function rgbToHex(rgb) {
-        if (!rgb) return '';
-        const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-        if (!match) return rgb;
-        return '#' + ((1 << 24) + (parseInt(match[1]) << 16) + (parseInt(match[2]) << 8) + parseInt(match[3])).toString(16).slice(1).toUpperCase();
-    }
-
-    function restoreSavedColors() {
-        const savedWallHex = localStorage.getItem('angarWallColorHex');
-        if (savedWallHex) {
-            const savedHexUpper = savedWallHex.toUpperCase();
-            const hexNumber = parseInt(savedHexUpper.replace('#', '0x'), 16);
-            changeWallColor(hexNumber);
-            document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
-                const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-                if (swatchHex === savedHexUpper || rgbToHex(el.style.backgroundColor).toUpperCase() === savedHexUpper) {
-                    el.classList.add('active');
-                }
-            });
-            const wallSelect = document.getElementById('wall-color-select');
-            if (wallSelect) {
-                wallSelect.value = savedHexUpper;
-                updateSelectPreview(wallSelect, savedHexUpper, getColorNameByHex(savedHexUpper));
+                    roofMiniPalette.appendChild(swatch);
+                });
             }
-        } else {
-            const defaultHex = '#005387';
-            const hexNumber = parseInt(defaultHex.replace('#', '0x'), 16);
-            changeWallColor(hexNumber);
-            document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
-                const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-                if (swatchHex === defaultHex) {
-                    el.classList.add('active');
-                }
-            });
-            const wallSelect = document.getElementById('wall-color-select');
-            if (wallSelect) {
-                wallSelect.value = defaultHex;
-                updateSelectPreview(wallSelect, defaultHex, getColorNameByHex(defaultHex));
-            }
-        }
 
-        const savedRoofHex = localStorage.getItem('angarRoofColorHex');
-        if (savedRoofHex) {
-            const savedHexUpper = savedRoofHex.toUpperCase();
-            const hexNumber = parseInt(savedHexUpper.replace('#', '0x'), 16);
-            changeRoofColor(hexNumber);
-            document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
-                const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-                if (swatchHex === savedHexUpper || rgbToHex(el.style.backgroundColor).toUpperCase() === savedHexUpper) {
-                    el.classList.add('active');
-                }
-            });
             const roofSelect = document.getElementById('roof-color-select');
             if (roofSelect) {
-                roofSelect.value = savedHexUpper;
-                updateSelectPreview(roofSelect, savedHexUpper, getColorNameByHex(savedHexUpper));
+                roofSelect.classList.add('color-select');
+                roofSelect.innerHTML = '<option value="">— Выберите RAL —</option>';
+                ralColors.forEach(color => {
+                    const hexUpper = color.hex.toUpperCase();
+                    const option = document.createElement('option');
+                    option.value = hexUpper;
+                    option.setAttribute('data-hex', hexUpper);
+                    option.setAttribute('data-name', color.name);
+                    option.setAttribute('data-desc', color.desc);
+                    option.textContent = `● ${color.name} - ${color.desc}`;
+                    option.style.backgroundColor = hexUpper;
+                    option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
+                    option.style.padding = '8px 12px 8px 32px';
+                    option.style.position = 'relative';
+                    roofSelect.appendChild(option);
+                });
+                createCustomSelectPreview(roofSelect, 'roof');
+                roofSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        const hexNumber = parseInt(this.value.replace('#', '0x'), 16);
+                        changeRoofColor(hexNumber);
+                        const selectedHex = this.value.toUpperCase();
+                        const selectedOption = this.options[this.selectedIndex];
+                        const colorName = selectedOption.getAttribute('data-name') || '';
+                        const colorDesc = selectedOption.getAttribute('data-desc') || '';
+                        updateSelectPreview(this, selectedHex, `${colorName} - ${colorDesc}`);
+                        document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
+                            el.classList.remove('active');
+                            const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
+                            if (swatchHex === selectedHex || rgbToHex(el.style.backgroundColor).toUpperCase() === selectedHex) {
+                                el.classList.add('active');
+                            }
+                        });
+                    }
+                });
             }
-        } else {
-            const defaultHex = '#455A64';
-            const hexNumber = parseInt(defaultHex.replace('#', '0x'), 16);
-            changeRoofColor(hexNumber);
-            document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
-                const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-                if (swatchHex === defaultHex) {
-                    el.classList.add('active');
+
+            restoreSavedColors();
+        }
+
+        function createCustomSelectPreview(selectElement, type) {
+            if (!selectElement) return;
+            const wrapper = selectElement.parentNode;
+            wrapper.style.position = 'relative';
+            const oldDot = wrapper.querySelector(`.select-preview-dot-${type}`);
+            if (oldDot) oldDot.remove();
+            const previewDot = document.createElement('span');
+            previewDot.className = `select-preview-dot select-preview-dot-${type}`;
+            previewDot.style.backgroundColor = '#005387';
+            wrapper.appendChild(previewDot);
+            selectElement.previewDot = previewDot;
+        }
+
+        function updateSelectPreview(selectElement, hexColor, text) {
+            if (!selectElement) return;
+            selectElement.value = hexColor;
+            if (selectElement.previewDot) {
+                selectElement.previewDot.style.backgroundColor = hexColor;
+            }
+            selectElement.style.backgroundColor = '#ffffff';
+            selectElement.style.color = '#333333';
+        }
+
+        function getColorNameByHex(hex) {
+            if (typeof ralColors === 'undefined') return '';
+            hex = hex.toUpperCase();
+            const color = ralColors.find(c => c.hex.toUpperCase() === hex);
+            if (color) {
+                return `${color.name} - ${color.desc}`;
+            }
+            return '';
+        }
+
+        function getContrastYIQ(hexcolor) {
+            hexcolor = hexcolor.replace('#', '');
+            const r = parseInt(hexcolor.substr(0,2),16);
+            const g = parseInt(hexcolor.substr(2,2),16);
+            const b = parseInt(hexcolor.substr(4,2),16);
+            const yiq = ((r*299)+(g*587)+(b*114))/1000;
+            return yiq >= 128;
+        }
+
+        function rgbToHex(rgb) {
+            if (!rgb) return '';
+            const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+            if (!match) return rgb;
+            return '#' + ((1 << 24) + (parseInt(match[1]) << 16) + (parseInt(match[2]) << 8) + parseInt(match[3])).toString(16).slice(1).toUpperCase();
+        }
+
+        function restoreSavedColors() {
+            const savedWallHex = localStorage.getItem('angarWallColorHex');
+            if (savedWallHex) {
+                const savedHexUpper = savedWallHex.toUpperCase();
+                const hexNumber = parseInt(savedHexUpper.replace('#', '0x'), 16);
+                changeWallColor(hexNumber);
+                document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
+                    const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
+                    if (swatchHex === savedHexUpper || rgbToHex(el.style.backgroundColor).toUpperCase() === savedHexUpper) {
+                        el.classList.add('active');
+                    }
+                });
+                const wallSelect = document.getElementById('wall-color-select');
+                if (wallSelect) {
+                    wallSelect.value = savedHexUpper;
+                    updateSelectPreview(wallSelect, savedHexUpper, getColorNameByHex(savedHexUpper));
                 }
-            });
-            const roofSelect = document.getElementById('roof-color-select');
-            if (roofSelect) {
-                roofSelect.value = defaultHex;
-                updateSelectPreview(roofSelect, defaultHex, getColorNameByHex(defaultHex));
+            } else {
+                const defaultHex = '#005387';
+                const hexNumber = parseInt(defaultHex.replace('#', '0x'), 16);
+                changeWallColor(hexNumber);
+                document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
+                    const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
+                    if (swatchHex === defaultHex) {
+                        el.classList.add('active');
+                    }
+                });
+                const wallSelect = document.getElementById('wall-color-select');
+                if (wallSelect) {
+                    wallSelect.value = defaultHex;
+                    updateSelectPreview(wallSelect, defaultHex, getColorNameByHex(defaultHex));
+                }
+            }
+
+            const savedRoofHex = localStorage.getItem('angarRoofColorHex');
+            if (savedRoofHex) {
+                const savedHexUpper = savedRoofHex.toUpperCase();
+                const hexNumber = parseInt(savedHexUpper.replace('#', '0x'), 16);
+                changeRoofColor(hexNumber);
+                document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
+                    const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
+                    if (swatchHex === savedHexUpper || rgbToHex(el.style.backgroundColor).toUpperCase() === savedHexUpper) {
+                        el.classList.add('active');
+                    }
+                });
+                const roofSelect = document.getElementById('roof-color-select');
+                if (roofSelect) {
+                    roofSelect.value = savedHexUpper;
+                    updateSelectPreview(roofSelect, savedHexUpper, getColorNameByHex(savedHexUpper));
+                }
+            } else {
+                const defaultHex = '#455A64';
+                const hexNumber = parseInt(defaultHex.replace('#', '0x'), 16);
+                changeRoofColor(hexNumber);
+                document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
+                    const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
+                    if (swatchHex === defaultHex) {
+                        el.classList.add('active');
+                    }
+                });
+                const roofSelect = document.getElementById('roof-color-select');
+                if (roofSelect) {
+                    roofSelect.value = defaultHex;
+                    updateSelectPreview(roofSelect, defaultHex, getColorNameByHex(defaultHex));
+                }
             }
         }
-    }
 
-    window.changeWallColor = function(hexNumber) {
-        if (wallMaterial) {
-            wallMaterial.color.setHex(hexNumber);
-        }
-        const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-        localStorage.setItem('angarWallColorHex', hexString);
-        const indicator = document.getElementById('wall-color-indicator');
-        if (indicator) indicator.style.backgroundColor = hexString;
-        const wallSelect = document.getElementById('wall-color-select');
-        if (wallSelect) {
-            updateSelectPreview(wallSelect, hexString, getColorNameByHex(hexString));
-        }
-        if (typeof window.currentCalculatorParams !== 'undefined') {
-            const p = window.currentCalculatorParams;
-            update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-        }
-    };
-
-    window.changeRoofColor = function(hexNumber) {
-        if (roofMaterial) {
-            roofMaterial.color.setHex(hexNumber);
-        }
-        const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-        localStorage.setItem('angarRoofColorHex', hexString);
-        const indicator = document.getElementById('roof-color-indicator');
-        if (indicator) indicator.style.backgroundColor = hexString;
-        const roofSelect = document.getElementById('roof-color-select');
-        if (roofSelect) {
-            updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
-        }
-        if (typeof window.currentCalculatorParams !== 'undefined') {
-            const p = window.currentCalculatorParams;
-            update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-        }
-    };
-
-    // ==========================================
-    // ФУНКЦИИ ДИАГРАММ (без изменений)
-    // ==========================================
-    let pricingChartInstance = null;
-    let timelineChartInstance = null;
-
-    function updatePricingChart(totalPrice) {
-        if (typeof Highcharts === 'undefined') {
-            setTimeout(() => updatePricingChart(totalPrice), 500);
-            return;
-        }
-
-        const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
-        if (!chartContainer) return;
-
-        const distribution = {
-            materials: Math.round(totalPrice * 0.45),
-            montage: Math.round(totalPrice * 0.30),
-            delivery: Math.round(totalPrice * 0.10),
-            design: Math.round(totalPrice * 0.08),
-            overhead: Math.round(totalPrice * 0.07)
+        window.changeWallColor = function(hexNumber) {
+            if (wallMaterial) {
+                wallMaterial.color.setHex(hexNumber);
+            }
+            const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
+            localStorage.setItem('angarWallColorHex', hexString);
+            const indicator = document.getElementById('wall-color-indicator');
+            if (indicator) indicator.style.backgroundColor = hexString;
+            const wallSelect = document.getElementById('wall-color-select');
+            if (wallSelect) {
+                updateSelectPreview(wallSelect, hexString, getColorNameByHex(hexString));
+            }
+            if (typeof window.currentCalculatorParams !== 'undefined') {
+                const p = window.currentCalculatorParams;
+                update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
+            }
         };
 
-        const dataSeries = [
-            ['Материалы (45%)', distribution.materials],
-            ['Монтаж (30%)', distribution.montage],
-            ['Доставка (10%)', distribution.delivery],
-            ['Проектирование (8%)', distribution.design],
-            ['Накладные (7%)', distribution.overhead]
-        ];
+        window.changeRoofColor = function(hexNumber) {
+            if (roofMaterial) {
+                roofMaterial.color.setHex(hexNumber);
+            }
+            const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
+            localStorage.setItem('angarRoofColorHex', hexString);
+            const indicator = document.getElementById('roof-color-indicator');
+            if (indicator) indicator.style.backgroundColor = hexString;
+            const roofSelect = document.getElementById('roof-color-select');
+            if (roofSelect) {
+                updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
+            }
+            if (typeof window.currentCalculatorParams !== 'undefined') {
+                const p = window.currentCalculatorParams;
+                update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
+            }
+        };
 
-        const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
+        // ==========================================
+        // ФУНКЦИИ ДИАГРАММ (без изменений)
+        // ==========================================
+        let pricingChartInstance = null;
+        let timelineChartInstance = null;
 
-        if (pricingChartInstance) {
-            pricingChartInstance.series[0].setData(dataSeries, true);
-            pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
-        } else {
-            pricingChartInstance = Highcharts.chart(chartContainer.id, {
-                chart: {
-                    type: 'pie',
-                    options3d: { enabled: true, alpha: 45, beta: 0 },
-                    backgroundColor: 'transparent',
-                    style: { fontFamily: "'Inter', sans-serif" }
-                },
-                title: {
-                    text: `Итого: ${formatRub(totalPrice)} ₽`,
-                    style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
-                },
-                tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        depth: 45,
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
-                        },
-                        showInLegend: false,
-                        colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
-                    }
-                },
-                responsive: {
-                    rules: [{
-                        condition: { maxWidth: 500 },
-                        chartOptions: {
-                            chart: { height: 350 },
-                            title: { style: { fontSize: '16px' } },
-                            legend: { enabled: true, align: 'center', verticalAlign: 'bottom', layout: 'horizontal' },
-                            plotOptions: {
-                                pie: {
-                                    dataLabels: { enabled: false },
-                                    showInLegend: true,
-                                    size: '110%',
-                                    center: ['50%', '40%']
+        function updatePricingChart(totalPrice) {
+            if (typeof Highcharts === 'undefined') {
+                setTimeout(() => updatePricingChart(totalPrice), 500);
+                return;
+            }
+
+            const chartContainer = document.getElementById('costChart3D') || document.getElementById('pricingChart3D');
+            if (!chartContainer) return;
+
+            const distribution = {
+                materials: Math.round(totalPrice * 0.45),
+                montage: Math.round(totalPrice * 0.30),
+                delivery: Math.round(totalPrice * 0.10),
+                design: Math.round(totalPrice * 0.08),
+                overhead: Math.round(totalPrice * 0.07)
+            };
+
+            const dataSeries = [
+                ['Материалы (45%)', distribution.materials],
+                ['Монтаж (30%)', distribution.montage],
+                ['Доставка (10%)', distribution.delivery],
+                ['Проектирование (8%)', distribution.design],
+                ['Накладные (7%)', distribution.overhead]
+            ];
+
+            const formatRub = (val) => new Intl.NumberFormat('ru-RU').format(val);
+
+            if (pricingChartInstance) {
+                pricingChartInstance.series[0].setData(dataSeries, true);
+                pricingChartInstance.setTitle({ text: `Итого: ${formatRub(totalPrice)} ₽` });
+            } else {
+                pricingChartInstance = Highcharts.chart(chartContainer.id, {
+                    chart: {
+                        type: 'pie',
+                        options3d: { enabled: true, alpha: 45, beta: 0 },
+                        backgroundColor: 'transparent',
+                        style: { fontFamily: "'Inter', sans-serif" }
+                    },
+                    title: {
+                        text: `Итого: ${formatRub(totalPrice)} ₽`,
+                        style: { fontSize: '18px', fontWeight: 'bold', color: '#212121' }
+                    },
+                    tooltip: { pointFormat: '{series.name}: <b>{point.y:,.0f} ₽</b>' },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            depth: 45,
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y:,.0f} ₽'
+                            },
+                            showInLegend: false,
+                            colors: ['#0D47A1', '#00796B', '#EF6C00', '#B0BEC5', '#546E7A']
+                        }
+                    },
+                    responsive: {
+                        rules: [{
+                            condition: { maxWidth: 500 },
+                            chartOptions: {
+                                chart: { height: 350 },
+                                title: { style: { fontSize: '16px' } },
+                                legend: { enabled: true, align: 'center', verticalAlign: 'bottom', layout: 'horizontal' },
+                                plotOptions: {
+                                    pie: {
+                                        dataLabels: { enabled: false },
+                                        showInLegend: true,
+                                        size: '110%',
+                                        center: ['50%', '40%']
+                                    }
                                 }
                             }
-                        }
-                    }]
-                },
-                series: [{
-                    type: 'pie',
-                    name: 'Сумма',
-                    data: dataSeries
-                }],
-                credits: { enabled: false }
-            });
-        }
-    }
-
-    function updateTimelineChart(times) {
-        window.globalProjectTimes = times;
-
-        if (typeof Highcharts === 'undefined') return;
-        if (!Highcharts.seriesTypes.timeline) {
-            console.warn('Модуль timeline.js не загружен!');
-            return;
-        }
-
-        const container = document.getElementById('timelineHighchart');
-        if (!container) return;
-
-        const safeTime = (val) => (val && !isNaN(val)) ? val : 1;
-        const t_consult = safeTime(times.t_consult);
-        const t_design = safeTime(times.t_design);
-        const t_prod = safeTime(times.t_prod);
-        const t_delivery = safeTime(times.t_delivery);
-        const t_install = safeTime(times.t_install);
-        const t_handover = safeTime(times.t_handover);
-        const totalDays = times.totalDays || (t_consult + t_design + t_prod + t_delivery + t_install + t_handover);
-
-        const colors = {
-            consult: '#90A4AE', design: '#546E7A', prod: '#0D47A1',
-            delivery: '#00796B', install: '#EF6C00', handover: '#2E7D32'
-        };
-
-        const minVisualDays = 8;
-        const rawSteps = [
-            { id: 'consult', days: t_consult, name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
-            { id: 'design', days: t_design, name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
-            { id: 'prod', days: t_prod, name: '3. Производство', desc: 'Заводское изготовление', color: colors.prod },
-            { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
-            { id: 'install', days: t_install, name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
-            { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
-        ];
-
-        let currentVisualX = 0;
-        const seriesData = [];
-        const zones = [];
-
-        rawSteps.forEach((step) => {
-            const visualDuration = Math.max(step.days, minVisualDays);
-            currentVisualX += visualDuration;
-
-            seriesData.push({
-                x: currentVisualX,
-                name: step.name,
-                label: `${step.days} дн.`,
-                description: step.desc,
-                color: step.color,
-                dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
-            });
-
-            zones.push({ value: currentVisualX, color: step.color });
-        });
-
-        if (timelineChartInstance) {
-            timelineChartInstance.update({
-                series: [{ data: seriesData, zones: zones }],
-                title: { text: `Общий срок реализации: ~${totalDays} дней` }
-            });
-        } else {
-            timelineChartInstance = Highcharts.chart('timelineHighchart', {
-                chart: {
-                    type: 'timeline',
-                    backgroundColor: 'transparent',
-                    style: { fontFamily: "'Inter', sans-serif" },
-                    height: 450
-                },
-                title: {
-                    text: `Общий срок реализации: ~${totalDays} дней`,
-                    style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
-                },
-                xAxis: { visible: false, min: 0 },
-                yAxis: { visible: false },
-                legend: { enabled: false },
-                tooltip: { enabled: false },
-                responsive: {
-                    rules: [{
-                        condition: { maxWidth: 768 },
-                        chartOptions: {
-                            chart: { inverted: true, height: 1000, marginLeft: 10, marginRight: 10 },
-                            series: [{
-                                dataLabels: {
-                                    alternate: true,
-                                    distance: 25,
-                                    connectorWidth: 2,
-                                    style: { width: '110px', fontSize: '11px' }
-                                }
-                            }]
-                        }
-                    }]
-                },
-                series: [{
-                    data: seriesData,
-                    zones: zones,
-                    zoneAxis: 'x',
-                    lineWidth: 18,
-                    marker: {
-                        enabled: true,
-                        symbol: 'square',
-                        radius: 8,
-                        lineColor: 'white',
-                        lineWidth: 2
+                        }]
                     },
-                    dataLabels: {
-                        enabled: true,
-                        backgroundColor: '#FFFFFF',
-                        borderRadius: 4,
-                        borderColor: '#CFD8DC',
-                        borderWidth: 1,
-                        shadow: true,
-                        padding: 6,
-                        connectorWidth: 2,
-                        connectorColor: '#CFD8DC',
-                        distance: 60,
-                        useHTML: true,
-                        formatter: function () {
-                            return `<div style="text-align: center; width: 100%;"> 
-                                        <div style="color: ${this.point.color}; font-weight: bold; font-size: 13px; margin-bottom: 3px;">${this.point.name}</div>
-                                        <div style="font-size: 12px; color: #333; border-top: 1px solid #eee; padding-top: 3px;">
-                                            🕒 <b>${this.point.label}</b><br>
-                                            <span style="font-size: 11px; color: #777;">${this.point.description}</span>
-                                        </div>
-                                    </div>`;
-                        },
-                        alternate: true
-                    }
-                }],
-                credits: { enabled: false }
-            });
+                    series: [{
+                        type: 'pie',
+                        name: 'Сумма',
+                        data: dataSeries
+                    }],
+                    credits: { enabled: false }
+                });
+            }
         }
-    }
 
-    // ==========================================
-    // ИНИЦИАЛИЗАЦИЯ КАЛЬКУЛЯТОРА (С ИСПРАВЛЕННОЙ calculate)
-    // ==========================================
-    function initCalculator() {
-        // ---- 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ ----
-        const widthInput = document.getElementById('input-width');
-        const lengthInput = document.getElementById('input-length');
-        const heightInput = document.getElementById('input-height');
-        const wallThicknessInput = document.getElementById('input-wall-thickness');
-        const roofThicknessInput = document.getElementById('input-roof-thickness');
-        const windowsInput = document.getElementById('input-windows');
+        function updateTimelineChart(times) {
+            window.globalProjectTimes = times;
 
-        const typeInputs = document.getElementsByName('build-type');
+            if (typeof Highcharts === 'undefined') return;
+            if (!Highcharts.seriesTypes.timeline) {
+                console.warn('Модуль timeline.js не загружен!');
+                return;
+            }
 
-        const doorFrontSelect = document.getElementById('input-door-front');
-        const doorRearSelect = document.getElementById('input-door-rear');
+            const container = document.getElementById('timelineHighchart');
+            if (!container) return;
 
-        const valWidth = document.getElementById('val-width');
-        const valLength = document.getElementById('val-length');
-        const valHeight = document.getElementById('val-height');
-        const valWallThickness = document.getElementById('val-wall-thickness');
-        const valRoofThickness = document.getElementById('val-roof-thickness');
-        const valWindows = document.getElementById('val-windows');
+            const safeTime = (val) => (val && !isNaN(val)) ? val : 1;
+            const t_consult = safeTime(times.t_consult);
+            const t_design = safeTime(times.t_design);
+            const t_prod = safeTime(times.t_prod);
+            const t_delivery = safeTime(times.t_delivery);
+            const t_install = safeTime(times.t_install);
+            const t_handover = safeTime(times.t_handover);
+            const totalDays = times.totalDays || (t_consult + t_design + t_prod + t_delivery + t_install + t_handover);
 
-        const totalPriceEl = document.getElementById('total-price');
-        const resAreaEl = document.getElementById('res-area');
-        const resPriceM2El = document.getElementById('res-price-m2');
-        const resTimeEl = document.getElementById('res-time');
-        const resExtraCostEl = document.getElementById('res-extra-cost');
-
-        const wallThicknessGroup = document.getElementById('wall-thickness-group');
-        const roofThicknessGroup = document.getElementById('roof-thickness-group');
-
-        // ---- 2. СОХРАНЕНИЕ И ЗАГРУЗКА СОСТОЯНИЯ ----
-        function saveCalculatorState() {
-            const snowRegionEl = document.getElementById('input-snow-region');
-            const state = {
-                width: widthInput.value,
-                length: lengthInput.value,
-                height: heightInput.value,
-                wallThickness: wallThicknessInput.value,
-                roofThickness: roofThicknessInput.value,
-                windows: windowsInput.value,
-                doorFront: doorFrontSelect.value,
-                doorRear: doorRearSelect.value,
-                buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm',
-                snowRegion: snowRegionEl ? snowRegionEl.value : '3',
-                wallColor: localStorage.getItem('angarWallColorHex') || '#005387',
-                roofColor: localStorage.getItem('angarRoofColorHex') || '#455A64'
+            const colors = {
+                consult: '#90A4AE', design: '#546E7A', prod: '#0D47A1',
+                delivery: '#00796B', install: '#EF6C00', handover: '#2E7D32'
             };
-            localStorage.setItem('angarCalcState', JSON.stringify(state));
-        }
 
-        function loadCalculatorState() {
-            const raw = localStorage.getItem('angarCalcState');
-            if (raw) {
-                try {
-                    const state = JSON.parse(raw);
-                    if (state.width) widthInput.value = state.width;
-                    if (state.length) lengthInput.value = state.length;
-                    if (state.height) heightInput.value = state.height;
-                    if (state.wallThickness) wallThicknessInput.value = state.wallThickness;
-                    if (state.roofThickness) roofThicknessInput.value = state.roofThickness;
-                    if (state.windows) windowsInput.value = state.windows;
-                    if (state.doorFront) doorFrontSelect.value = state.doorFront;
-                    if (state.doorRear) doorRearSelect.value = state.doorRear;
-                    if (state.snowRegion) {
-                        const snowRegionEl = document.getElementById('input-snow-region');
-                        if (snowRegionEl) snowRegionEl.value = state.snowRegion;
-                    }
-                    if (state.buildType) {
-                        const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
-                        if (radio) radio.checked = true;
-                    }
-                } catch (e) { console.error("Ошибка загрузки настроек:", e); }
-            }
-        }
+            const minVisualDays = 8;
+            const rawSteps = [
+                { id: 'consult', days: t_consult, name: '1. Консультация', desc: 'Уточнение деталей', color: colors.consult },
+                { id: 'design', days: t_design, name: '2. Проектирование', desc: 'КМ, КМД чертежи', color: colors.design },
+                { id: 'prod', days: t_prod, name: '3. Производство', desc: 'Заводское изготовление', color: colors.prod },
+                { id: 'delivery', days: t_delivery, name: '4. Доставка', desc: 'Логистика на объект', color: colors.delivery },
+                { id: 'install', days: t_install, name: '5. Монтаж', desc: 'Сборка конструкции', color: colors.install, highlight: true },
+                { id: 'handover', days: t_handover, name: '6. Сдача', desc: 'Акты и ключи', color: colors.handover }
+            ];
 
-        // ---- 3. ОСНОВНОЙ РАСЧЁТ (ИСПРАВЛЕННАЯ ВЕРСИЯ) ----
-        function calculate() {
-            let w = parseFloat(widthInput.value);
-            let l = parseFloat(lengthInput.value);
-            let h = parseFloat(heightInput.value);
-            let wallThickness = parseFloat(wallThicknessInput.value);
-            let roofThickness = parseFloat(roofThicknessInput.value);
-            let windowsCount = parseInt(windowsInput.value);
+            let currentVisualX = 0;
+            const seriesData = [];
+            const zones = [];
 
-            let snowRegionEl = document.getElementById('input-snow-region');
-            let snowRegion = snowRegionEl ? parseInt(snowRegionEl.value) : 3;
+            rawSteps.forEach((step) => {
+                const visualDuration = Math.max(step.days, minVisualDays);
+                currentVisualX += visualDuration;
 
-            let typeEl = document.querySelector('input[name="build-type"]:checked');
-            let isWarm = typeEl ? (typeEl.value === 'warm') : true;
+                seriesData.push({
+                    x: currentVisualX,
+                    name: step.name,
+                    label: `${step.days} дн.`,
+                    description: step.desc,
+                    color: step.color,
+                    dataLabels: step.highlight ? { borderColor: step.color, borderWidth: 3 } : {}
+                });
 
-            let doorsFront = parseInt(doorFrontSelect.value);
-            let doorsRear = parseInt(doorRearSelect.value);
+                zones.push({ value: currentVisualX, color: step.color });
+            });
 
-            window.currentCalculatorParams = { w, l, h, windowsCount, doorsFront, doorsRear };
-
-            // Обновление отображаемых значений
-            valWidth.textContent = w;
-            valLength.textContent = l;
-            valHeight.textContent = h;
-            valWallThickness.textContent = wallThickness;
-            valRoofThickness.textContent = roofThickness;
-            valWindows.textContent = windowsCount;
-
-            // Блокировка толщин для холодного типа
-            if (!isWarm) {
-                wallThicknessGroup.style.opacity = '0.3';
-                wallThicknessGroup.style.pointerEvents = 'none';
-                roofThicknessGroup.style.opacity = '0.3';
-                roofThicknessGroup.style.pointerEvents = 'none';
+            if (timelineChartInstance) {
+                timelineChartInstance.update({
+                    series: [{ data: seriesData, zones: zones }],
+                    title: { text: `Общий срок реализации: ~${totalDays} дней` }
+                });
             } else {
-                wallThicknessGroup.style.opacity = '1';
-                wallThicknessGroup.style.pointerEvents = 'auto';
-                roofThicknessGroup.style.opacity = '1';
-                roofThicknessGroup.style.pointerEvents = 'auto';
+                timelineChartInstance = Highcharts.chart('timelineHighchart', {
+                    chart: {
+                        type: 'timeline',
+                        backgroundColor: 'transparent',
+                        style: { fontFamily: "'Inter', sans-serif" },
+                        height: 450
+                    },
+                    title: {
+                        text: `Общий срок реализации: ~${totalDays} дней`,
+                        style: { fontSize: '20px', fontWeight: '700', color: '#0D47A1' }
+                    },
+                    xAxis: { visible: false, min: 0 },
+                    yAxis: { visible: false },
+                    legend: { enabled: false },
+                    tooltip: { enabled: false },
+                    responsive: {
+                        rules: [{
+                            condition: { maxWidth: 768 },
+                            chartOptions: {
+                                chart: { inverted: true, height: 1000, marginLeft: 10, marginRight: 10 },
+                                series: [{
+                                    dataLabels: {
+                                        alternate: true,
+                                        distance: 25,
+                                        connectorWidth: 2,
+                                        style: { width: '110px', fontSize: '11px' }
+                                    }
+                                }]
+                            }
+                        }]
+                    },
+                    series: [{
+                        data: seriesData,
+                        zones: zones,
+                        zoneAxis: 'x',
+                        lineWidth: 18,
+                        marker: {
+                            enabled: true,
+                            symbol: 'square',
+                            radius: 8,
+                            lineColor: 'white',
+                            lineWidth: 2
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 4,
+                            borderColor: '#CFD8DC',
+                            borderWidth: 1,
+                            shadow: true,
+                            padding: 6,
+                            connectorWidth: 2,
+                            connectorColor: '#CFD8DC',
+                            distance: 60,
+                            useHTML: true,
+                            formatter: function () {
+                                return `<div style="text-align: center; width: 100%;"> 
+                                            <div style="color: ${this.point.color}; font-weight: bold; font-size: 13px; margin-bottom: 3px;">${this.point.name}</div>
+                                            <div style="font-size: 12px; color: #333; border-top: 1px solid #eee; padding-top: 3px;">
+                                                🕒 <b>${this.point.label}</b><br>
+                                                <span style="font-size: 11px; color: #777;">${this.point.description}</span>
+                                            </div>
+                                        </div>`;
+                            },
+                            alternate: true
+                        }
+                    }],
+                    credits: { enabled: false }
+                });
+            }
+        }
+
+        // ==========================================
+        // ИНИЦИАЛИЗАЦИЯ КАЛЬКУЛЯТОРА (С ИСПРАВЛЕННОЙ calculate)
+        // ==========================================
+        function initCalculator() {
+            // ---- 1. ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ ----
+            const widthInput = document.getElementById('input-width');
+            const lengthInput = document.getElementById('input-length');
+            const heightInput = document.getElementById('input-height');
+            const wallThicknessInput = document.getElementById('input-wall-thickness');
+            const roofThicknessInput = document.getElementById('input-roof-thickness');
+            const windowsInput = document.getElementById('input-windows');
+
+            const typeInputs = document.getElementsByName('build-type');
+
+            const doorFrontSelect = document.getElementById('input-door-front');
+            const doorRearSelect = document.getElementById('input-door-rear');
+
+            const valWidth = document.getElementById('val-width');
+            const valLength = document.getElementById('val-length');
+            const valHeight = document.getElementById('val-height');
+            const valWallThickness = document.getElementById('val-wall-thickness');
+            const valRoofThickness = document.getElementById('val-roof-thickness');
+            const valWindows = document.getElementById('val-windows');
+
+            const totalPriceEl = document.getElementById('total-price');
+            const resAreaEl = document.getElementById('res-area');
+            const resPriceM2El = document.getElementById('res-price-m2');
+            const resTimeEl = document.getElementById('res-time');
+            const resExtraCostEl = document.getElementById('res-extra-cost');
+
+            const wallThicknessGroup = document.getElementById('wall-thickness-group');
+            const roofThicknessGroup = document.getElementById('roof-thickness-group');
+
+            // ---- 2. СОХРАНЕНИЕ И ЗАГРУЗКА СОСТОЯНИЯ ----
+            function saveCalculatorState() {
+                const snowRegionEl = document.getElementById('input-snow-region');
+                const state = {
+                    width: widthInput.value,
+                    length: lengthInput.value,
+                    height: heightInput.value,
+                    wallThickness: wallThicknessInput.value,
+                    roofThickness: roofThicknessInput.value,
+                    windows: windowsInput.value,
+                    doorFront: doorFrontSelect.value,
+                    doorRear: doorRearSelect.value,
+                    buildType: document.querySelector('input[name="build-type"]:checked')?.value || 'warm',
+                    snowRegion: snowRegionEl ? snowRegionEl.value : '3',
+                    wallColor: localStorage.getItem('angarWallColorHex') || '#005387',
+                    roofColor: localStorage.getItem('angarRoofColorHex') || '#455A64'
+                };
+                localStorage.setItem('angarCalcState', JSON.stringify(state));
             }
 
-            // ---- ГЕОМЕТРИЧЕСКИЕ РАСЧЁТЫ ----
-            let area = w * l;                                 // площадь пола
-            let wallArea = 2 * (w + l) * h;                   // площадь стен
-
-            // Площадь двускатной кровли с углом наклона 12 градусов
-            const roofAngleDeg = 12;
-            const roofAngleRad = roofAngleDeg * Math.PI / 180;
-            let roofArea = area / Math.cos(roofAngleRad);     // = l * w / cos(12°)
-
-            // ---- КОЭФФИЦИЕНТЫ ----
-            const snowCoeffs = { 1: 0.90, 2: 0.95, 3: 1.00, 4: 1.10, 5: 1.25 };
-            let snowFactor = snowCoeffs[snowRegion] || 1;
-
-            let heightFactor = 1 + ((h - 6) * 0.05);
-            if (heightFactor < 1) heightFactor = 1;
-
-            // ---- РАСЧЁТ СОСТАВЛЯЮЩИХ СТОИМОСТИ ----
-            // 1. Каркас и фундамент
-            let frameCost = PRICE_CONSTANTS.FRAME_BASE * area * snowFactor * heightFactor;
-
-            // 2. Стены
-            let wallBasePrice = isWarm ? PRICE_CONSTANTS.WALL_WARM : PRICE_CONSTANTS.WALL_COLD;
-            // Добавка за толщину (может быть отрицательной)
-            let wallThicknessAdd = (wallThickness - PRICE_CONSTANTS.BASE_THICKNESS) * PRICE_CONSTANTS.WALL_THICK_ADD;
-            // Для холодного типа добавка не применяется (обнуляем)
-            if (!isWarm) wallThicknessAdd = 0;
-            let wallCost = wallArea * (wallBasePrice + wallThicknessAdd);
-
-            // 3. Кровля
-            let roofBasePrice = isWarm ? PRICE_CONSTANTS.ROOF_WARM : PRICE_CONSTANTS.ROOF_COLD;
-            let roofThicknessAdd = (roofThickness - PRICE_CONSTANTS.BASE_THICKNESS) * PRICE_CONSTANTS.ROOF_THICK_ADD;
-            if (!isWarm) roofThicknessAdd = 0;
-            let roofCost = roofArea * (roofBasePrice + roofThicknessAdd);
-
-            // 4. Дополнительные элементы
-            let doorsCost = (doorsFront + doorsRear) * PRICE_CONSTANTS.DOOR_PRICE;
-            let windowsCost = windowsCount * (PRICE_CONSTANTS.WINDOW_AREA * PRICE_CONSTANTS.WINDOW_PRICE_PER_M2);
-            let extraCosts = doorsCost + windowsCost;
-
-            // ---- ИТОГОВАЯ СТОИМОСТЬ ----
-            let grandTotal = Math.floor(frameCost + wallCost + roofCost + extraCosts);
-            let finalPriceM2 = Math.floor(grandTotal / area);
-
-            // ---- РАСЧЁТ СРОКОВ ----
-            const t_consult = 1;
-            const t_design = 3 + Math.floor(area / 400);
-            const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0);
-            const t_delivery = 2;
-            const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10);
-            const t_handover = 2;
-            const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
-
-            // ---- ВЫВОД ----
-            totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
-            resAreaEl.textContent = area;
-            resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
-            resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
-            resTimeEl.textContent = t_install;
-
-            // ---- 3D МОДЕЛЬ ----
-            if (typeof update3DModel === 'function') {
-                update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
+            function loadCalculatorState() {
+                const raw = localStorage.getItem('angarCalcState');
+                if (raw) {
+                    try {
+                        const state = JSON.parse(raw);
+                        if (state.width) widthInput.value = state.width;
+                        if (state.length) lengthInput.value = state.length;
+                        if (state.height) heightInput.value = state.height;
+                        if (state.wallThickness) wallThicknessInput.value = state.wallThickness;
+                        if (state.roofThickness) roofThicknessInput.value = state.roofThickness;
+                        if (state.windows) windowsInput.value = state.windows;
+                        if (state.doorFront) doorFrontSelect.value = state.doorFront;
+                        if (state.doorRear) doorRearSelect.value = state.doorRear;
+                        if (state.snowRegion) {
+                            const snowRegionEl = document.getElementById('input-snow-region');
+                            if (snowRegionEl) snowRegionEl.value = state.snowRegion;
+                        }
+                        if (state.buildType) {
+                            const radio = document.querySelector(`input[name="build-type"][value="${state.buildType}"]`);
+                            if (radio) radio.checked = true;
+                        }
+                    } catch (e) { console.error("Ошибка загрузки настроек:", e); }
+                }
             }
 
-            // ---- ГРАФИКИ ----
-            if (typeof updatePricingChart === 'function') {
-                updatePricingChart(grandTotal);
+            // ---- 3. ОСНОВНОЙ РАСЧЁТ (С УЧЁТОМ ВЫЧИТАНИЯ ПРОЁМОВ) ----
+            function calculate() {
+                let w = parseFloat(widthInput.value);
+                let l = parseFloat(lengthInput.value);
+                let h = parseFloat(heightInput.value);
+                let wallThickness = parseFloat(wallThicknessInput.value);
+                let roofThickness = parseFloat(roofThicknessInput.value);
+                let windowsCount = parseInt(windowsInput.value);
+
+                let snowRegionEl = document.getElementById('input-snow-region');
+                let snowRegion = snowRegionEl ? parseInt(snowRegionEl.value) : 3;
+
+                let typeEl = document.querySelector('input[name="build-type"]:checked');
+                let isWarm = typeEl ? (typeEl.value === 'warm') : true;
+
+                let doorsFront = parseInt(doorFrontSelect.value);
+                let doorsRear = parseInt(doorRearSelect.value);
+
+                window.currentCalculatorParams = { w, l, h, windowsCount, doorsFront, doorsRear };
+
+                // Обновление отображаемых значений
+                valWidth.textContent = w;
+                valLength.textContent = l;
+                valHeight.textContent = h;
+                valWallThickness.textContent = wallThickness;
+                valRoofThickness.textContent = roofThickness;
+                valWindows.textContent = windowsCount;
+
+                // Блокировка толщин для холодного типа
+                if (!isWarm) {
+                    wallThicknessGroup.style.opacity = '0.3';
+                    wallThicknessGroup.style.pointerEvents = 'none';
+                    roofThicknessGroup.style.opacity = '0.3';
+                    roofThicknessGroup.style.pointerEvents = 'none';
+                } else {
+                    wallThicknessGroup.style.opacity = '1';
+                    wallThicknessGroup.style.pointerEvents = 'auto';
+                    roofThicknessGroup.style.opacity = '1';
+                    roofThicknessGroup.style.pointerEvents = 'auto';
+                }
+
+                // ---- ГЕОМЕТРИЧЕСКИЕ РАСЧЁТЫ ----
+                let area = w * l;                                 // площадь пола
+                let wallArea = 2 * (w + l) * h;                   // площадь стен (до вычета проёмов)
+
+                // Вычитаем площадь проёмов, если включена опция
+                if (PRICE_CONSTANTS.DEDUCT_OPENINGS) {
+                    let openingsArea = (doorsFront + doorsRear) * PRICE_CONSTANTS.DOOR_AREA + windowsCount * PRICE_CONSTANTS.WINDOW_AREA;
+                    wallArea = Math.max(wallArea - openingsArea, 0); // не меньше 0
+                }
+
+                // Площадь двускатной кровли с углом наклона 12 градусов
+                const roofAngleDeg = 12;
+                const roofAngleRad = roofAngleDeg * Math.PI / 180;
+                let roofArea = area / Math.cos(roofAngleRad);     // = l * w / cos(12°)
+
+                // ---- КОЭФФИЦИЕНТЫ ----
+                const snowCoeffs = { 1: 0.90, 2: 0.95, 3: 1.00, 4: 1.10, 5: 1.25 };
+                let snowFactor = snowCoeffs[snowRegion] || 1;
+
+                let heightFactor = 1 + ((h - 6) * 0.05);
+                if (heightFactor < 1) heightFactor = 1;
+
+                // ---- РАСЧЁТ СОСТАВЛЯЮЩИХ СТОИМОСТИ ----
+                // 1. Каркас и фундамент
+                let frameCost = PRICE_CONSTANTS.FRAME_BASE * area * snowFactor * heightFactor;
+
+                // 2. Стены
+                let wallBasePrice = isWarm ? PRICE_CONSTANTS.WALL_WARM : PRICE_CONSTANTS.WALL_COLD;
+                // Добавка за толщину (может быть отрицательной)
+                let wallThicknessAdd = (wallThickness - PRICE_CONSTANTS.BASE_THICKNESS) * PRICE_CONSTANTS.WALL_THICK_ADD;
+                // Для холодного типа добавка не применяется (обнуляем)
+                if (!isWarm) wallThicknessAdd = 0;
+                let wallCost = wallArea * (wallBasePrice + wallThicknessAdd);
+
+                // 3. Кровля
+                let roofBasePrice = isWarm ? PRICE_CONSTANTS.ROOF_WARM : PRICE_CONSTANTS.ROOF_COLD;
+                let roofThicknessAdd = (roofThickness - PRICE_CONSTANTS.BASE_THICKNESS) * PRICE_CONSTANTS.ROOF_THICK_ADD;
+                if (!isWarm) roofThicknessAdd = 0;
+                let roofCost = roofArea * (roofBasePrice + roofThicknessAdd);
+
+                // 4. Дополнительные элементы
+                let doorsCost = (doorsFront + doorsRear) * PRICE_CONSTANTS.DOOR_PRICE;
+                let windowsCost = windowsCount * (PRICE_CONSTANTS.WINDOW_AREA * PRICE_CONSTANTS.WINDOW_PRICE_PER_M2);
+                let extraCosts = doorsCost + windowsCost;
+
+                // ---- ИТОГОВАЯ СТОИМОСТЬ ----
+                let grandTotal = Math.floor(frameCost + wallCost + roofCost + extraCosts);
+                let finalPriceM2 = Math.floor(grandTotal / area);
+
+                // ---- РАСЧЁТ СРОКОВ ----
+                const t_consult = 1;
+                const t_design = 3 + Math.floor(area / 400);
+                const t_prod = 8 + Math.floor(area / 120) + (isWarm ? 2 : 0);
+                const t_delivery = 2;
+                const t_install = 15 + Math.floor(area / 40) + Math.ceil(windowsCount / 10);
+                const t_handover = 2;
+                const totalDays = t_consult + t_design + t_prod + t_delivery + t_install + t_handover;
+
+                // ---- ВЫВОД ----
+                totalPriceEl.textContent = new Intl.NumberFormat('ru-RU').format(grandTotal) + ' ₽';
+                resAreaEl.textContent = area;
+                resPriceM2El.textContent = new Intl.NumberFormat('ru-RU').format(finalPriceM2);
+                resExtraCostEl.textContent = new Intl.NumberFormat('ru-RU').format(extraCosts);
+                resTimeEl.textContent = t_install;
+
+                // ---- 3D МОДЕЛЬ ----
+                if (typeof update3DModel === 'function') {
+                    update3DModel(w, l, h, windowsCount, doorsFront, doorsRear);
+                }
+
+                // ---- ГРАФИКИ ----
+                if (typeof updatePricingChart === 'function') {
+                    updatePricingChart(grandTotal);
+                }
+                if (typeof updateTimelineChart === 'function') {
+                    updateTimelineChart({
+                        t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays
+                    });
+                }
+
+                // ---- СКРЫТЫЕ ПОЛЯ ----
+                const formL = document.getElementById('form-length');
+                const formW = document.getElementById('form-width');
+                const formH = document.getElementById('form-height');
+                if (formL) formL.value = l;
+                if (formW) formW.value = w;
+                if (formH) formH.value = h;
+
+                if (typeof updateYandexFormUrl === 'function') {
+                    updateYandexFormUrl();
+                }
+
+                saveCalculatorState();
             }
-            if (typeof updateTimelineChart === 'function') {
-                updateTimelineChart({
-                    t_consult, t_design, t_prod, t_delivery, t_install, t_handover, totalDays
+
+            // ---- 4. ПРИВЯЗКА СОБЫТИЙ ----
+            const inputs = [widthInput, lengthInput, heightInput, wallThicknessInput, roofThicknessInput, windowsInput];
+            inputs.forEach(input => {
+                input.addEventListener('input', calculate);
+                input.addEventListener('change', () => {
+                    calculate();
+                    saveCalculatorState();
+                });
+            });
+
+            typeInputs.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    calculate();
+                    saveCalculatorState();
+                });
+            });
+
+            [doorFrontSelect, doorRearSelect].forEach(select => {
+                select.addEventListener('change', () => {
+                    calculate();
+                    saveCalculatorState();
+                });
+            });
+
+            const snowRegionEl = document.getElementById('input-snow-region');
+            if (snowRegionEl) {
+                snowRegionEl.addEventListener('change', () => {
+                    calculate();
+                    saveCalculatorState();
                 });
             }
 
-            // ---- СКРЫТЫЕ ПОЛЯ ----
-            const formL = document.getElementById('form-length');
-            const formW = document.getElementById('form-width');
-            const formH = document.getElementById('form-height');
-            if (formL) formL.value = l;
-            if (formW) formW.value = w;
-            if (formH) formH.value = h;
+            // ---- 5. СТАРТ ----
+            if (typeof init3D === 'function') init3D();
+            loadCalculatorState();
+            calculate();
 
-            if (typeof updateYandexFormUrl === 'function') {
-                updateYandexFormUrl();
+            if (typeof ralColors !== 'undefined') {
+                initColorSelectors();
+            } else {
+                setTimeout(() => {
+                    if (typeof ralColors !== 'undefined') initColorSelectors();
+                }, 300);
             }
-
-            saveCalculatorState();
         }
 
-        // ---- 4. ПРИВЯЗКА СОБЫТИЙ ----
-        const inputs = [widthInput, lengthInput, heightInput, wallThicknessInput, roofThicknessInput, windowsInput];
-        inputs.forEach(input => {
-            input.addEventListener('input', calculate);
-            input.addEventListener('change', () => {
-                calculate();
-                saveCalculatorState();
+        // Запуск после загрузки DOM
+        document.addEventListener('DOMContentLoaded', initCalculator);
+
+        // Плавная прокрутка к якорям
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
-
-        typeInputs.forEach(radio => {
-            radio.addEventListener('change', () => {
-                calculate();
-                saveCalculatorState();
-            });
-        });
-
-        [doorFrontSelect, doorRearSelect].forEach(select => {
-            select.addEventListener('change', () => {
-                calculate();
-                saveCalculatorState();
-            });
-        });
-
-        const snowRegionEl = document.getElementById('input-snow-region');
-        if (snowRegionEl) {
-            snowRegionEl.addEventListener('change', () => {
-                calculate();
-                saveCalculatorState();
-            });
-        }
-
-        // ---- 5. СТАРТ ----
-        if (typeof init3D === 'function') init3D();
-        loadCalculatorState();
-        calculate();
-
-        if (typeof ralColors !== 'undefined') {
-            initColorSelectors();
-        } else {
-            setTimeout(() => {
-                if (typeof ralColors !== 'undefined') initColorSelectors();
-            }, 300);
-        }
-    }
-
-    // Запуск после загрузки DOM
-    document.addEventListener('DOMContentLoaded', initCalculator);
-
-    // Плавная прокрутка к якорям
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
         
         // ==========================================
         // ПЛАВНАЯ ПРОКРУТКА К ЯКОРЯМ
