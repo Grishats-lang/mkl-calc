@@ -1,4 +1,8 @@
 User-agent: *
+Allow: /css/
+Allow: /js/
+Allow: /img/
+
 Disallow: /policy.html
 Disallow: /gantt.html
 Disallow: /contract.html
@@ -6,6 +10,5 @@ Disallow: /contract.md
 Disallow: /contract-script.js
 Disallow: /contract-styles.css
 Disallow: /yandex_bd867195af4c81fe.html
-Disallow: /contract-script.js
 
 Sitemap: https://calc-angar.ru/sitemap.xml
