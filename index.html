@@ -424,9 +424,14 @@
     <!-- 3D ВИЗУАЛИЗАЦИЯ -->
     <div style="margin: 30px 0; background-color: white; border-radius: 8px; overflow: visible; border: none;">
 
-        <div style="padding: 20px; background-color: var(--primary-blue); color: white;" 
-             title="Интерактивная модель вашего здания / Вращать - левая кнопка мыши / Перемещать - правая кнопка мыши / Zoom - колесико мыши / Техническое меню Ctrl+Shift+P">
-            <h3 style="margin: 0; font-size: 1.2em; color: white;">🏛️ 3D Предпросмотр</h3>
+        <div class="tooltip-container" data-tooltip="Интерактивная модель вашего здания
+        • Вращать — левая кнопка мыши
+        • Перемещать — правая кнопка мыши
+        • Zoom — колесико мыши
+        • Техническое меню — Ctrl+Shift+P">
+            <div style="padding: 20px; background-color: var(--primary-blue); color: white;">
+                <h3 style="margin: 0; font-size: 1.2em; color: white;">🏛️ 3D Предпросмотр</h3>
+            </div>
         </div>
         <div id="scene3d" style="width: 100%; height: 500px; background: linear-gradient(to bottom, #e0e0e0, #90A4AE);"></div>
         
@@ -1606,17 +1611,17 @@
 // ==============================================
 const DEFAULT_PRICE_CONSTANTS = {
     // Каркас и фундамент
-    FRAME_BASE: 2600,
+    FRAME_BASE: 1800,           // ← было 2600
     
     // Стены
-    WALL_WARM: 2500,           // базовая цена стены 100 мм
-    WALL_COLD: 1500,
-    WALL_THICK_ADD: 12,        // добавка за мм сверх/ниже 100
+    WALL_WARM: 1700,            // ← было 2500
+    WALL_COLD: 1200,             // можно тоже уменьшить (было 1500)
+    WALL_THICK_ADD: 12,
     
     // Кровля
-    ROOF_WARM: 2700,           // базовая цена кровли 100 мм
-    ROOF_COLD: 1200,
-    ROOF_THICK_ADD: 15,        // добавка за мм сверх/ниже 100
+    ROOF_WARM: 1800,            // ← было 2700
+    ROOF_COLD: 1100,             // можно уменьшить (было 1200)
+    ROOF_THICK_ADD: 15,
     
     // Базовая толщина
     BASE_THICKNESS: 100,
@@ -1632,11 +1637,14 @@ const DEFAULT_PRICE_CONSTANTS = {
     
     // Скидки за объём
     ENABLE_VOLUME_DISCOUNT: true,
-    DISCOUNT_THRESHOLD_1: 500,     // м²
-    DISCOUNT_PERCENT_1: 0.05,      // 5%
-    DISCOUNT_THRESHOLD_2: 1000,    // м²
-    DISCOUNT_PERCENT_2: 0.10,      // 10%
-    DISCOUNT_FRAME_BONUS: 0.02,    // дополнительная скидка на каркас (2%)
+    DISCOUNT_THRESHOLD_1: 500,
+    DISCOUNT_PERCENT_1: 0.05,
+    DISCOUNT_THRESHOLD_2: 1000,
+    DISCOUNT_PERCENT_2: 0.10,
+    DISCOUNT_FRAME_BONUS: 0.02,
+    
+    // НОВЫЙ ПАРАМЕТР: коэффициент удорожания (монтаж, логистика, накладные)
+    OVERHEAD_COEFF: 0.32          // 0.3 = 30% наценки к материалам
 };
 
 let PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS };
@@ -1674,31 +1682,31 @@ function savePriceConstants() {
             
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">🏗️ Основные цены</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label>Каркас (руб/м² пола) <input type="number" id="tech-FRAME_BASE" value="${PRICE_CONSTANTS.FRAME_BASE}" step="10"></label>
-                <label>Стены тёплые (руб/м²) <input type="number" id="tech-WALL_WARM" value="${PRICE_CONSTANTS.WALL_WARM}" step="10"></label>
-                <label>Стены холодные (руб/м²) <input type="number" id="tech-WALL_COLD" value="${PRICE_CONSTANTS.WALL_COLD}" step="10"></label>
-                <label>Кровля тёплая (руб/м²) <input type="number" id="tech-ROOF_WARM" value="${PRICE_CONSTANTS.ROOF_WARM}" step="10"></label>
-                <label>Кровля холодная (руб/м²) <input type="number" id="tech-ROOF_COLD" value="${PRICE_CONSTANTS.ROOF_COLD}" step="10"></label>
+                <label data-tooltip="Стоимость каркаса и фундамента за 1 м² площади пола (без скидок)">Каркас (руб/м² пола) <input type="number" id="tech-FRAME_BASE" value="${PRICE_CONSTANTS.FRAME_BASE}" step="10"></label>
+                <label data-tooltip="Цена 1 м² стеновой сэндвич-панели толщиной 100 мм (тёплый ангар)">Стены тёплые (руб/м²) <input type="number" id="tech-WALL_WARM" value="${PRICE_CONSTANTS.WALL_WARM}" step="10"></label>
+                <label data-tooltip="Цена 1 м² холодной стены (профлист или холодная панель)">Стены холодные (руб/м²) <input type="number" id="tech-WALL_COLD" value="${PRICE_CONSTANTS.WALL_COLD}" step="10"></label>
+                <label data-tooltip="Цена 1 м² кровельной сэндвич-панели толщиной 100 мм">Кровля тёплая (руб/м²) <input type="number" id="tech-ROOF_WARM" value="${PRICE_CONSTANTS.ROOF_WARM}" step="10"></label>
+                <label data-tooltip="Цена 1 м² холодной кровли (профлист)">Кровля холодная (руб/м²) <input type="number" id="tech-ROOF_COLD" value="${PRICE_CONSTANTS.ROOF_COLD}" step="10"></label>
             </div>
             
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">📏 Добавки за толщину</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label>Добавка за мм стен (руб/м²) <input type="number" id="tech-WALL_THICK_ADD" value="${PRICE_CONSTANTS.WALL_THICK_ADD}" step="0.5"></label>
-                <label>Добавка за мм кровли (руб/м²) <input type="number" id="tech-ROOF_THICK_ADD" value="${PRICE_CONSTANTS.ROOF_THICK_ADD}" step="0.5"></label>
-                <label>Базовая толщина (мм) <input type="number" id="tech-BASE_THICKNESS" value="${PRICE_CONSTANTS.BASE_THICKNESS}" step="5"></label>
+                <label data-tooltip="Добавка к цене стены за каждый мм сверх/ниже базовой толщины (руб/м²)">Добавка за мм стен (руб/м²) <input type="number" id="tech-WALL_THICK_ADD" value="${PRICE_CONSTANTS.WALL_THICK_ADD}" step="0.5"></label>
+                <label data-tooltip="Добавка к цене кровли за каждый мм сверх/ниже базовой толщины (руб/м²)">Добавка за мм кровли (руб/м²) <input type="number" id="tech-ROOF_THICK_ADD" value="${PRICE_CONSTANTS.ROOF_THICK_ADD}" step="0.5"></label>
+                <label data-tooltip="Базовая толщина панелей, от которой считаются добавки (мм)">Базовая толщина (мм) <input type="number" id="tech-BASE_THICKNESS" value="${PRICE_CONSTANTS.BASE_THICKNESS}" step="5"></label>
             </div>
             
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">🚪 Дополнительные элементы</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label>Цена ворот (руб) <input type="number" id="tech-DOOR_PRICE" value="${PRICE_CONSTANTS.DOOR_PRICE}" step="1000"></label>
-                <label>Площадь ворот (м²) <input type="number" id="tech-DOOR_AREA" value="${PRICE_CONSTANTS.DOOR_AREA}" step="0.5"></label>
-                <label>Цена окна за м² (руб) <input type="number" id="tech-WINDOW_PRICE_PER_M2" value="${PRICE_CONSTANTS.WINDOW_PRICE_PER_M2}" step="100"></label>
-                <label>Площадь окна (м²) <input type="number" id="tech-WINDOW_AREA" value="${PRICE_CONSTANTS.WINDOW_AREA}" step="0.1"></label>
+                <label data-tooltip="Стоимость одних секционных ворот (фиксированная)">Цена ворот (руб) <input type="number" id="tech-DOOR_PRICE" value="${PRICE_CONSTANTS.DOOR_PRICE}" step="1000"></label>
+                <label data-tooltip="Площадь одних ворот, используемая для вычета проёмов из площади стен">Площадь ворот (м²) <input type="number" id="tech-DOOR_AREA" value="${PRICE_CONSTANTS.DOOR_AREA}" step="0.5"></label>
+                <label data-tooltip="Цена 1 м² окна ПВХ">Цена окна за м² (руб) <input type="number" id="tech-WINDOW_PRICE_PER_M2" value="${PRICE_CONSTANTS.WINDOW_PRICE_PER_M2}" step="100"></label>
+                <label data-tooltip="Площадь одного окна (используется для расчёта стоимости и вычета проёмов)">Площадь окна (м²) <input type="number" id="tech-WINDOW_AREA" value="${PRICE_CONSTANTS.WINDOW_AREA}" step="0.1"></label>
             </div>
             
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">🪟 Проёмы</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px;" data-tooltip="Если включено, из площади стен вычитается суммарная площадь ворот и окон">
                     <input type="checkbox" id="tech-DEDUCT_OPENINGS" ${PRICE_CONSTANTS.DEDUCT_OPENINGS ? 'checked' : ''}>
                     Вычитать проёмы из площади стен
                 </label>
@@ -1706,21 +1714,29 @@ function savePriceConstants() {
             
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">💰 Скидки за объём</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px;" data-tooltip="Включить/выключить скидки за объём">
                     <input type="checkbox" id="tech-ENABLE_VOLUME_DISCOUNT" ${PRICE_CONSTANTS.ENABLE_VOLUME_DISCOUNT ? 'checked' : ''}>
                     Включить скидки за объём
                 </label>
-                <label>Порог скидки 1 (м²) <input type="number" id="tech-DISCOUNT_THRESHOLD_1" value="${PRICE_CONSTANTS.DISCOUNT_THRESHOLD_1}" step="50"></label>
-                <label>Скидка 1 (%) <input type="number" id="tech-DISCOUNT_PERCENT_1" value="${PRICE_CONSTANTS.DISCOUNT_PERCENT_1 * 100}" step="1"></label>
-                <label>Порог скидки 2 (м²) <input type="number" id="tech-DISCOUNT_THRESHOLD_2" value="${PRICE_CONSTANTS.DISCOUNT_THRESHOLD_2}" step="100"></label>
-                <label>Скидка 2 (%) <input type="number" id="tech-DISCOUNT_PERCENT_2" value="${PRICE_CONSTANTS.DISCOUNT_PERCENT_2 * 100}" step="1"></label>
-                <label>Доп. скидка на каркас (%) <input type="number" id="tech-DISCOUNT_FRAME_BONUS" value="${PRICE_CONSTANTS.DISCOUNT_FRAME_BONUS * 100}" step="0.5"></label>
+                <label data-tooltip="Минимальная площадь (м²) для получения первой скидки">Порог скидки 1 (м²) <input type="number" id="tech-DISCOUNT_THRESHOLD_1" value="${PRICE_CONSTANTS.DISCOUNT_THRESHOLD_1}" step="50"></label>
+                <label data-tooltip="Размер первой скидки (в процентах)">Скидка 1 (%) <input type="number" id="tech-DISCOUNT_PERCENT_1" value="${PRICE_CONSTANTS.DISCOUNT_PERCENT_1 * 100}" step="1"></label>
+                <label data-tooltip="Минимальная площадь (м²) для получения второй (большей) скидки">Порог скидки 2 (м²) <input type="number" id="tech-DISCOUNT_THRESHOLD_2" value="${PRICE_CONSTANTS.DISCOUNT_THRESHOLD_2}" step="100"></label>
+                <label data-tooltip="Размер второй скидки (в процентах)">Скидка 2 (%) <input type="number" id="tech-DISCOUNT_PERCENT_2" value="${PRICE_CONSTANTS.DISCOUNT_PERCENT_2 * 100}" step="1"></label>
+                <label data-tooltip="Дополнительная скидка на каркас (в процентах), суммируется с основной">Доп. скидка на каркас (%) <input type="number" id="tech-DISCOUNT_FRAME_BONUS" value="${PRICE_CONSTANTS.DISCOUNT_FRAME_BONUS * 100}" step="0.5"></label>
             </div>
             
+            <h4 style="color: #0D47A1; margin: 15px 0 5px;">📈 Коэффициент удорожания</h4>
+            <div style="display: grid; gap: 8px; margin-bottom: 15px;">
+                <label data-tooltip="Процент наценки к стоимости материалов. Итоговая цена = (материалы) × (1 + наценка/100). Например, 30% = 0.3">
+                    Наценка на монтаж, логистику (%) <input type="number" id="tech-OVERHEAD_COEFF" value="${PRICE_CONSTANTS.OVERHEAD_COEFF * 100}" step="1" min="0" max="200">
+                </label>
+                <div style="font-size: 0.85em; color: #666;">Итоговая цена = (материалы) × (1 + наценка/100)</div>
+            </div>
+
             <div style="display: flex; gap: 10px; margin-top: 20px; position: sticky; bottom: 0; background: white; padding: 10px 0;">
-                <button id="tech-save" style="flex: 2; background: #0D47A1; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold;">💾 Сохранить</button>
-                <button id="tech-reset" style="flex: 1; background: #B0BEC5; color: black; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">↺ Сброс</button>
-                <button id="tech-close" style="flex: 1; background: #EF6C00; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">✕ Закрыть</button>
+                <button id="tech-save" style="flex: 2; background: #0D47A1; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold;" title="Сохранить изменения и пересчитать стоимость">💾 Сохранить</button>
+                <button id="tech-reset" style="flex: 1; background: #B0BEC5; color: black; border: none; padding: 10px; border-radius: 6px; cursor: pointer;" title="Сбросить все настройки к значениям по умолчанию">↺ Сброс</button>
+                <button id="tech-close" style="flex: 1; background: #EF6C00; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;" title="Закрыть меню">✕ Закрыть</button>
             </div>
         </div>
     `;
@@ -1736,6 +1752,7 @@ function savePriceConstants() {
     techButton.id = 'tech-menu-button';
     techButton.innerHTML = '⚙️ Техническое меню (настройка цен)';
     techButton.style.cssText = 'width: 100%; margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); border-radius: 4px; color: rgba(255,255,255,0.7); font-size: 0.8rem; cursor: pointer; transition: all 0.2s;';
+    techButton.title = 'Открыть техническое меню для настройки цен (Ctrl+Shift+P)';
     
     // Добавляем кнопку после кнопки "Заказать расчёт"
     const calcBtn = document.querySelector('.calc-btn');
@@ -1763,6 +1780,7 @@ function savePriceConstants() {
         DISCOUNT_THRESHOLD_2: document.getElementById('tech-DISCOUNT_THRESHOLD_2'),
         DISCOUNT_PERCENT_2: document.getElementById('tech-DISCOUNT_PERCENT_2'),
         DISCOUNT_FRAME_BONUS: document.getElementById('tech-DISCOUNT_FRAME_BONUS'),
+        OVERHEAD_COEFF: document.getElementById('tech-OVERHEAD_COEFF'),
     };
     
     // Функция показа меню
@@ -1772,13 +1790,13 @@ function savePriceConstants() {
         for (let key in inputs) {
             if (key === 'DEDUCT_OPENINGS' || key === 'ENABLE_VOLUME_DISCOUNT') {
                 inputs[key].checked = PRICE_CONSTANTS[key];
-            } else if (key.includes('PERCENT') || key.includes('BONUS')) {
+            } else if (key.includes('PERCENT') || key.includes('BONUS') || key === 'OVERHEAD_COEFF') {
                 inputs[key].value = (PRICE_CONSTANTS[key] * 100).toFixed(1);
             } else {
                 inputs[key].value = PRICE_CONSTANTS[key];
             }
         }
-    }
+    }   
     
     // Закрытие меню
     function hideTechMenu() {
@@ -1812,7 +1830,7 @@ function savePriceConstants() {
         for (let key in inputs) {
             if (key === 'DEDUCT_OPENINGS' || key === 'ENABLE_VOLUME_DISCOUNT') {
                 PRICE_CONSTANTS[key] = inputs[key].checked;
-            } else if (key.includes('PERCENT') || key.includes('BONUS')) {
+            } else if (key.includes('PERCENT') || key.includes('BONUS') || key === 'OVERHEAD_COEFF') {
                 PRICE_CONSTANTS[key] = parseFloat(inputs[key].value) / 100;
             } else {
                 let val = parseFloat(inputs[key].value);
@@ -1830,7 +1848,7 @@ function savePriceConstants() {
         for (let key in inputs) {
             if (key === 'DEDUCT_OPENINGS' || key === 'ENABLE_VOLUME_DISCOUNT') {
                 inputs[key].checked = PRICE_CONSTANTS[key];
-            } else if (key.includes('PERCENT') || key.includes('BONUS')) {
+            } else if (key.includes('PERCENT') || key.includes('BONUS') || key === 'OVERHEAD_COEFF') {
                 inputs[key].value = (PRICE_CONSTANTS[key] * 100).toFixed(1);
             } else {
                 inputs[key].value = PRICE_CONSTANTS[key];
@@ -2543,9 +2561,10 @@ function initCalculator() {
         if (PRICE_CONSTANTS.ENABLE_VOLUME_DISCOUNT) {
             let discountFactor = 1.0;
             
-            if (area > PRICE_CONSTANTS.DISCOUNT_THRESHOLD_2) {
+            // Важно: проверяем от большего порога к меньшему
+            if (area >= PRICE_CONSTANTS.DISCOUNT_THRESHOLD_2) {
                 discountFactor = 1 - PRICE_CONSTANTS.DISCOUNT_PERCENT_2;
-            } else if (area > PRICE_CONSTANTS.DISCOUNT_THRESHOLD_1) {
+            } else if (area >= PRICE_CONSTANTS.DISCOUNT_THRESHOLD_1) {
                 discountFactor = 1 - PRICE_CONSTANTS.DISCOUNT_PERCENT_1;
             }
             
@@ -2556,7 +2575,11 @@ function initCalculator() {
         }
         
         // ---- ИТОГОВАЯ СТОИМОСТЬ ----
-        let grandTotal = Math.floor(frameCost + wallCost + roofCost + extraCosts);
+        // ---- Стоимость материалов (без наценки) ----
+        let materialsTotal = frameCost + wallCost + roofCost + extraCosts;
+
+        // ---- ИТОГОВАЯ СТОИМОСТЬ С УЧЁТОМ КОЭФФИЦИЕНТА УДОРОЖАНИЯ ----
+        let grandTotal = Math.floor(materialsTotal * (1 + PRICE_CONSTANTS.OVERHEAD_COEFF));
         let finalPriceM2 = Math.floor(grandTotal / area);
         
         // ---- РАСЧЁТ СРОКОВ ----
