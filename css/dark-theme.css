@@ -1,0 +1,455 @@
+/* ============================================
+   ТЁМНАЯ ТЕМА (DARK THEME)
+   ============================================ */
+
+:root {
+    --primary-blue: #1E88E5; /* Яркий синий */
+    --accent-teal: #4DB6AC;
+    --accent-orange: #FF8A65;
+    --gray-dark: #E0E0E0;
+    --gray-medium: #424242;
+    --gray-light: #2C2C2C;
+    --background-white: #1A1A1A;
+    --background-light: #2D2D2D;
+    --border-color: #404040;
+    --text-primary: #FFFFFF;
+    --text-secondary: #B0BEC5;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: #121212;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   HEADER - ШАПКА САЙТА
+   ============================================ */
+.header {
+    /* ИСПРАВЛЕННЫЙ ПУТЬ: поднимаемся на уровень выше из папки css */
+    background: linear-gradient(rgba(13, 71, 161, 0.85), rgba(13, 71, 161, 0.9)), 
+                url('../img/header-bg.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: var(--background-white);
+    padding: 120px 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* ============================================
+   ТЁМНАЯ ТЕМА (ПОЛНАЯ ВЕРСИЯ)
+   ============================================ */
+
+/* Переключатель темы */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    background: var(--background-white);
+    padding: 10px 15px;
+    border-radius: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border: 1px solid var(--border-color);
+}
+
+.theme-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 50px;
+    margin: 0 10px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.theme-slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.theme-slider:before {
+    background-color: white;
+    bottom: 4px;
+    content: "";
+    height: 16px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 16px;
+    border-radius: 50%;
+}
+
+input:checked + .theme-slider {
+    background-color: var(--primary-blue);
+}
+
+input:checked + .theme-slider:before {
+    transform: translateX(26px);
+}
+
+.theme-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* Тёмная тема */
+body.dark-theme {
+    --primary-blue: #1E88E5; /* Яркий синий */
+    --accent-teal: #4DB6AC;
+    --accent-orange: #FF8A65;
+    --gray-dark: #E0E0E0;
+    --gray-medium: #424242;
+    --gray-light: #2C2C2C;
+    --background-white: #1A1A1A;
+    --background-light: #2D2D2D;
+    --border-color: #404040;
+    --text-primary: #FFFFFF;
+    --text-secondary: #B0BEC5;
+    background-color: #121212;
+}
+
+/* Исправление для списков */
+body.dark-theme .features-list li {
+    background-color: var(--background-light);
+    color: var(--text-primary);
+}
+
+body.dark-theme .features-list li:hover {
+    background-color: var(--gray-medium);
+}
+
+body.dark-theme .features-list li::before {
+    color: var(--accent-teal);
+}
+
+/* Секции и карточки */
+body.dark-theme .section,
+body.dark-theme .calc-wrapper,
+body.dark-theme .spec-card,
+body.dark-theme .price-table,
+body.dark-theme .contact-form-container,
+body.dark-theme .gallery-item,
+body.dark-theme .contact-card,
+body.dark-theme .info-box {
+    background-color: var(--background-white);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+body.dark-theme .section h2,
+body.dark-theme .section h3,
+body.dark-theme .spec-card h4,
+body.dark-theme .contact-card h4 {
+    color: var(--accent-teal);
+}
+
+body.dark-theme .section p,
+body.dark-theme .spec-card p {
+    color: var(--text-secondary);
+}
+
+/* Формы и инпуты */
+body.dark-theme input[type="text"],
+body.dark-theme input[type="number"],
+body.dark-theme input[type="range"],
+body.dark-theme select,
+body.dark-theme .calc-select,
+body.dark-theme .form-input,
+body.dark-theme .color-select {
+    background-color: var(--background-light) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-theme input[type="range"] {
+    background: var(--gray-medium);
+}
+
+body.dark-theme input[type="range"]::-webkit-slider-thumb {
+    background: var(--primary-blue);
+    border-color: white;
+}
+
+/* Цветовая секция */
+body.dark-theme .color-section {
+    background-color: var(--background-light);
+}
+
+body.dark-theme .color-label {
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .color-mini-swatch {
+    border-color: var(--border-color);
+}
+
+body.dark-theme .color-mini-swatch:hover {
+    border-color: var(--accent-orange);
+}
+
+body.dark-theme .color-mini-swatch.active {
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 2px var(--accent-orange);
+}
+
+body.dark-theme .color-select {
+    background-color: var(--background-light) !important;
+    color: var(--text-primary) !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+body.dark-theme .color-select option {
+    background-color: var(--background-light);
+    color: var(--text-primary);
+}
+
+body.dark-theme .select-preview-dot {
+    border-color: var(--border-color);
+}
+
+/* Техническое меню */
+body.dark-theme #tech-menu,
+body.dark-theme .tech-menu {
+    background-color: var(--background-white) !important;
+    border-color: var(--primary-blue) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme #tech-menu input,
+body.dark-theme .tech-menu input,
+body.dark-theme #tech-menu select,
+body.dark-theme .tech-menu select {
+    background-color: var(--background-light) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-theme #tech-menu label,
+body.dark-theme .tech-menu label {
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme #tech-menu h3,
+body.dark-theme #tech-menu h4,
+body.dark-theme .tech-menu h3,
+body.dark-theme .tech-menu h4 {
+    color: var(--accent-teal) !important;
+}
+
+/* Сцена 3D */
+body.dark-theme #scene3d,
+body.dark-theme .scene3d,
+body.dark-theme canvas {
+    background-color: var(--background-light) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Блок результата калькулятора */
+body.dark-theme .calc-result-box {
+    background-color: var(--background-light) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .calc-result-box strong {
+    color: var(--accent-orange) !important;
+}
+
+body.dark-theme .calc-detail-row {
+    border-bottom-color: rgba(255,255,255,0.1) !important;
+}
+
+body.dark-theme .calc-btn {
+    background-color: var(--accent-orange);
+    color: white;
+}
+
+body.dark-theme .calc-btn:hover {
+    background-color: #D84315;
+}
+
+/* Кнопка техменю */
+body.dark-theme #tech-menu-button {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.2) !important;
+    color: rgba(255,255,255,0.8) !important;
+}
+
+body.dark-theme #tech-menu-button:hover {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: var(--accent-orange) !important;
+}
+
+/* Таблицы */
+body.dark-theme .price-table thead {
+    background-color: var(--primary-blue);
+}
+
+body.dark-theme .price-table th {
+    color: white;
+    border-right-color: rgba(255,255,255,0.2);
+}
+
+body.dark-theme .price-table td {
+    border-bottom-color: var(--border-color);
+    border-right-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body.dark-theme .price-table tbody tr:hover {
+    background-color: var(--background-light);
+}
+
+/* Навигация */
+body.dark-theme .navigation {
+    background-color: var(--background-white);
+}
+
+body.dark-theme .nav-container a {
+    color: var(--text-primary);
+}
+
+body.dark-theme .nav-container a:hover {
+    background-color: var(--background-light);
+    color: var(--accent-teal);
+}
+
+/* Графики Highcharts */
+body.dark-theme .highcharts-background {
+    fill: var(--background-white) !important;
+}
+
+body.dark-theme .highcharts-title tspan {
+    fill: var(--text-primary) !important;
+}
+
+body.dark-theme .highcharts-subtitle tspan {
+    fill: var(--text-secondary) !important;
+}
+
+body.dark-theme .highcharts-axis-labels text {
+    fill: var(--text-secondary) !important;
+}
+
+body.dark-theme .highcharts-tooltip {
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.1));
+}
+
+/* Модальные окна */
+body.dark-theme .modal-content {
+    background-color: var(--background-white);
+}
+
+body.dark-theme .modal-close {
+    color: white;
+}
+
+body.dark-theme .modal-close:hover {
+    color: var(--accent-orange);
+}
+
+/* Футер */
+body.dark-theme .footer {
+    background-color: #0A0A0A;
+}
+
+body.dark-theme .footer strong {
+    color: white !important;
+}
+
+/* Cookie баннер */
+body.dark-theme .cookie-banner {
+    background: var(--background-white);
+    border-color: var(--accent-teal);
+}
+
+body.dark-theme .cookie-banner h3 {
+    color: var(--accent-teal);
+}
+
+body.dark-theme .cookie-banner p {
+    color: var(--text-secondary);
+}
+
+body.dark-theme .cookie-modal-content {
+    background: var(--background-white);
+}
+
+body.dark-theme .cookie-option {
+    border-bottom-color: var(--border-color);
+}
+
+body.dark-theme .cookie-option-info h4 {
+    color: var(--text-primary);
+}
+
+/* Кнопки */
+body.dark-theme .cta-button {
+    background-color: var(--accent-orange);
+}
+
+body.dark-theme .cta-button.secondary {
+    background-color: var(--accent-teal);
+}
+
+/* Радио-кнопки в калькуляторе */
+body.dark-theme .calc-radio-tile {
+    background-color: var(--background-light);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body.dark-theme .calc-radio-input:checked + .calc-radio-tile {
+    background-color: rgba(77, 182, 172, 0.1);
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+}
+
+/* Диаграмма Ганта */
+body.dark-theme .gantt-modal-content {
+    background: var(--background-white);
+}
+
+/* Снеговой район селект */
+body.dark-theme #input-snow-region {
+    background-color: rgba(255,255,255,0.05) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme #input-snow-region option {
+    background-color: var(--background-light);
+    color: var(--text-primary);
+}
+/* Принудительное переопределение инлайн-стилей для тёмной темы */
+body.dark-theme ul[style*="list-style"] li,
+body.dark-theme li[style*="background"] {
+    background: var(--background-light) !important;
+    border-left-color: var(--accent-teal) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme li[style*="background"] strong {
+    color: var(--accent-teal) !important;
+}
