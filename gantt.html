@@ -428,44 +428,62 @@
                     trackBackgroundColor: '#f2f2f2',
                     trackBorderRadius: 4
                 },
-                rangeSelector: {
-                    enabled: true,
-                    buttons: [
-                        { type: 'month', count: 1, text: '1 мес' },
-                        { type: 'month', count: 3, text: '3 мес' },
-                        { type: 'all', text: 'Все' }
-                    ],
-                    selected: 2,
-                    // Настройки для мобильных
-                    buttonTheme: {
-                        width: 60,
-                        padding: 8,
-                        style: {
-                            fontSize: '12px',
-                            fontWeight: 'normal'
+            rangeSelector: {
+                enabled: true,
+                buttons: [
+                    { type: 'month', count: 1, text: '1 мес' },
+                    { type: 'month', count: 3, text: '3 мес' },
+                    { type: 'all', text: 'Все' }
+                ],
+                selected: 2,
+                // Настройки для мобильных
+                buttonTheme: {
+                    width: 60,
+                    padding: 8,
+                    // Базовая заливка (прозрачная)
+                    fill: 'none', 
+                    stroke: 'none',
+                    'stroke-width': 0,
+                    r: 4, // Радиус скругления
+                    
+                    // Стили текста (по умолчанию)
+                    style: {
+                        fontSize: '12px',
+                        fontWeight: 'normal',
+                        color: '#333333' // Цвет текста по умолчанию
+                    },
+                    
+                    states: {
+                        hover: {
+                            // ОШИБКА БЫЛА ТУТ: меняем backgroundColor на fill
+                            fill: '#f0f0f0',
+                            style: {
+                                color: '#333333'
+                            }
                         },
-                        states: {
-                            hover: {
-                                backgroundColor: '#f0f0f0'
-                            },
-                            select: {
-                                backgroundColor: '#0D47A1',
-                                color: 'white'
+                        select: {
+                            // И ТУТ: меняем backgroundColor на fill
+                            fill: '#0D47A1',
+                            // Цвет текста активной кнопки
+                            style: {
+                                color: '#FFFFFF',
+                                fontWeight: 'bold'
                             }
                         }
-                    },
-                    inputPosition: {
-                        align: 'right',
-                        y: 0
-                    },
-                    inputStyle: {
-                        fontSize: '14px',
-                        padding: '4px',
-                        color: '#333'
                     }
                 },
-                credits: { enabled: false },
-                // Глобальные настройки для touch
+                inputPosition: {
+                    align: 'right',
+                    y: 0
+                },
+                inputStyle: {
+                    fontSize: '14px',
+                    padding: '4px',
+                    color: '#333'
+                }
+            },
+            credits: { enabled: false },
+            // Глобальные настройки для touch
                 accessibility: {
                     enabled: true,
                     screenReaderSection: {
@@ -554,4 +572,5 @@
     </script>
 </body>
 </html>
+
 
