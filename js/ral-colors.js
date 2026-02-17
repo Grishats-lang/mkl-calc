@@ -48,7 +48,7 @@ const ralColors = [
     { name: "RAL 2011", hex: "#E5822C", code: "2011", desc: "Глубокий оранжевый" },
     { name: "RAL 2012", hex: "#DD7336", code: "2012", desc: "Лососевый" },
     { name: "RAL 2013", hex: "#A5502E", code: "2013", desc: "Перламутрово-оранжевый" },
-    { name: "RAL 2017", hex: "#F75E25", code: "2017", desc: "RAL оранжевый" },
+    { name: "RAL 2017", hex: "#F75E25", code: "2017", desc: "Оранжевый" },
 
     // RAL 3xxx – Красные
     { name: "RAL 3000", hex: "#AF2B1E", code: "3000", desc: "Огненно-красный" },
