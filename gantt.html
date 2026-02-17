@@ -352,32 +352,15 @@
                             format: 'Сегодня',
                             style: { color: config.primaryColor, fontWeight: 'bold' }
                         }
-                    },
-                    grid: { 
-                        borderWidth: 1, 
-                        borderColor: gridColor 
-                    },
-                    // Настройки для touch-взаимодействия
-                    minRange: 24 * 3600 * 1000, // Минимальный диапазон - 1 день
-                    maxRange: 365 * 24 * 3600 * 1000, // Максимальный диапазон - 1 год
-                    startOnTick: true,
-                    endOnTick: true,
-                    showFirstLabel: true,
-                    showLastLabel: true
+                    }
                 }],
                 yAxis: {
                     uniqueNames: true,
-                    grid: {
-                        enabled: true,
-                        borderColor: gridColor,
-                        borderWidth: 1
-                    },
+                    gridLineWidth: 1,
+                    gridLineColor: gridColor,
                     labels: {
                         style: { color: textColor, fontSize: '13px', fontWeight: '500' }
-                    },
-                    // Настройки для touch
-                    minPadding: 0.05,
-                    maxPadding: 0.05
+                    }
                 },
                 tooltip: {
                     pointFormat: '<span>{point.name}</span><br/>' +
@@ -571,3 +554,4 @@
     </script>
 </body>
 </html>
+
