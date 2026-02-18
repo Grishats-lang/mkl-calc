@@ -1306,7 +1306,7 @@
         });
 
 // ==========================================
-    // 3D ВИЗУАЛИЗАЦИЯ (С РАЗДЕЛЬНЫМИ ЦВЕТАМИ)
+    // 3D ВИЗУАЛИЗАЦИЯ (СТЕНЫ 90°, КРЫША 12°)
     // ==========================================
     let scene, camera, renderer, controls;
     let hangarGroup;
@@ -1315,8 +1315,6 @@
     // Цвета по умолчанию
     const DEFAULT_WALL_COLOR = 0x005387; // RAL 5005
     const DEFAULT_ROOF_COLOR = 0x455A64; // Серый
-
-    const WALL_TILT = 0.05;
 
     function init3D() {
         const container = document.getElementById('scene3d');
@@ -1356,7 +1354,7 @@
         ground.receiveShadow = true;
         scene.add(ground);
 
-        // Материалы (с раздельными цветами)
+        // Материалы
         wallMaterial = new THREE.MeshStandardMaterial({ 
             color: DEFAULT_WALL_COLOR, 
             roughness: 0.5, 
@@ -1401,7 +1399,7 @@
     }
 
     // ==============================================
-    // ОБНОВЛЕНИЕ 3D МОДЕЛИ
+    // ОБНОВЛЕНИЕ 3D МОДЕЛИ (СТЕНЫ ВЕРТИКАЛЬНЫЕ)
     // ==============================================
     function update3DModel(width, length, height, windowsCount, doorFrontCount, doorRearCount) {
         if (!hangarGroup) return;
@@ -1411,68 +1409,92 @@
             hangarGroup.remove(hangarGroup.children[0]);
         }
 
-        // РАСЧЕТ ГЕОМЕТРИИ
-        const tiltOffset = height * Math.tan(WALL_TILT);
-        const topWidth = width - (tiltOffset * 2);
-        const roofHeight = width * 0.12;
-        const roofHalfWidth = topWidth / 2;
-        const angle = Math.atan(roofHeight / roofHalfWidth);
-        const roofSlopeLen = Math.sqrt(Math.pow(roofHalfWidth, 2) + Math.pow(roofHeight, 2));
+        // РАСЧЕТ ГЕОМЕТРИИ КРЫШИ (угол 12°)
+        const roofAngleDeg = 12;
+        const roofAngleRad = roofAngleDeg * Math.PI / 180;
+        const roofHalfWidth = width / 2;
+        const roofHeight = roofHalfWidth * Math.tan(roofAngleRad); // высота конька над уровнем стен
+        const roofSlopeLen = Math.sqrt(roofHalfWidth ** 2 + roofHeight ** 2);
 
-        // --- 1. КАРКАС ---
+        // --- 1. КАРКАС (вертикальные колонны и наклонные стропила) ---
         const frameStep = 3;
         const numFrames = Math.floor(length / frameStep);
         const frameSpacing = length / numFrames;
 
         for (let i = 0; i <= numFrames; i++) {
             const zPos = (i * frameSpacing) - (length / 2);
-            createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen);
+            createFrame(zPos, width, height, roofHeight, roofSlopeLen, roofAngleRad);
         }
 
-        // --- 2. БОКОВЫЕ СТЕНЫ (используем wallMaterial) ---
+        // --- 2. БОКОВЫЕ СТЕНЫ (вертикальные) ---
         const sideGeo = new THREE.BoxGeometry(0.1, height, length);
 
         const leftW = new THREE.Mesh(sideGeo, wallMaterial);
-        leftW.rotation.z = -WALL_TILT;
-        leftW.position.set(-width / 2 + (tiltOffset / 2), height / 2, 0);
+        leftW.position.set(-width / 2, height / 2, 0);
         hangarGroup.add(leftW);
 
         const rightW = new THREE.Mesh(sideGeo, wallMaterial);
-        rightW.rotation.z = WALL_TILT;
-        rightW.position.set(width / 2 - (tiltOffset / 2), height / 2, 0);
+        rightW.position.set(width / 2, height / 2, 0);
         hangarGroup.add(rightW);
 
         // --- 3. ОКНА ---
         if (windowsCount > 0) {
-            createWindows(width, length, height, tiltOffset, windowsCount, numFrames, frameSpacing);
+            createWindows(width, length, height, windowsCount, numFrames, frameSpacing);
         }
 
-        // --- 4. ТОРЦЕВЫЕ СТЕНЫ (используем wallMaterial) ---
-        createPolygonWall(-length / 2, width, height, tiltOffset, roofHeight, doorRearCount);  // задняя
-        createPolygonWall(length / 2, width, height, tiltOffset, roofHeight, doorFrontCount); // передняя
+        // --- 4. ТОРЦЕВЫЕ СТЕНЫ (прямоугольник + треугольный фронтон) ---
+        createEndWall(-length / 2, width, height, roofHeight, doorRearCount);  // задняя
+        createEndWall(length / 2, width, height, roofHeight, doorFrontCount); // передняя
 
-        // --- 5. КРЫША (используем roofMaterial) ---
+        // --- 5. КРЫША (два ската) ---
         const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4);
 
         const roofL = new THREE.Mesh(roofGeo, roofMaterial);
-        roofL.rotation.z = angle;
-        roofL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
+        roofL.rotation.z = roofAngleRad;
+        roofL.position.set(-width / 4, height + roofHeight / 2, 0);
         hangarGroup.add(roofL);
 
         const roofR = new THREE.Mesh(roofGeo, roofMaterial);
-        roofR.rotation.z = -angle;
-        roofR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, 0);
+        roofR.rotation.z = -roofAngleRad;
+        roofR.position.set(width / 4, height + roofHeight / 2, 0);
         hangarGroup.add(roofR);
     }
 
+    // ============= КАРКАС =============
+    function createFrame(zPos, width, height, roofHeight, roofSlopeLen, angle) {
+        const bT = 0.25; // толщина элементов каркаса
+
+        // Левая колонна
+        const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
+        colL.position.set(-width / 2, height / 2, zPos);
+        hangarGroup.add(colL);
+
+        // Правая колонна
+        const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
+        colR.position.set(width / 2, height / 2, zPos);
+        hangarGroup.add(colR);
+
+        // Стропила (балки скатов)
+        const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
+
+        const beamL = new THREE.Mesh(beamGeo, frameMaterial);
+        beamL.rotation.z = angle;
+        beamL.position.set(-width / 4, height + roofHeight / 2, zPos);
+        hangarGroup.add(beamL);
+
+        const beamR = new THREE.Mesh(beamGeo, frameMaterial);
+        beamR.rotation.z = -angle;
+        beamR.position.set(width / 4, height + roofHeight / 2, zPos);
+        hangarGroup.add(beamR);
+    }
+
     // ============= ОКНА =============
-    function createWindows(width, length, height, tiltOffset, totalWindows, numFrames, frameSpacing) {
+    function createWindows(width, length, height, totalWindows, numFrames, frameSpacing) {
         const windowsPerSide = Math.ceil(totalWindows / 2);
         const winGeo = new THREE.BoxGeometry(0.15, 1.2, 1.5);
+        const offsetX = 0.12; // чтобы окно было внутри стены
 
         if (numFrames < 1) return;
-
-        const offsetX = 0.12;
 
         for (let i = 0; i < windowsPerSide; i++) {
             const ratio = numFrames / windowsPerSide;
@@ -1481,76 +1503,46 @@
 
             const zPos = (-length / 2) + (bayIndex * frameSpacing) + (frameSpacing / 2);
 
-            // ЛЕВАЯ СТЕНА
+            // Левая стена
             const winL = new THREE.Mesh(winGeo, glassMaterial);
-            winL.rotation.z = -WALL_TILT;
-            winL.position.set((-width / 2 + (tiltOffset / 2)) - offsetX, height / 2 + 0.5, zPos);
+            winL.position.set(-width/2 - 0.01, height/2 + 0.5, zPos);
             hangarGroup.add(winL);
 
-            // ПРАВАЯ СТЕНА
+            // Правая стена (если нужно больше окон)
             if ((i * 2) + 1 < totalWindows) {
                 const winR = new THREE.Mesh(winGeo, glassMaterial);
-                winR.rotation.z = WALL_TILT;
-                winR.position.set((width / 2 - (tiltOffset / 2)) + offsetX, height / 2 + 0.5, zPos);
+                winR.position.set(width / 2 + 0.01, height / 2 + 0.5, zPos);
                 hangarGroup.add(winR);
             }
         }
     }
 
-    // ============= КАРКАС =============
-    function createFrame(zPos, width, height, roofHeight, tiltOffset, angle, roofSlopeLen) {
-        const bT = 0.25;
-
-        const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-        colL.rotation.z = -WALL_TILT;
-        colL.position.set(-width / 2 + tiltOffset / 2, height / 2, zPos);
-        hangarGroup.add(colL);
-
-        const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-        colR.rotation.z = WALL_TILT;
-        colR.position.set(width / 2 - tiltOffset / 2, height / 2, zPos);
-        hangarGroup.add(colR);
-
-        const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
-
-        const beamL = new THREE.Mesh(beamGeo, frameMaterial);
-        beamL.rotation.z = angle;
-        beamL.position.set(-(width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
-        hangarGroup.add(beamL);
-
-        const beamR = new THREE.Mesh(beamGeo, frameMaterial);
-        beamR.rotation.z = -angle;
-        beamR.position.set((width / 2 - tiltOffset) / 2, height + roofHeight / 2, zPos);
-        hangarGroup.add(beamR);
-    }
-
     // ============= ТОРЦЕВЫЕ СТЕНЫ =============
-    function createPolygonWall(zPos, width, height, tiltOffset, roofHeight, doorsCount) {
+    function createEndWall(zPos, width, height, roofHeight, doorsCount) {
+        // Форма: прямоугольник + треугольник (фронтон)
         const shape = new THREE.Shape();
+        const halfW = width / 2;
 
-        const halfBottom = width / 2;
-        const halfTop = width / 2 - tiltOffset;
-
-        shape.moveTo(-halfBottom, 0);
-        shape.lineTo(halfBottom, 0);
-        shape.lineTo(halfTop, height);
+        shape.moveTo(-halfW, 0);
+        shape.lineTo(halfW, 0);
+        shape.lineTo(halfW, height);
         shape.lineTo(0, height + roofHeight);
-        shape.lineTo(-halfTop, height);
-        shape.lineTo(-halfBottom, 0);
+        shape.lineTo(-halfW, height);
+        shape.lineTo(-halfW, 0);
 
         const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
         const wall = new THREE.Mesh(geom, wallMaterial);
-        const offset = (zPos > 0) ? -0.1 : 0;
+        const offset = (zPos > 0) ? -0.1 : 0; // небольшой сдвиг, чтобы не пересекаться с каркасом
         wall.position.set(0, 0, zPos + offset);
         hangarGroup.add(wall);
 
-        // Генерация ворот
+        // Ворота
         if (doorsCount > 0) {
             const dW = Math.min(4, width * 0.4);
             const dH = Math.min(4.5, height * 0.85);
-            const doorGeo = new THREE.BoxGeometry(dW, dH, 0.2);
+            const doorGeo = new THREE.BoxGeometry(dW, dH, 0.3);
             const doorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-            const doorZ = zPos + ((zPos > 0) ? 0.05 : -0.05);
+            const doorZ = zPos + ((zPos > 0) ? 0.015 : -0.015);
 
             if (doorsCount == 1) {
                 const door = new THREE.Mesh(doorGeo, doorMat);
