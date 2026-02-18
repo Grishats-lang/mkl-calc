@@ -1560,44 +1560,6 @@
         }
     }
 
-    // ==============================================
-    // ФУНКЦИИ СМЕНЫ ЦВЕТА (РАЗДЕЛЬНЫЕ ДЛЯ СТЕН И КРОВЛИ)
-    // ==============================================
-    window.changeWallColor = function(hexNumber) {
-        if (wallMaterial) {
-            wallMaterial.color.setHex(hexNumber);
-        }
-        // Сохраняем в localStorage в ВЕРХНЕМ регистре
-        const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-        localStorage.setItem('angarWallColorHex', hexString);
-        
-        // Обновляем индикатор
-        const indicator = document.getElementById('wall-color-indicator');
-        if (indicator) indicator.style.backgroundColor = hexString;
-        
-        // Перерисовываем 3D с текущими параметрами
-        if (typeof window.currentCalculatorParams !== 'undefined') {
-            const p = window.currentCalculatorParams;
-            update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-        }
-    };
-
-    window.changeRoofColor = function(hexNumber) {
-        if (roofMaterial) {
-            roofMaterial.color.setHex(hexNumber);
-        }
-        const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-        localStorage.setItem('angarRoofColorHex', hexString);
-        
-        const indicator = document.getElementById('roof-color-indicator');
-        if (indicator) indicator.style.backgroundColor = hexString;
-        
-        if (typeof window.currentCalculatorParams !== 'undefined') {
-            const p = window.currentCalculatorParams;
-            update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-        }
-    };
-
 // ==============================================
 // КОНСТАНТЫ ЦЕН ПО УМОЛЧАНИЮ
 // ==============================================
