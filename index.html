@@ -1311,10 +1311,106 @@
     let scene, camera, renderer, controls;
     let hangarGroup;
     let wallMaterial, frameMaterial, roofMaterial, glassMaterial;
-    
+
     // Цвета по умолчанию
     const DEFAULT_WALL_COLOR = 0x005387; // RAL 5005
     const DEFAULT_ROOF_COLOR = 0x455A64; // Серый
+
+    // Физический размер одной панели в метрах
+    const PANEL_SIZE_M = 0.2;
+
+// ============= ГЕНЕРАЦИЯ ТЕКСТУРЫ СЭНДВИЧ-ПАНЕЛЕЙ (КЛАССИКА) =============
+    // Рисуем одну широкую гладкую панель с четким швом
+    function createPanelBumpTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width  = 64;   // Ширина не важна (растягивается)
+        canvas.height = 256;  // Высота текстуры (достаточно для четкого шва)
+        const ctx = canvas.getContext('2d');
+
+        // 1. Основная поверхность панели (ГЛАДКАЯ)
+        ctx.fillStyle = '#808080';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Шов между панелями (ТЕМНАЯ ПОЛОСА ВНИЗУ)
+        const seamH = 6;
+        const seamY = canvas.height - seamH;
+
+        const seamGrad = ctx.createLinearGradient(0, seamY, 0, canvas.height);
+        seamGrad.addColorStop(0,    '#606060');
+        seamGrad.addColorStop(0.4,  '#404040');
+        seamGrad.addColorStop(0.6,  '#404040');
+        seamGrad.addColorStop(1,    '#606060');
+
+        ctx.fillStyle = seamGrad;
+        ctx.fillRect(0, seamY, canvas.width, seamH);
+
+        // 3. Едва заметная фаска сверху панели (блик)
+        const bevelH = 4;
+        const bevelGrad = ctx.createLinearGradient(0, 0, 0, bevelH);
+        bevelGrad.addColorStop(0,   '#909090');
+        bevelGrad.addColorStop(1,   '#808080');
+
+        ctx.fillStyle = bevelGrad;
+        ctx.fillRect(0, 0, canvas.width, bevelH);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        if (renderer) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+        return texture;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // makeSurfaceTexture — новый экземпляр текстуры на том же canvas,
+    // с repeat рассчитанным под реальные размеры грани (для крыши).
+    // ─────────────────────────────────────────────────────────────────────────
+    function makeSurfaceTexture(faceW, faceH) {
+        const tex = new THREE.CanvasTexture(wallMaterial.bumpMap.image);
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+
+        const repeatX = 1;
+        const repeatY = faceH / PANEL_SIZE_M;
+
+        tex.repeat.set(repeatX, repeatY);
+
+        if (renderer) tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        return tex;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // remapExtrudeUVs — для ТОРЦЕВЫХ стен (ExtrudeGeometry по shape XY).
+    // Переписывает UV из нормализованных [0→1] в мировые (метры / PANEL_SIZE_M).
+    // bboxW = ширина здания, bboxH = высота + высота крыши.
+    // ─────────────────────────────────────────────────────────────────────────
+    function remapExtrudeUVs(geom, bboxW, bboxH) {
+        const uv  = geom.attributes.uv;
+        const pos = geom.attributes.position;
+
+        for (let i = 0; i < uv.count; i++) {
+            const x = pos.getX(i);
+            const y = pos.getY(i);
+            uv.setXY(i, x / PANEL_SIZE_M, y / PANEL_SIZE_M);
+        }
+        uv.needsUpdate = true;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // remapSideWallUVs — для БОКОВЫХ стен (ExtrudeGeometry по shape XY,
+    // где local-X = мировой Z, local-Y = мировой Y).
+    // Тайл текстуры = PANEL_SIZE_M метров по обеим осям.
+    // ─────────────────────────────────────────────────────────────────────────
+    function remapSideWallUVs(geom) {
+        const uv  = geom.attributes.uv;
+        const pos = geom.attributes.position;
+        for (let i = 0; i < uv.count; i++) {
+            const x = pos.getX(i); // local X → world Z (ось длины)
+            const y = pos.getY(i); // local Y → world Y (ось высоты)
+            uv.setXY(i, x / PANEL_SIZE_M, y / PANEL_SIZE_M);
+        }
+        uv.needsUpdate = true;
+    }
 
     function init3D() {
         const container = document.getElementById('scene3d');
@@ -1351,33 +1447,41 @@
             new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
         );
         ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
+        ground.receiveShadow = false;
         scene.add(ground);
 
-        // Материалы
-        wallMaterial = new THREE.MeshStandardMaterial({ 
-            color: DEFAULT_WALL_COLOR, 
-            roughness: 0.5, 
-            side: THREE.DoubleSide 
+        // Bump-текстура — создаётся один раз, canvas переиспользуется везде
+        const panelBumpMap = createPanelBumpTexture();
+
+        // wallMaterial — хранит цвет и исходный bumpMap (canvas).
+        // Сам материал НЕ используется на мешах — только как источник
+        // цвета и canvas для makeSurfaceTexture / стен.
+        wallMaterial = new THREE.MeshStandardMaterial({
+            color: DEFAULT_WALL_COLOR,
+            roughness: 0.4,
+            metalness: 0.2,
+            bumpMap: panelBumpMap,
+            bumpScale: 0.05,
+            side: THREE.DoubleSide
         });
-        
-        frameMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x222222, 
-            roughness: 0.9 
+
+        frameMaterial = new THREE.MeshStandardMaterial({
+            color: 0x222222,
+            roughness: 0.9
         });
-        
-        roofMaterial = new THREE.MeshStandardMaterial({ 
-            color: DEFAULT_ROOF_COLOR, 
-            roughness: 0.6, 
-            side: THREE.DoubleSide 
+
+        // roofMaterial — хранит только цвет
+        roofMaterial = new THREE.MeshStandardMaterial({
+            color: DEFAULT_ROOF_COLOR
         });
-        
-        glassMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x81D4FA, 
-            roughness: 0.1, 
-            metalness: 0.8, 
-            transparent: true, 
-            opacity: 0.7 
+
+        glassMaterial = new THREE.MeshStandardMaterial({
+            color: 0x81D4FA,
+            roughness: 0.1,
+            metalness: 0.9,
+            transparent: true,
+            opacity: 0.7,
+            side: THREE.DoubleSide   // <-- добавляем эту строку
         });
 
         hangarGroup = new THREE.Group();
@@ -1404,122 +1508,346 @@
     function update3DModel(width, length, height, windowsCount, doorFrontCount, doorRearCount) {
         if (!hangarGroup) return;
 
-        // Очистка
+        // Очистка — освобождаем per-surface материалы и геометрии InstancedMesh
         while (hangarGroup.children.length > 0) {
-            hangarGroup.remove(hangarGroup.children[0]);
+            const obj = hangarGroup.children[0];
+            if (obj.isInstancedMesh) {
+                obj.geometry.dispose();
+            } else if (obj.material
+                && obj.material !== frameMaterial
+                && obj.material !== glassMaterial) {
+                if (obj.material.bumpMap) obj.material.bumpMap.dispose();
+                obj.material.dispose();
+            }
+            hangarGroup.remove(obj);
         }
 
-        // РАСЧЕТ ГЕОМЕТРИИ КРЫШИ (угол 12°)
+        // Геометрия крыши (угол 12°)
         const roofAngleDeg = 12;
         const roofAngleRad = roofAngleDeg * Math.PI / 180;
         const roofHalfWidth = width / 2;
-        const roofHeight = roofHalfWidth * Math.tan(roofAngleRad); // высота конька над уровнем стен
+        const roofHeight = roofHalfWidth * Math.tan(roofAngleRad);
         const roofSlopeLen = Math.sqrt(roofHalfWidth ** 2 + roofHeight ** 2);
 
-        // --- 1. КАРКАС (вертикальные колонны и наклонные стропила) ---
-        const frameStep = 3;
-        const numFrames = Math.floor(length / frameStep);
+        const frameStep    = 3;
+        const numFrames    = Math.floor(length / frameStep);
         const frameSpacing = length / numFrames;
 
+        const wallThickness = 0.1;
+
+        const wColor = wallMaterial.color.getHex();
+        const rColor = roofMaterial.color.getHex();
+
+        // ── Материал торцевых стен ──
+        const matEndWall = new THREE.MeshStandardMaterial({
+            color: wColor,
+            roughness: 0.45,
+            metalness: 0.15,
+            bumpMap: wallMaterial.bumpMap,
+            bumpScale: 0.05,
+            side: THREE.DoubleSide
+        });
+
+        // ── Материал крыши ──
+        const matRoof = new THREE.MeshStandardMaterial({
+            color: rColor,
+            roughness: 0.5,
+            metalness: 0.2,
+            bumpMap: makeSurfaceTexture(roofSlopeLen, length),
+            bumpScale: 0.30,
+            side: THREE.DoubleSide
+        });
+
+        // --- 1. КАРКАС (фермы) ---
+        const allSticks = [];
         for (let i = 0; i <= numFrames; i++) {
             const zPos = (i * frameSpacing) - (length / 2);
-            createFrame(zPos, width, height, roofHeight, roofSlopeLen, roofAngleRad);
+            collectFrameSticks(allSticks, zPos, width, height, roofHeight, roofSlopeLen);
+        }
+        createDynamicTruss(allSticks);
+
+        // --- 2. БОКОВЫЕ СТЕНЫ С ОТВЕРСТИЯМИ ПОД ОКНА ---
+        const winW       = 1.5;
+        const winH       = 1.2;
+        const winCenterY = height * 0.55;
+        const winBottom  = winCenterY - winH / 2;
+        const winTop     = winCenterY + winH / 2;
+
+        // Max windows per side is limited by building length (1 window per 3m bay).
+        // Cap the total count so we never punch more holes than bays available.
+        const maxWinsPerSide = Math.floor(length / 3);
+        const maxWinsTotal   = maxWinsPerSide * 2;
+        const effectiveWindowsCount = Math.min(windowsCount, maxWinsTotal);  // ← CAP
+        // If the slider exceeds the cap, update the displayed value in the UI
+        if (windowsCount > maxWinsTotal) {
+            document.getElementById('val-windows').textContent = maxWinsTotal;
+        }
+        const windowsPerSide = effectiveWindowsCount > 0 ? Math.ceil(effectiveWindowsCount / 2) : 0;
+        const winPositions   = [];
+        if (windowsPerSide > 0 && numFrames > 0) {
+            for (let i = 0; i < windowsPerSide; i++) {
+                const bayIndex = Math.floor((i + 0.5) * (numFrames / windowsPerSide));
+                if (bayIndex >= numFrames) continue;
+                winPositions.push({
+                    z:        (-length / 2) + bayIndex * frameSpacing + frameSpacing / 2,
+                    hasRight: (i * 2 + 1) < effectiveWindowsCount   // ← use capped count here too
+                });
+            }
         }
 
-        // --- 2. БОКОВЫЕ СТЕНЫ (вертикальные) ---
-        const sideGeo = new THREE.BoxGeometry(0.1, height, length);
+        // Строим ExtrudeGeometry боковой стены с пробитыми отверстиями под окна.
+        // Shape задан в local XY: local-X → world-Z, local-Y → world-Y.
+        // includeRightHoles=false → левая стена (все окна),
+        // includeRightHoles=true  → правая стена (только те, где hasRight).
+        function buildSideWallGeom(includeRightHoles) {
+            const shape = new THREE.Shape();
+            shape.moveTo(-length / 2, 0);
+            shape.lineTo( length / 2, 0);
+            shape.lineTo( length / 2, height);
+            shape.lineTo(-length / 2, height);
+            shape.lineTo(-length / 2, 0);
 
-        const leftW = new THREE.Mesh(sideGeo, wallMaterial);
-        leftW.position.set(-width / 2, height / 2, 0);
+            winPositions.forEach(({ z, hasRight }) => {
+                if (includeRightHoles && !hasRight) return;
+
+                // Left wall  (rot.y = +π/2): world Z = -local X → need local X = -z
+                // Right wall (rot.y = -π/2): world Z = +local X → need local X = +z
+                const holeX = includeRightHoles ? z : -z;
+
+                const hole = new THREE.Path();
+                hole.moveTo(holeX - winW / 2, winBottom);
+                hole.lineTo(holeX + winW / 2, winBottom);
+                hole.lineTo(holeX + winW / 2, winTop);
+                hole.lineTo(holeX - winW / 2, winTop);
+                hole.lineTo(holeX - winW / 2, winBottom);
+                shape.holes.push(hole);
+            });
+
+            const geom = new THREE.ExtrudeGeometry(shape, { depth: wallThickness, bevelEnabled: false });
+            remapSideWallUVs(geom);
+            return geom;
+        }
+        // ── Материал боковых стен ──
+        // UV уже в мировых единицах (ремапим в buildSideWallGeom), repeat(1,1)
+        const matSideWall = new THREE.MeshStandardMaterial({
+            color:     wColor,
+            roughness: 0.45,
+            metalness: 0.15,
+            bumpMap:   wallMaterial.bumpMap,
+            bumpScale: 0.05,
+            side:      THREE.DoubleSide
+        });
+
+        // Левая стена: rotation.y = +π/2  → local-Z → world +X
+        // Стена центрируется на x = -width/2 (depth 0→0.1 → world -width/2-0.05 … -width/2+0.05)
+        const leftGeom = buildSideWallGeom(false);
+        const leftW    = new THREE.Mesh(leftGeom, matSideWall);
+        leftW.rotation.y = Math.PI / 2;
+        leftW.position.set(-width / 2 - wallThickness / 2, 0, 0);
         hangarGroup.add(leftW);
 
-        const rightW = new THREE.Mesh(sideGeo, wallMaterial);
-        rightW.position.set(width / 2, height / 2, 0);
+        // Правая стена: rotation.y = -π/2 → local-Z → world -X
+        // Стена центрируется на x = +width/2
+        const rightGeom = buildSideWallGeom(true);
+        const rightW    = new THREE.Mesh(rightGeom, matSideWall);
+        rightW.rotation.y = -Math.PI / 2;
+        rightW.position.set(width / 2 + wallThickness / 2, 0, 0);
         hangarGroup.add(rightW);
 
-        // --- 3. ОКНА ---
-        if (windowsCount > 0) {
-            createWindows(width, length, height, windowsCount, numFrames, frameSpacing);
-        }
+        // --- 3. СТЁКЛА (PlaneGeometry в плоскости стены, внутри отверстий) ---
+winPositions.forEach(({ z, hasRight }) => {
+    const glassGeo = new THREE.PlaneGeometry(winW, winH);
 
-        // --- 4. ТОРЦЕВЫЕ СТЕНЫ (прямоугольник + треугольный фронтон) ---
-        createEndWall(-length / 2, width, height, roofHeight, doorRearCount);  // задняя
-        createEndWall(length / 2, width, height, roofHeight, doorFrontCount); // передняя
+    const glassL = new THREE.Mesh(glassGeo, glassMaterial);
+    glassL.rotation.y = Math.PI / 2;          // ← ADD THIS
+    glassL.position.set(-width / 2, winCenterY, z);
+    hangarGroup.add(glassL);
 
-        // --- 5. КРЫША (два ската) ---
+    if (hasRight) {
+        const glassR = new THREE.Mesh(glassGeo, glassMaterial);
+        glassR.rotation.y = Math.PI / 2;      // ← ADD THIS
+        glassR.position.set(width / 2, winCenterY, z);
+        hangarGroup.add(glassR);
+    }
+});
+
+        // --- 4. ТОРЦЕВЫЕ СТЕНЫ ---
+        // Сдвинуты наружу на wallThickness: внутренняя грань совпадает
+        // с плоскостью крайней фермы z = ±length/2 → ферма внутри здания
+        createEndWall(-(length / 2 + wallThickness), width, height, roofHeight, doorRearCount,  matEndWall);
+        createEndWall( (length / 2 + wallThickness), width, height, roofHeight, doorFrontCount, matEndWall);
+
+        // --- 5. КРЫША ---
         const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4);
 
-        const roofL = new THREE.Mesh(roofGeo, roofMaterial);
+        const roofL = new THREE.Mesh(roofGeo, matRoof);
         roofL.rotation.z = roofAngleRad;
         roofL.position.set(-width / 4, height + roofHeight / 2, 0);
         hangarGroup.add(roofL);
 
-        const roofR = new THREE.Mesh(roofGeo, roofMaterial);
+        const roofR = new THREE.Mesh(roofGeo, matRoof);
         roofR.rotation.z = -roofAngleRad;
         roofR.position.set(width / 4, height + roofHeight / 2, 0);
         hangarGroup.add(roofR);
     }
 
-    // ============= КАРКАС =============
-    function createFrame(zPos, width, height, roofHeight, roofSlopeLen, angle) {
-        const bT = 0.25; // толщина элементов каркаса
+    // =====================================================================
+    // ФЕРМА — ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // =====================================================================
 
-        // Левая колонна
-        const colL = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-        colL.position.set(-width / 2, height / 2, zPos);
-        hangarGroup.add(colL);
+    function v3(x, y, z) { return new THREE.Vector3(x, y, z); }
 
-        // Правая колонна
-        const colR = new THREE.Mesh(new THREE.BoxGeometry(bT, height, bT), frameMaterial);
-        colR.position.set(width / 2, height / 2, zPos);
-        hangarGroup.add(colR);
+    function collectFrameSticks(sticks, zPos, width, height, roofHeight, roofSlopeLen) {
+        const halfW = width / 2;
 
-        // Стропила (балки скатов)
-        const beamGeo = new THREE.BoxGeometry(roofSlopeLen, bT, bT);
+        const colDepth = Math.max(0.30, Math.min(0.80, height       * 0.08));
+        const rafDepth = Math.max(0.30, Math.min(0.80, roofSlopeLen * 0.06));
 
-        const beamL = new THREE.Mesh(beamGeo, frameMaterial);
-        beamL.rotation.z = angle;
-        beamL.position.set(-width / 4, height + roofHeight / 2, zPos);
-        hangarGroup.add(beamL);
+        const wallInset = 0.05;
+        const roofInset = 0.09;
 
-        const beamR = new THREE.Mesh(beamGeo, frameMaterial);
-        beamR.rotation.z = -angle;
-        beamR.position.set(width / 4, height + roofHeight / 2, zPos);
-        hangarGroup.add(beamR);
-    }
+        const colPanels = Math.max(3, Math.round(height       / 1.3));
+        const rafPanels = Math.max(4, Math.round(roofSlopeLen / 1.4));
+        const colPanelH = height / colPanels;
 
-    // ============= ОКНА =============
-    function createWindows(width, length, height, totalWindows, numFrames, frameSpacing) {
-        const windowsPerSide = Math.ceil(totalWindows / 2);
-        const winGeo = new THREE.BoxGeometry(0.15, 1.2, 1.5);
-        const offsetX = 0.12; // чтобы окно было внутри стены
-
-        if (numFrames < 1) return;
-
-        for (let i = 0; i < windowsPerSide; i++) {
-            const ratio = numFrames / windowsPerSide;
-            const bayIndex = Math.floor((i + 0.5) * ratio);
-            if (bayIndex >= numFrames) continue;
-
-            const zPos = (-length / 2) + (bayIndex * frameSpacing) + (frameSpacing / 2);
-
-            // Левая стена
-            const winL = new THREE.Mesh(winGeo, glassMaterial);
-            winL.position.set(-width/2 - 0.01, height/2 + 0.5, zPos);
-            hangarGroup.add(winL);
-
-            // Правая стена (если нужно больше окон)
-            if ((i * 2) + 1 < totalWindows) {
-                const winR = new THREE.Mesh(winGeo, glassMaterial);
-                winR.position.set(width / 2 + 0.01, height / 2 + 0.5, zPos);
-                hangarGroup.add(winR);
+        // ── ЛЕВАЯ КОЛОННА ──────────────────────────────────────────────
+        {
+            const xO = -halfW + wallInset;
+            const xI = xO + colDepth;
+            for (let i = 0; i < colPanels; i++) {
+                const y0 = i * colPanelH;
+                const y1 = (i + 1) * colPanelH;
+                sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xO, y1, zPos) });
+                sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xI, y1, zPos) });
+                sticks.push({ p1: v3(xO, y1, zPos), p2: v3(xI, y1, zPos) });
+                if (i === 0)
+                    sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y0, zPos) });
+                if (i % 2 === 0)
+                    sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y1, zPos) });
+                else
+                    sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xO, y1, zPos) });
             }
         }
+
+        // ── ПРАВАЯ КОЛОННА (зеркало) ───────────────────────────────────
+        {
+            const xO = halfW - wallInset;
+            const xI = xO - colDepth;
+            for (let i = 0; i < colPanels; i++) {
+                const y0 = i * colPanelH;
+                const y1 = (i + 1) * colPanelH;
+                sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xO, y1, zPos) });
+                sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xI, y1, zPos) });
+                sticks.push({ p1: v3(xO, y1, zPos), p2: v3(xI, y1, zPos) });
+                if (i === 0)
+                    sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y0, zPos) });
+                if (i % 2 === 0)
+                    sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y1, zPos) });
+                else
+                    sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xO, y1, zPos) });
+            }
+        }
+
+        // ── СТРОПИЛЬНЫЕ ФЕРМЫ ──────────────────────────────────────────
+        const sL = v3(halfW, roofHeight, 0).normalize();
+        const pL = v3(sL.y, -sL.x, 0);
+
+        const sR = v3(-halfW, roofHeight, 0).normalize();
+        const pR = v3(-sR.y, sR.x, 0);
+
+        const rafStartL = v3(-halfW + wallInset, height, zPos).addScaledVector(pL, roofInset);
+        const rafEndL   = v3(0, height + roofHeight,     zPos).addScaledVector(pL, roofInset);
+        const rafStartR = v3( halfW - wallInset, height, zPos).addScaledVector(pR, roofInset);
+        const rafEndR   = v3(0, height + roofHeight,     zPos).addScaledVector(pR, roofInset);
+
+        // Левая полуферма
+        for (let i = 0; i < rafPanels; i++) {
+            const t0 = i / rafPanels, t1 = (i + 1) / rafPanels;
+            const tO0 = new THREE.Vector3().lerpVectors(rafStartL, rafEndL, t0);
+            const tO1 = new THREE.Vector3().lerpVectors(rafStartL, rafEndL, t1);
+            const tI0 = tO0.clone().addScaledVector(pL, rafDepth);
+            const tI1 = tO1.clone().addScaledVector(pL, rafDepth);
+
+            sticks.push({ p1: tO0, p2: tO1 });
+            sticks.push({ p1: tI0, p2: tI1 });
+            sticks.push({ p1: tO1, p2: tI1 });
+            if (i === 0)
+                sticks.push({ p1: tO0, p2: tI0 });
+            if (i % 2 === 0)
+                sticks.push({ p1: tO0, p2: tI1 });
+            else
+                sticks.push({ p1: tI0, p2: tO1 });
+        }
+
+        // Правая полуферма
+        for (let i = 0; i < rafPanels; i++) {
+            const t0 = i / rafPanels, t1 = (i + 1) / rafPanels;
+            const tO0 = new THREE.Vector3().lerpVectors(rafStartR, rafEndR, t0);
+            const tO1 = new THREE.Vector3().lerpVectors(rafStartR, rafEndR, t1);
+            const tI0 = tO0.clone().addScaledVector(pR, rafDepth);
+            const tI1 = tO1.clone().addScaledVector(pR, rafDepth);
+
+            sticks.push({ p1: tO0, p2: tO1 });
+            sticks.push({ p1: tI0, p2: tI1 });
+            sticks.push({ p1: tO1, p2: tI1 });
+            if (i === 0)
+                sticks.push({ p1: tO0, p2: tI0 });
+            if (i % 2 === 0)
+                sticks.push({ p1: tO0, p2: tI1 });
+            else
+                sticks.push({ p1: tI0, p2: tO1 });
+        }
+
+        // ── КОНЁК ──────────────────────────────────────────────────────
+        const ridgeTop = v3(0, height + roofHeight, zPos).addScaledVector(pL, roofInset);
+        const ridgeL   = rafEndL.clone().addScaledVector(pL, rafDepth);
+        const ridgeR   = rafEndR.clone().addScaledVector(pR, rafDepth);
+        sticks.push({ p1: ridgeL,   p2: ridgeR   });
+        sticks.push({ p1: ridgeTop, p2: ridgeL   });
+        sticks.push({ p1: ridgeTop, p2: ridgeR   });
+    }
+
+    function createDynamicTruss(sticks) {
+        const bT = 0.07;
+
+        const geo  = new THREE.BoxGeometry(1, 1, 1);
+        const mesh = new THREE.InstancedMesh(geo, frameMaterial, sticks.length);
+        mesh.castShadow    = true;
+        mesh.receiveShadow = false;
+
+        const matrix = new THREE.Matrix4();
+        const pos    = new THREE.Vector3();
+        const quat   = new THREE.Quaternion();
+        const scale  = new THREE.Vector3();
+        const zAxis  = new THREE.Vector3(0, 0, 1);
+        const dir    = new THREE.Vector3();
+
+        sticks.forEach(({ p1, p2 }, idx) => {
+            dir.subVectors(p2, p1);
+            const len = dir.length();
+            if (len < 0.001) { mesh.setMatrixAt(idx, new THREE.Matrix4()); return; }
+
+            pos.addVectors(p1, p2).multiplyScalar(0.5);
+            scale.set(bT, bT, len);
+
+            const dirN = dir.clone().normalize();
+            const dot  = zAxis.dot(dirN);
+            if (dot < -0.9999) {
+                quat.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI);
+            } else {
+                quat.setFromUnitVectors(zAxis, dirN);
+            }
+
+            matrix.compose(pos, quat, scale);
+            mesh.setMatrixAt(idx, matrix);
+        });
+
+        mesh.instanceMatrix.needsUpdate = true;
+        hangarGroup.add(mesh);
     }
 
     // ============= ТОРЦЕВЫЕ СТЕНЫ =============
-    function createEndWall(zPos, width, height, roofHeight, doorsCount) {
-        // Форма: прямоугольник + треугольник (фронтон)
+    function createEndWall(zPos, width, height, roofHeight, doorsCount, mat) {
         const shape = new THREE.Shape();
         const halfW = width / 2;
 
@@ -1531,30 +1859,31 @@
         shape.lineTo(-halfW, 0);
 
         const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
-        const wall = new THREE.Mesh(geom, wallMaterial);
-        const offset = (zPos > 0) ? -0.1 : 0; // небольшой сдвиг, чтобы не пересекаться с каркасом
+        remapExtrudeUVs(geom, width, height + roofHeight);
+
+        const wall   = new THREE.Mesh(geom, mat);
+        const offset = (zPos > 0) ? -0.1 : 0;
         wall.position.set(0, 0, zPos + offset);
         hangarGroup.add(wall);
 
-        // Ворота
         if (doorsCount > 0) {
-            const dW = Math.min(4, width * 0.4);
-            const dH = Math.min(4.5, height * 0.85);
+            const dW     = Math.min(4, width * 0.4);
+            const dH     = Math.min(4.5, height * 0.85);
             const doorGeo = new THREE.BoxGeometry(dW, dH, 0.3);
             const doorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-            const doorZ = zPos + ((zPos > 0) ? 0.015 : -0.015);
+            const doorZ   = zPos + ((zPos > 0) ? 0.015 : -0.015);
 
-            if (doorsCount == 1) {
+            if (doorsCount === 1) {
                 const door = new THREE.Mesh(doorGeo, doorMat);
                 door.position.set(0, dH / 2, doorZ);
                 hangarGroup.add(door);
-            } else if (doorsCount == 2) {
+            } else if (doorsCount === 2) {
                 const offsetX = width / 4;
-                const door1 = new THREE.Mesh(doorGeo, doorMat);
+                const door1   = new THREE.Mesh(doorGeo, doorMat);
                 door1.position.set(-offsetX, dH / 2, doorZ);
                 hangarGroup.add(door1);
                 const door2 = new THREE.Mesh(doorGeo, doorMat);
-                door2.position.set(offsetX, dH / 2, doorZ);
+                door2.position.set( offsetX, dH / 2, doorZ);
                 hangarGroup.add(door2);
             }
         }
