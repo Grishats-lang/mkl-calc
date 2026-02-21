@@ -1361,6 +1361,46 @@
         return texture;
     }
 
+    // ============= ГЕНЕРАЦИЯ ТЕКСТУРЫ ДЛЯ ВОРОТ =============
+function createDoorTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#606060';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Горизонтальные секции (панели)
+    const panelCount = 6;
+    const panelH = canvas.height / panelCount;
+    for (let i = 0; i < panelCount; i++) {
+        const y = i * panelH;
+        
+        const grad = ctx.createLinearGradient(0, y, 0, y + panelH);
+        grad.addColorStop(0, '#aaaaaa');
+        grad.addColorStop(0.8, '#777777');
+        grad.addColorStop(1, '#555555');
+        
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, y, canvas.width, panelH);
+        
+        // Темная канавка между панелями
+        ctx.fillStyle = '#222222';
+        ctx.fillRect(0, y + panelH - 4, canvas.width, 4);
+    }
+    
+    // Внутренняя рамка ворот
+    ctx.lineWidth = 16;
+    ctx.strokeStyle = '#333333';
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+}
+
     // ─────────────────────────────────────────────────────────────────────────
     // makeSurfaceTexture — новый экземпляр текстуры на том же canvas,
     // с repeat рассчитанным под реальные размеры грани (для крыши).
@@ -1452,6 +1492,7 @@
 
         // Bump-текстура — создаётся один раз, canvas переиспользуется везде
         const panelBumpMap = createPanelBumpTexture();
+        doorTexture = createDoorTexture(); // Генерируем текстуру ворот
 
         // wallMaterial — хранит цвет и исходный bumpMap (canvas).
         // Сам материал НЕ используется на мешах — только как источник
@@ -1869,25 +1910,31 @@ winPositions.forEach(({ z, hasRight }) => {
         if (doorsCount > 0) {
             const dW     = Math.min(4, width * 0.4);
             const dH     = Math.min(4.5, height * 0.85);
-            const doorGeo = new THREE.BoxGeometry(dW, dH, 0.3);
-            const doorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-            const doorZ   = zPos + ((zPos > 0) ? 0.015 : -0.015);
-
-            if (doorsCount === 1) {
-                const door = new THREE.Mesh(doorGeo, doorMat);
-                door.position.set(0, dH / 2, doorZ);
-                hangarGroup.add(door);
-            } else if (doorsCount === 2) {
-                const offsetX = width / 4;
-                const door1   = new THREE.Mesh(doorGeo, doorMat);
-                door1.position.set(-offsetX, dH / 2, doorZ);
-                hangarGroup.add(door1);
-                const door2 = new THREE.Mesh(doorGeo, doorMat);
-                door2.position.set( offsetX, dH / 2, doorZ);
-                hangarGroup.add(door2);
-            }
+            const doorGeo = new THREE.BoxGeometry(dW, dH, 0.2);
+        // Применяем текстуру к материалу ворот
+        const doorMat = new THREE.MeshStandardMaterial({ 
+            color: 0xcccccc, 
+            roughness: 0.6,
+            map: doorTexture
+        });
+        
+        const doorZ   = zPos + ((zPos > 0) ? -0.05 : +0.05);
+        if (doorsCount === 1) {
+            const door = new THREE.Mesh(doorGeo, doorMat);
+            door.position.set(0, dH / 2, doorZ);
+            hangarGroup.add(door);
+        } else if (doorsCount === 2) {
+            const offsetX = width / 4;
+            const door1   = new THREE.Mesh(doorGeo, doorMat);
+            door1.position.set(-offsetX, dH / 2, doorZ);
+            hangarGroup.add(door1);
+            
+            const door2 = new THREE.Mesh(doorGeo, doorMat);
+            door2.position.set( offsetX, dH / 2, doorZ);
+            hangarGroup.add(door2);
         }
     }
+}
 
 // ==============================================
 // КОНСТАНТЫ ЦЕН ПО УМОЛЧАНИЮ
