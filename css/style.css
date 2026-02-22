@@ -640,6 +640,106 @@
                 }
             }
         }
+/* ============================================
+   КАСТОМНЫЙ ВЫПАДАЮЩИЙ СПИСОК ЦВЕТОВ (ДЛЯ МОБИЛЬНЫХ И ПК)
+   ============================================ */
+.custom-select-container {
+    position: relative;
+    width: 100%;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px;
+}
+
+/* Кнопка (заголовок списка) */
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    height: 36px;
+}
+
+.custom-select-trigger:hover {
+    border-color: #0D47A1;
+}
+
+.custom-select-trigger span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Цветной кружок в заголовке */
+.custom-color-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+/* Стрелочка */
+.custom-select-trigger::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid #333;
+    border-bottom: 2px solid #333;
+    transform: translateY(-3px) rotate(45deg);
+    transition: transform 0.2s;
+}
+
+.custom-select-container.open .custom-select-trigger::after {
+    transform: translateY(3px) rotate(-135deg);
+}
+
+/* Выпадающий список */
+.custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-top: 5px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+    list-style: none;
+    padding: 0;
+}
+
+.custom-select-container.open .custom-select-options {
+    display: block;
+}
+
+/* Элемент списка */
+.custom-select-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: block;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: filter 0.2s;
+}
+
+.custom-select-option:last-child {
+    border-bottom: none;
+}
+
+.custom-select-option:hover {
+    filter: brightness(0.9); /* Слегка затемняем при наведении */
+}
         /* ============================================
            ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ
            ============================================ */
