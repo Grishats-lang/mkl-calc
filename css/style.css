@@ -513,122 +513,133 @@
     }
 }
 
-/* ============================================
-   МОБИЛЬНАЯ АДАПТАЦИЯ - ТОЛЬКО ВЫПАДАЮЩИЙ СПИСОК
-   ============================================ */
+        /* ============================================
+           МОБИЛЬНАЯ АДАПТАЦИЯ - ТОЛЬКО ВЫПАДАЮЩИЙ СПИСОК
+           ============================================ */
 
-/* Планшеты */
-@media (max-width: 1000px) {
-    .colors-wrapper {
-        flex-direction: row;
-    }
-    
-    .color-section {
-        padding: 6px 8px;
-    }
-    
-    .color-label {
-        font-size: 11px;
-    }
-    
-    .color-mini-swatch {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .color-select {
-        padding: 4px 10px 4px 26px !important;
-        height: 28px;
-        font-size: 11px;
-    }
-}
-
-/* Мобильные устройства - убираем всё лишнее, оставляем только select */
-@media (max-width: 768px) {
-    .colors-wrapper {
-        flex-direction: row;
-        flex-wrap: nowrap;
-    }
-    
-    .color-section {
-        padding: 6px 8px;
-        gap: 0; /* Убираем gap */
-    }
-    
-    /* Прячем label "Стены:" и "Кровля:" */
-    .color-label {
-        display: none;
-    }
-    
-    /* Прячем мини-палитру с 5 цветами */
-    .color-mini-palette {
-        display: none;
-    }
-    
-    /* Контейнер для select занимает всю ширину */
-    .color-select-wrapper {
-        width: 100%;
-    }
-    
-    /* Делаем select на всю ширину */
-    .color-select {
-        padding: 6px 12px 6px 30px !important;
-        height: 36px;
-        font-size: 13px;
-        width: 100%;
-    }
-    
-    .select-preview-dot {
-        width: 16px;
-        height: 16px;
-        left: 10px;
-    }
-}
-
-/* Маленькие мобильные устройства */
-@media (max-width: 480px) {
-    .color-section {
-        padding: 5px 6px;
-    }
-    
-    .color-select {
-        padding: 5px 10px 5px 28px !important;
-        height: 34px;
-        font-size: 12px;
-    }
-    
-    .select-preview-dot {
-        width: 14px;
-        height: 14px;
-        left: 9px;
-    }
-}
-
-/* Для устройств с тач-интерфейсом */
-@media (hover: none) and (pointer: coarse) {
-    @media (max-width: 768px) {
-        .color-select {
-            padding: 8px 12px 8px 32px !important;
-            height: 44px;
-            font-size: 14px;
+        /* Планшеты */
+        @media (max-width: 1000px) {
+            .colors-wrapper {
+                flex-direction: row;
+            }
+            
+            .color-section {
+                padding: 6px 8px;
+            }
+            
+            .color-label {
+                font-size: 11px;
+            }
+            
+            .color-mini-swatch {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .color-select {
+                padding: 4px 10px 4px 26px !important;
+                height: 28px;
+                font-size: 11px;
+            }
         }
-        
-        .select-preview-dot {
-            width: 18px;
-            height: 18px;
-            left: 10px;
-        }
-    }
-}
 
-/* Для Firefox на мобильных */
-@-moz-document url-prefix() {
-    @media (max-width: 768px) {
-        .color-select {
-            text-indent: 20px;
+        /* Мобильные устройства - убираем всё лишнее, оставляем только select */
+        @media (max-width: 768px) {
+            .colors-wrapper {
+                flex-direction: row;
+                flex-wrap: nowrap;
+            }
+            
+            .color-section {
+                padding: 6px 8px;
+                gap: 0; /* Убираем gap */
+            }
+            
+            /* Прячем label "Стены:" и "Кровля:" */
+            .color-label {
+                display: none;
+            }
+            
+            /* Прячем мини-палитру с 5 цветами */
+            .color-mini-palette {
+                display: none;
+            }
+            
+            /* Контейнер для select занимает всю ширину */
+            .color-select-wrapper {
+                width: 100%;
+            }
+            
+            /* Делаем select на всю ширину */
+            .color-select {
+                padding: 6px 12px 6px 30px !important;
+                height: 36px;
+                font-size: 13px;
+                width: 100%;
+            }
+            
+            .select-preview-dot {
+                width: 16px;
+                height: 16px;
+                left: 10px;
+            }
         }
-    }
-}
+
+        /* Маленькие мобильные устройства */
+        @media (max-width: 480px) {
+            .color-section {
+                padding: 5px 6px;
+            }
+            
+            .color-select {
+                padding: 5px 10px 5px 28px !important;
+                height: 34px;
+                font-size: 12px;
+            }
+            
+            .select-preview-dot {
+                width: 14px;
+                height: 14px;
+                left: 9px;
+            }
+
+            /* --- Навигация для очень узких экранов --- */
+            .nav-container a {
+                padding: 8px 10px; /* Еще меньше отступов */
+                font-size: 12px;   /* Минимально читаемый шрифт */
+            }
+            
+            /* Уменьшаем отступ контента сверху, так как шапка стала тоньше */
+            .container {
+                padding-top: 45px; 
+            }
+        }
+
+        /* Для устройств с тач-интерфейсом */
+        @media (hover: none) and (pointer: coarse) {
+            @media (max-width: 768px) {
+                .color-select {
+                    padding: 8px 12px 8px 32px !important;
+                    height: 44px;
+                    font-size: 14px;
+                }
+                
+                .select-preview-dot {
+                    width: 18px;
+                    height: 18px;
+                    left: 10px;
+                }
+            }
+        }
+
+        /* Для Firefox на мобильных */
+        @-moz-document url-prefix() {
+            @media (max-width: 768px) {
+                .color-select {
+                    text-indent: 20px;
+                }
+            }
+        }
         /* ============================================
            ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ
            ============================================ */
@@ -1070,10 +1081,10 @@
             border-left-color: var(--accent-teal);
         }
 
-        /* ============================================
+/* ============================================
            АДАПТИВНОСТЬ
            ============================================ */
-           @media (max-width: 768px) {
+        @media (max-width: 768px) {
             .header h1 {
                 font-size: 2em;
             }
@@ -1090,10 +1101,29 @@
                 font-size: 1.6em;
             }
 
-            .nav-container a {
-                padding: 15px 18px;
-                font-size: 0.9em;
+            /* --- СТАРТ: КОМПАКТНАЯ НАВИГАЦИЯ --- */
+            .nav-container {
+                flex-wrap: nowrap; /* Запрещаем перенос на новые строки (все в один ряд) */
+                overflow-x: auto; /* Включаем горизонтальную прокрутку */
+                justify-content: flex-start; /* Выравниваем по левому краю */
+                -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iPhone/iPad */
+                padding: 0 5px; /* Небольшой отступ по бокам экрана */
+                scrollbar-width: none; /* Прячем полосу прокрутки в Firefox */
             }
+
+            /* Прячем полосу прокрутки в Chrome/Safari/Edge, оставляя функционал */
+            .nav-container::-webkit-scrollbar {
+                display: none;
+            }
+
+            .nav-container a {
+                padding: 10px 14px; /* Уменьшаем отступы: 10px сверху/снизу, 14px по бокам */
+                font-size: 13px; /* Уменьшаем размер шрифта */
+                white-space: nowrap; /* Запрещаем тексту внутри ссылки ломаться на 2 строки */
+                flex-shrink: 0; /* Запрещаем кнопкам сплющиваться */
+                border-bottom-width: 2px; /* Делаем полоску при наведении чуть тоньше */
+            }
+            /* --- КОНЕЦ: КОМПАКТНАЯ НАВИГАЦИЯ --- */
 
             .gallery {
                 grid-template-columns: 1fr;
