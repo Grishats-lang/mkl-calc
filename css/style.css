@@ -740,6 +740,13 @@
 .custom-select-option:hover {
     filter: brightness(0.9); /* Слегка затемняем при наведении */
 }
+
+/* Выделение выбранного цвета в списке */
+.custom-select-option.selected-item {
+    font-weight: bold;
+    border-left: 4px solid #0D47A1; /* Синяя полоска слева */
+    background-image: linear-gradient(to right, rgba(13, 71, 161, 0.1), transparent);
+}
         /* ============================================
            ГАЛЕРЕЯ ИЗОБРАЖЕНИЙ
            ============================================ */
