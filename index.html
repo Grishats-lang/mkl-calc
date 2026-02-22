@@ -3671,56 +3671,45 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- 2. ПОДКЛЮЧАЕМ МАССИВ ЦВЕТОВ RAL (200+ цветов) -->
     <script src="js/ral-colors.js"></script>
 
-    <script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Функция для создания кастомных селектов
     function initCustomColorSelects() {
-        // Находим ваши списки для стен и кровли (ищем по ID или классу)
-        const colorSelects = document.querySelectorAll(
-            '#wall-color-select, #roof-color-select, .wall-color-select, .roof-color-select'
-        );
+        const colorSelects = document.querySelectorAll('.color-select');
         
         colorSelects.forEach(select => {
-            // Если кастомный селект уже создан — пропускаем
             if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select-container')) return;
 
-            // Скрываем оригинальный системный селект
+            // 1. Скрываем системный селект и старую точку
             select.style.display = 'none';
+            const oldDot = select.parentNode.querySelector('.select-preview-dot');
+            if (oldDot) oldDot.style.display = 'none';
 
-            // Создаем HTML-структуру кастомного списка
+            // 2. Создаем HTML-структуру
             const container = document.createElement('div');
             container.className = 'custom-select-container';
 
             const trigger = document.createElement('div');
             trigger.className = 'custom-select-trigger';
-            // Временно ставим текст по умолчанию
-            trigger.innerHTML = `<span><div class="custom-color-dot" style="background: transparent;"></div> Выберите цвет</span>`;
+            trigger.innerHTML = `<span><div class="custom-color-dot" style="background: transparent;"></div> Загрузка...</span>`;
 
             const optionsList = document.createElement('ul');
             optionsList.className = 'custom-select-options';
 
-            // Переносим все 200 цветов из вашего невидимого селекта в красивый HTML-список
-            Array.from(select.options).forEach(option => {
+            // Переносим все 200 цветов
+            Array.from(select.options).forEach((option, index) => {
                 const li = document.createElement('li');
                 li.className = 'custom-select-option';
-                li.textContent = option.text; // Например: "RAL 3000 - Огненно-красный"
+                li.textContent = option.text; 
                 
-                // Копируем цвета фона и текста (чтобы список был цветным)
                 if (option.style.backgroundColor) li.style.backgroundColor = option.style.backgroundColor;
                 if (option.style.color) li.style.color = option.style.color;
 
-                // Что происходит при клике на цвет в списке
+                // Клик по цвету в списке
                 li.addEventListener('click', (e) => {
                     e.stopPropagation(); 
-                    
-                    // 1. Меняем значение в оригинальном невидимом селекте
                     select.value = option.value;
-                    
-                    // 2. Обязательно "пинаем" калькулятор, чтобы он понял, что цвет изменился
-                    select.dispatchEvent(new Event('change'));
-
-                    // 3. Закрываем список
+                    select.dispatchEvent(new Event('change')); // Пинаем калькулятор
                     container.classList.remove('open');
                 });
 
@@ -3729,45 +3718,75 @@ document.addEventListener('DOMContentLoaded', function() {
 
             container.appendChild(trigger);
             container.appendChild(optionsList);
-            
-            // Вставляем кастомный список сразу после оригинального
             select.parentNode.insertBefore(container, select.nextSibling);
 
-            // Обработка открытия/закрытия списка по клику на заголовок
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Закрываем все другие списки, если они открыты
-                document.querySelectorAll('.custom-select-container.open').forEach(c => {
-                    if (c !== container) c.classList.remove('open');
-                });
-                container.classList.toggle('open');
-            });
-
-            // Функция обновления шапки списка (показывает текущий выбранный цвет)
+            // 3. Функция обновления интерфейса (шапка + выделение в списке)
+            let lastValue = "";
             const updateTriggerUI = () => {
                 if (select.selectedIndex >= 0) {
                     const selectedOpt = select.options[select.selectedIndex];
                     const bgColor = selectedOpt.style.backgroundColor || 'transparent';
+                    
+                    // Обновляем шапку
                     trigger.innerHTML = `<span><div class="custom-color-dot" style="background: ${bgColor};"></div> ${selectedOpt.text}</span>`;
+                    
+                    // Снимаем выделение со всех элементов
+                    const allLis = optionsList.querySelectorAll('li');
+                    allLis.forEach(li => li.classList.remove('selected-item'));
+                    
+                    // Ставим выделение на активный элемент
+                    if (allLis[select.selectedIndex]) {
+                        allLis[select.selectedIndex].classList.add('selected-item');
+                    }
                 }
             };
 
-            // Устанавливаем цвет при загрузке страницы
-            updateTriggerUI();
+            // 4. Открытие списка и авто-прокрутка к сохраненному цвету
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = container.classList.contains('open');
+                
+                // Закрываем все остальные
+                document.querySelectorAll('.custom-select-container.open').forEach(c => {
+                    c.classList.remove('open');
+                });
 
-            // СИНХРОНИЗАЦИЯ: Если пользователь кликнет на 5 "быстрых" кружочков, 
-            // ваш основной код изменит оригинальный select. Мы ловим это изменение и обновляем шапку!
+                if (!isOpen) {
+                    container.classList.add('open');
+                    
+                    // МАГИЯ ПРОКРУТКИ: скроллим список до выбранного элемента
+                    const activeIndex = select.selectedIndex;
+                    if (activeIndex >= 0) {
+                        const activeLi = optionsList.children[activeIndex];
+                        if (activeLi) {
+                            // Небольшая задержка нужна, чтобы браузер успел отрисовать блок перед прокруткой
+                            setTimeout(() => {
+                                activeLi.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+                            }, 10);
+                        }
+                    }
+                }
+            });
+
+            // 5. Первоначальная настройка
+            updateTriggerUI();
             select.addEventListener('change', updateTriggerUI);
+
+            // 6. МАГИЯ СИНХРОНИЗАЦИИ: Слушаем изменения от 3D модели
+            // Если ваш основной скрипт загрузил цвет из памяти, мы это поймаем и обновим интерфейс
+            setInterval(() => {
+                if (select.value !== lastValue) {
+                    lastValue = select.value;
+                    updateTriggerUI();
+                }
+            }, 200); // Проверяем 5 раз в секунду (нагрузка на процессор 0%)
         });
 
-        // Если кликнуть мимо списка — закрываем его
         document.addEventListener('click', () => {
             document.querySelectorAll('.custom-select-container').forEach(c => c.classList.remove('open'));
         });
     }
 
-    // Ждем 300 миллисекунд. Даем время вашему файлу ral-colors.js 
-    // загрузить 200 цветов в оригинальные <select>, а затем перехватываем их.
     setTimeout(initCustomColorSelects, 300);
 });
 </script>
