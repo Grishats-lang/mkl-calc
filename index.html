@@ -1402,6 +1402,39 @@ function createDoorTexture() {
     return tex;
 }
 
+// ============= ГЕНЕРАЦИЯ ТЕКСТУРЫ БЕТОНА =============
+function createConcreteTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.createImageData(canvas.width, canvas.height);
+    
+    // Генерируем шум в серых оттенках
+    for (let i = 0; i < imgData.data.length; i += 4) {
+        const val = 80 + Math.random() * 60; // от 80 до 140
+        imgData.data[i] = val;     // R
+        imgData.data[i+1] = val;   // G
+        imgData.data[i+2] = val;   // B
+        imgData.data[i+3] = 255;
+    }
+    ctx.putImageData(imgData, 0, 0);
+    
+    // Добавим несколько случайных тёмных пятен для реализма
+    for (let i = 0; i < 20; i++) {
+        ctx.fillStyle = '#505050';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 5 + Math.random() * 15, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(4, 4); // начальный тайлинг, будет изменяться под размер ангара
+    return tex;
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // makeSurfaceTexture — новый экземпляр текстуры на том же canvas,
 // с repeat рассчитанным под реальные размеры грани (для крыши).
@@ -1482,14 +1515,14 @@ function init3D() {
     dirLight.castShadow = true;
     scene.add(dirLight);
 
-    // Пол
-    const ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(1000, 1000),
-        new THREE.MeshStandardMaterial({ color: 0x90A4AE, roughness: 0.9 })
-    );
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = false;
-    scene.add(ground);
+    // ГЕНЕРАЦИЯ ТЕКСТУР
+    concreteTexture = createConcreteTexture();
+
+    // ── ЗЕМЛЯ — сетка координат ──────────────────────────────────────────
+    const grid = new THREE.GridHelper(1000, 200, 0x888888, 0xcccccc);
+    grid.position.y = -0.2; // ← поднять чуть выше бетонного пола
+    scene.add(grid);
+    // ─────────────────────────────────────────────────────────────────────
 
     // Bump-текстура — создаётся один раз, canvas переиспользуется везде
     const panelBumpMap = createPanelBumpTexture();
@@ -1599,6 +1632,26 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
         bumpScale: 0.30,
         side: THREE.DoubleSide
     });
+
+        // --- ВНУТРЕННИЙ БЕТОННЫЙ ПОЛ ---
+    // Создаем пол чуть-чуть шире самого ангара, чтобы он гарантированно заходил под стены
+    const floorGeo = new THREE.PlaneGeometry(width + 0.5, length + 0.5);
+    
+    // Настраиваем размер зерна бетона пропорционально размеру ангара
+    concreteTexture.repeat.set(width / 2, length / 2);
+
+    const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x909090, 
+        roughness: 0.9,
+        map: concreteTexture
+    });
+    
+    const innerFloor = new THREE.Mesh(floorGeo, floorMat);
+    innerFloor.rotation.x = -Math.PI / 2;
+    innerFloor.position.set(0, 0.01, 0); // Лежит ровно на Y = 0 (на 2 см выше травы)
+    innerFloor.receiveShadow = false;
+    hangarGroup.add(innerFloor); // Добавляем пол в группу ангара
+
 
     // --- 1. КАРКАС (фермы) ---
     const allSticks = [];
@@ -3675,17 +3728,19 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     
     function initCustomColorSelects() {
+        // Находим все селекты с классом .color-select (для стен и кровли)
         const colorSelects = document.querySelectorAll('.color-select');
         
         colorSelects.forEach(select => {
+            // Защита от двойного создания списка
             if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select-container')) return;
 
-            // 1. Скрываем системный селект и старую точку
+            // 1. Скрываем системный селект и старую статичную точку
             select.style.display = 'none';
             const oldDot = select.parentNode.querySelector('.select-preview-dot');
             if (oldDot) oldDot.style.display = 'none';
 
-            // 2. Создаем HTML-структуру
+            // 2. Создаем HTML-структуру кастомного списка
             const container = document.createElement('div');
             container.className = 'custom-select-container';
 
@@ -3696,21 +3751,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const optionsList = document.createElement('ul');
             optionsList.className = 'custom-select-options';
 
-            // Переносим все 200 цветов
+            // Переносим все 200 цветов из невидимого селекта
             Array.from(select.options).forEach((option, index) => {
                 const li = document.createElement('li');
                 li.className = 'custom-select-option';
                 li.textContent = option.text; 
                 
+                // Копируем цвета фона и текста
                 if (option.style.backgroundColor) li.style.backgroundColor = option.style.backgroundColor;
                 if (option.style.color) li.style.color = option.style.color;
 
-                // Клик по цвету в списке
+                // Клик по цвету в кастомном списке
                 li.addEventListener('click', (e) => {
                     e.stopPropagation(); 
                     select.value = option.value;
-                    select.dispatchEvent(new Event('change')); // Пинаем калькулятор
-                    container.classList.remove('open');
+                    select.dispatchEvent(new Event('change')); // Обновляем калькулятор и 3D модель
+                    container.classList.remove('open'); // Закрываем список
                 });
 
                 optionsList.appendChild(li);
@@ -3720,73 +3776,79 @@ document.addEventListener('DOMContentLoaded', function() {
             container.appendChild(optionsList);
             select.parentNode.insertBefore(container, select.nextSibling);
 
-            // 3. Функция обновления интерфейса (шапка + выделение в списке)
+            // 3. Функция обновления интерфейса (шапка + выделение активного цвета в списке)
             let lastValue = "";
             const updateTriggerUI = () => {
                 if (select.selectedIndex >= 0) {
                     const selectedOpt = select.options[select.selectedIndex];
                     const bgColor = selectedOpt.style.backgroundColor || 'transparent';
                     
-                    // Обновляем шапку
+                    // Обновляем текст и кружок в шапке
                     trigger.innerHTML = `<span><div class="custom-color-dot" style="background: ${bgColor};"></div> ${selectedOpt.text}</span>`;
                     
-                    // Снимаем выделение со всех элементов
+                    // Снимаем выделение со всех строк
                     const allLis = optionsList.querySelectorAll('li');
                     allLis.forEach(li => li.classList.remove('selected-item'));
                     
-                    // Ставим выделение на активный элемент
+                    // Ставим выделение (класс selected-item) на активный цвет
                     if (allLis[select.selectedIndex]) {
                         allLis[select.selectedIndex].classList.add('selected-item');
                     }
                 }
             };
 
-            // 4. Открытие списка и авто-прокрутка к сохраненному цвету
+            // 4. Открытие списка и РУЧНАЯ МАТЕМАТИЧЕСКАЯ ПРОКРУТКА
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isOpen = container.classList.contains('open');
                 
-                // Закрываем все остальные
+                // Закрываем все остальные списки на странице
                 document.querySelectorAll('.custom-select-container.open').forEach(c => {
                     c.classList.remove('open');
                 });
 
                 if (!isOpen) {
-                    container.classList.add('open');
+                    container.classList.add('open'); // Открываем текущий список
                     
-                    // МАГИЯ ПРОКРУТКИ: скроллим список до выбранного элемента
+                    // МАГИЯ ПРОКРУТКИ (ВАРИАНТ 2: Отступ сверху)
                     const activeIndex = select.selectedIndex;
                     if (activeIndex >= 0) {
                         const activeLi = optionsList.children[activeIndex];
                         if (activeLi) {
-                            // Небольшая задержка нужна, чтобы браузер успел отрисовать блок перед прокруткой
+                            // Небольшая задержка нужна, чтобы браузер успел применить display: block к списку
+                            // иначе он не сможет вычислить высоту элементов
                             setTimeout(() => {
-                                activeLi.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+                                // НАСТРОЙКА: Сколько строк оставлять видимыми НАД выбранным цветом
+                                const linesAbove = 1; // Можете поменять на 1, 3 или 4
+                                
+                                // Прокручиваем: Позиция элемента МИНУС (Высота одной строки * Количество строк)
+                                optionsList.scrollTop = activeLi.offsetTop - (activeLi.clientHeight * linesAbove);
                             }, 10);
                         }
                     }
                 }
             });
 
-            // 5. Первоначальная настройка
+            // 5. Первоначальная настройка при загрузке
             updateTriggerUI();
             select.addEventListener('change', updateTriggerUI);
 
-            // 6. МАГИЯ СИНХРОНИЗАЦИИ: Слушаем изменения от 3D модели
-            // Если ваш основной скрипт загрузил цвет из памяти, мы это поймаем и обновим интерфейс
+            // 6. Синхронизация: Слушаем изменения от 3D модели или Быстрых кнопок
             setInterval(() => {
                 if (select.value !== lastValue) {
                     lastValue = select.value;
                     updateTriggerUI();
                 }
-            }, 200); // Проверяем 5 раз в секунду (нагрузка на процессор 0%)
+            }, 200); // Проверяем 5 раз в секунду
         });
 
+        // Закрываем список при клике в пустое место экрана
         document.addEventListener('click', () => {
             document.querySelectorAll('.custom-select-container').forEach(c => c.classList.remove('open'));
         });
     }
 
+    // Запуск через 300мс (ждем пока ral-colors.js загрузит цвета)
     setTimeout(initCustomColorSelects, 300);
 });
 </script>
