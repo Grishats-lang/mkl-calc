@@ -991,7 +991,8 @@
 <section id="contact" class="section">
     <div class="section-number">10</div>
     <h2>Оставить заявку на расчёт</h2>
-    <p class="text-center">Заполните форму ниже. Мы подготовим предварительный расчет и свяжемся с вами в ближайшее время для согласования деталей и <strong>зафиксировать стоимость</strong>.</p>
+    <p class="text-center">
+    Оставьте заявку сейчас, чтобы <strong>зафиксировать стоимость</strong> материалов.<br>Прием заявок — круглосуточно. Менеджер перезвонит вам в рабочее время (Пн-Пт) для согласования КП.</p>
     
             <!-- Контакты (Только почта и телеграм, сайт убрали) 
             <div class="contact-grid">
@@ -1155,7 +1156,9 @@
             <div class="footer-col">
                 <h4>Клиентам</h4>
                 <p><a href="policy.html" target="_blank">Политика обработки персональных данных</a></p>
-                <p>Режим работы: Ежедневно 9:00 - 17:00</p>
+                <p>✅ Заявки на сайте: 24/7</p>
+                <p>📞 Звонки: Пн-Пт 09:00 - 17:00</p>
+                <p class="weekend-info">Сб-Вс: Выходной</p>
             </div>
         </div>
 
@@ -2947,6 +2950,16 @@ function initCalculator() {
         let wallThickness = parseFloat(wallThicknessInput.value) || 100;
         let roofThickness = parseFloat(roofThicknessInput.value) || 100;
         let windowsCount = parseInt(windowsInput.value) || 0;
+
+        //ограничение количества окон по длине здания 
+        const maxWinsPerSide = Math.floor(l / 3);          // минимум 3 метра на окно с одной стороны
+        const maxWinsTotal = maxWinsPerSide * 2;           // всегда чётное (с двух сторон)
+        windowsInput.max = maxWinsTotal;                   // динамически меняем максимум ползунка
+        
+        if (windowsCount > maxWinsTotal) {
+            windowsCount = maxWinsTotal;                   // корректируем значение
+            windowsInput.value = windowsCount;              // обновляем ползунок
+        }
         
         let snowRegionEl = document.getElementById('input-snow-region');
         let snowRegion = snowRegionEl ? parseInt(snowRegionEl.value) : 3;
