@@ -1314,46 +1314,94 @@
 let scene, camera, renderer, controls;
 let hangarGroup;
 let wallMaterial, frameMaterial, roofMaterial, glassMaterial;
-let doorTexture; // Глобальная переменная для текстуры ворот
+let doorTexture;
+let panelDefaultMap, panelCorrugatedMap, panelRibMap;
+let concreteTexture;
 
-// Цвета по умолчанию
-const DEFAULT_WALL_COLOR = 0x005387; // RAL 5005
-const DEFAULT_ROOF_COLOR = 0x455A64; // Серый
+// ─── Состояние текстур (с восстановлением из localStorage) ────────────────
+let currentWallTextureType = 'default';
+let currentRoofTextureType = 'default';
+let wallTextureOrientation = 'horizontal';
+// Масштаб панелей: физический размер одного тайла текстуры в метрах.
+// Меньше → больше тайлов → мелкий рисунок.
+// Больше → меньше тайлов → крупный рисунок.
+// ИЗМЕНЕНО: теперь значение фиксировано, не изменяется через слайдер
+let PANEL_SIZE_M = 0.2;
 
-// Физический размер одной панели в метрах
-const PANEL_SIZE_M = 0.2;
+// ─── Цвета по умолчанию ───────────────────────────────────────────────────
+const DEFAULT_WALL_COLOR  = 0x005387;
+const DEFAULT_ROOF_COLOR  = 0x455A64;
+const DEFAULT_FRAME_COLOR = 0x222222;
 
-// ============= ГЕНЕРАЦИЯ ТЕКСТУРЫ СЭНДВИЧ-ПАНЕЛЕЙ (КЛАССИКА) =============
-// Рисуем одну широкую гладкую панель с четким швом
+// ─── Ключи localStorage ───────────────────────────────────────────────────
+const LS_WALL_TEX    = 'angarWallTexture';
+const LS_ROOF_TEX    = 'angarRoofTexture';
+const LS_ORIENTATION = 'angarTexOrientation';
+// УДАЛЕНО: LS_PANEL_SCALE больше не используется
+const LS_FRAME_COLOR = 'angarFrameColorHex';
+const LS_WALL_COLOR  = 'angarWallColorHex';
+const LS_ROOF_COLOR  = 'angarRoofColorHex';
+
+// ─── Загрузка сохранённых настроек текстурного меню ──────────────────────
+function loadTextureSettings() {
+    currentWallTextureType = localStorage.getItem(LS_WALL_TEX)    || 'default';
+    currentRoofTextureType = localStorage.getItem(LS_ROOF_TEX)    || 'default';
+    wallTextureOrientation = localStorage.getItem(LS_ORIENTATION)  || 'horizontal';
+    // УДАЛЕНО: загрузка сохранённого масштаба
+    // const savedScale = parseFloat(localStorage.getItem(LS_PANEL_SCALE));
+    // if (!isNaN(savedScale) && savedScale > 0) PANEL_SIZE_M = savedScale;
+}
+loadTextureSettings();
+
+// ─── Сохранение настроек текстурного меню ────────────────────────────────
+function saveTextureSettings() {
+    localStorage.setItem(LS_WALL_TEX,    currentWallTextureType);
+    localStorage.setItem(LS_ROOF_TEX,    currentRoofTextureType);
+    localStorage.setItem(LS_ORIENTATION, wallTextureOrientation);
+    // УДАЛЕНО: сохранение масштаба
+    // localStorage.setItem(LS_PANEL_SCALE, PANEL_SIZE_M);
+}
+
+// ============= ГЕТТЕРЫ ТЕКУЩИХ BUMP-КАРТ =============
+function getCurrentWallBumpMap() {
+    switch (currentWallTextureType) {
+        case 'corrugated': return panelCorrugatedMap;
+        case 'ribpanel':   return panelRibMap;
+        default:           return panelDefaultMap;
+    }
+}
+function getCurrentRoofBumpMap() {
+    switch (currentRoofTextureType) {
+        case 'corrugated': return panelCorrugatedMap;
+        case 'ribpanel':   return panelRibMap;
+        default:           return panelDefaultMap;
+    }
+}
+
+// ============= ТЕКСТУРА 1: ГЛАДКАЯ ПАНЕЛЬ (умолчание) =============
 function createPanelBumpTexture() {
     const canvas = document.createElement('canvas');
-    canvas.width  = 64;   // Ширина не важна (растягивается)
-    canvas.height = 256;  // Высота текстуры (достаточно для четкого шва)
+    canvas.width  = 64;
+    canvas.height = 256;
     const ctx = canvas.getContext('2d');
 
-    // 1. Основная поверхность панели (ГЛАДКАЯ)
     ctx.fillStyle = '#808080';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 2. Шов между панелями (ТЕМНАЯ ПОЛОСА ВНИЗУ)
     const seamH = 6;
     const seamY = canvas.height - seamH;
-
     const seamGrad = ctx.createLinearGradient(0, seamY, 0, canvas.height);
-    seamGrad.addColorStop(0,    '#606060');
-    seamGrad.addColorStop(0.4,  '#404040');
-    seamGrad.addColorStop(0.6,  '#404040');
-    seamGrad.addColorStop(1,    '#606060');
-
+    seamGrad.addColorStop(0,   '#606060');
+    seamGrad.addColorStop(0.4, '#404040');
+    seamGrad.addColorStop(0.6, '#404040');
+    seamGrad.addColorStop(1,   '#606060');
     ctx.fillStyle = seamGrad;
     ctx.fillRect(0, seamY, canvas.width, seamH);
 
-    // 3. Едва заметная фаска сверху панели (блик)
     const bevelH = 4;
     const bevelGrad = ctx.createLinearGradient(0, 0, 0, bevelH);
-    bevelGrad.addColorStop(0,   '#909090');
-    bevelGrad.addColorStop(1,   '#808080');
-
+    bevelGrad.addColorStop(0, '#909090');
+    bevelGrad.addColorStop(1, '#808080');
     ctx.fillStyle = bevelGrad;
     ctx.fillRect(0, 0, canvas.width, bevelH);
 
@@ -1361,40 +1409,143 @@ function createPanelBumpTexture() {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     if (renderer) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-
     return texture;
 }
 
-// ============= ГЕНЕРАЦИЯ ТЕКСТУРЫ ДЛЯ ВОРОТ =============
-function createDoorTexture() {
+// ============= ТЕКСТУРА 2: ПРОФНАСТИЛ (трапециевидный профиль) =============
+function createCorrugatedTexture() {
     const canvas = document.createElement('canvas');
-    canvas.width = 512;
+    canvas.width  = 64;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
-    
+
+    ctx.fillStyle = '#787878';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const ribCount = 1;
+    const ribH = canvas.height / ribCount;
+
+    for (let i = 0; i < ribCount; i++) {
+        const y     = i * ribH;
+        const valH  = Math.round(ribH * 0.32);
+        const slH   = Math.round(ribH * 0.14);
+        const crH   = Math.round(ribH * 0.26);
+        const sl2H  = ribH - valH - slH - crH;
+
+        const vGrad = ctx.createLinearGradient(0, y, 0, y + valH);
+        vGrad.addColorStop(0,   '#525252');
+        vGrad.addColorStop(0.5, '#474747');
+        vGrad.addColorStop(1,   '#525252');
+        ctx.fillStyle = vGrad;
+        ctx.fillRect(0, y, canvas.width, valH);
+
+        const sl1 = ctx.createLinearGradient(0, y + valH, 0, y + valH + slH);
+        sl1.addColorStop(0, '#525252');
+        sl1.addColorStop(1, '#929292');
+        ctx.fillStyle = sl1;
+        ctx.fillRect(0, y + valH, canvas.width, slH);
+
+        const crGrad = ctx.createLinearGradient(0, y + valH + slH, 0, y + valH + slH + crH);
+        crGrad.addColorStop(0,   '#b2b2b2');
+        crGrad.addColorStop(0.4, '#c0c0c0');
+        crGrad.addColorStop(0.6, '#c0c0c0');
+        crGrad.addColorStop(1,   '#b2b2b2');
+        ctx.fillStyle = crGrad;
+        ctx.fillRect(0, y + valH + slH, canvas.width, crH);
+
+        const sl2 = ctx.createLinearGradient(0, y + valH + slH + crH, 0, y + ribH);
+        sl2.addColorStop(0, '#929292');
+        sl2.addColorStop(1, '#525252');
+        ctx.fillStyle = sl2;
+        ctx.fillRect(0, y + valH + slH + crH, canvas.width, sl2H);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    if (renderer) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    return texture;
+}
+
+// ============= ТЕКСТУРА 3: КРОВЕЛЬНЫЙ СЭНДВИЧ (шляпный профиль) =============
+function createRibPanelTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width  = 64;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#747474';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const ribCount = 1;
+    const ribH = canvas.height / ribCount;
+
+    for (let i = 0; i < ribCount; i++) {
+        const y        = i * ribH;
+        const flatH    = Math.round(ribH * 0.46);
+        const shoulderH = Math.round(ribH * 0.09);
+        const topH     = Math.round(ribH * 0.28);
+        const sl2H     = ribH - flatH - shoulderH - topH;
+
+        const fGrad = ctx.createLinearGradient(0, y, 0, y + flatH);
+        fGrad.addColorStop(0,   '#676767');
+        fGrad.addColorStop(0.5, '#6e6e6e');
+        fGrad.addColorStop(1,   '#676767');
+        ctx.fillStyle = fGrad;
+        ctx.fillRect(0, y, canvas.width, flatH);
+
+        const sg1 = ctx.createLinearGradient(0, y + flatH, 0, y + flatH + shoulderH);
+        sg1.addColorStop(0, '#676767');
+        sg1.addColorStop(1, '#9a9a9a');
+        ctx.fillStyle = sg1;
+        ctx.fillRect(0, y + flatH, canvas.width, shoulderH);
+
+        const tGrad = ctx.createLinearGradient(0, y + flatH + shoulderH, 0, y + flatH + shoulderH + topH);
+        tGrad.addColorStop(0,   '#ababab');
+        tGrad.addColorStop(0.3, '#b8b8b8');
+        tGrad.addColorStop(0.7, '#b8b8b8');
+        tGrad.addColorStop(1,   '#a8a8a8');
+        ctx.fillStyle = tGrad;
+        ctx.fillRect(0, y + flatH + shoulderH, canvas.width, topH);
+
+        const sg2 = ctx.createLinearGradient(0, y + flatH + shoulderH + topH, 0, y + ribH);
+        sg2.addColorStop(0, '#9a9a9a');
+        sg2.addColorStop(1, '#676767');
+        ctx.fillStyle = sg2;
+        ctx.fillRect(0, y + flatH + shoulderH + topH, canvas.width, sl2H);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    if (renderer) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    return texture;
+}
+
+// ============= ТЕКСТУРА ВОРОТ =============
+function createDoorTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width  = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
     ctx.fillStyle = '#606060';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Горизонтальные секции (панели)
+
     const panelCount = 6;
     const panelH = canvas.height / panelCount;
     for (let i = 0; i < panelCount; i++) {
         const y = i * panelH;
-        
         const grad = ctx.createLinearGradient(0, y, 0, y + panelH);
-        grad.addColorStop(0, '#aaaaaa');
+        grad.addColorStop(0,   '#aaaaaa');
         grad.addColorStop(0.8, '#777777');
-        grad.addColorStop(1, '#555555');
-        
+        grad.addColorStop(1,   '#555555');
         ctx.fillStyle = grad;
         ctx.fillRect(0, y, canvas.width, panelH);
-        
-        // Темная канавка между панелями
         ctx.fillStyle = '#222222';
         ctx.fillRect(0, y + panelH - 4, canvas.width, 4);
     }
-    
-    // Внутренняя рамка ворот
+
     ctx.lineWidth = 16;
     ctx.strokeStyle = '#333333';
     ctx.strokeRect(0, 0, canvas.width, canvas.height);
@@ -1405,86 +1556,86 @@ function createDoorTexture() {
     return tex;
 }
 
-// ============= ГЕНЕРАЦИЯ ТЕКСТУРЫ БЕТОНА =============
+// ============= ТЕКСТУРА БЕТОНА =============
 function createConcreteTexture() {
     const canvas = document.createElement('canvas');
-    canvas.width = 512;
+    canvas.width  = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
     const imgData = ctx.createImageData(canvas.width, canvas.height);
-    
-    // Генерируем шум в серых оттенках
+
     for (let i = 0; i < imgData.data.length; i += 4) {
-        const val = 80 + Math.random() * 60; // от 80 до 140
-        imgData.data[i] = val;     // R
-        imgData.data[i+1] = val;   // G
-        imgData.data[i+2] = val;   // B
-        imgData.data[i+3] = 255;
+        const val = 80 + Math.random() * 60;
+        imgData.data[i]     = val;
+        imgData.data[i + 1] = val;
+        imgData.data[i + 2] = val;
+        imgData.data[i + 3] = 255;
     }
     ctx.putImageData(imgData, 0, 0);
-    
-    // Добавим несколько случайных тёмных пятен для реализма
+
     for (let i = 0; i < 20; i++) {
         ctx.fillStyle = '#505050';
         ctx.beginPath();
         ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 5 + Math.random() * 15, 0, Math.PI * 2);
         ctx.fill();
     }
-    
+
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = THREE.RepeatWrapping;
     tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(4, 4); // начальный тайлинг, будет изменяться под размер ангара
+    tex.repeat.set(4, 4);
     return tex;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// makeSurfaceTexture — новый экземпляр текстуры на том же canvas,
-// с repeat рассчитанным под реальные размеры грани (для крыши).
+// makeSurfaceTexture — для крыши, всегда вдоль ската
 // ─────────────────────────────────────────────────────────────────────────
 function makeSurfaceTexture(faceW, faceH) {
-    const tex = new THREE.CanvasTexture(wallMaterial.bumpMap.image);
+    const sourceMap = getCurrentRoofBumpMap();
+    const tex = new THREE.CanvasTexture(sourceMap.image);
     tex.wrapS = THREE.RepeatWrapping;
     tex.wrapT = THREE.RepeatWrapping;
-
-    const repeatX = 1;
-    const repeatY = faceH / PANEL_SIZE_M;
-
-    tex.repeat.set(repeatX, repeatY);
-
+    tex.repeat.set(1, faceH / PANEL_SIZE_M);
     if (renderer) tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     return tex;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// remapExtrudeUVs — для ТОРЦЕВЫХ стен (ExtrudeGeometry по shape XY).
-// Переписывает UV из нормализованных [0→1] в мировые (метры / PANEL_SIZE_M).
-// bboxW = ширина здания, bboxH = высота + высота крыши.
+// remapExtrudeUVs — торцевые стены
 // ─────────────────────────────────────────────────────────────────────────
-function remapExtrudeUVs(geom, bboxW, bboxH) {
+function remapExtrudeUVs(geom, bboxW, bboxH, orientation) {
     const uv  = geom.attributes.uv;
     const pos = geom.attributes.position;
+    const vert = orientation === 'vertical';
 
     for (let i = 0; i < uv.count; i++) {
         const x = pos.getX(i);
         const y = pos.getY(i);
-        uv.setXY(i, x / PANEL_SIZE_M, y / PANEL_SIZE_M);
+        if (vert) {
+            uv.setXY(i, y / PANEL_SIZE_M, x / PANEL_SIZE_M);
+        } else {
+            uv.setXY(i, x / PANEL_SIZE_M, y / PANEL_SIZE_M);
+        }
     }
     uv.needsUpdate = true;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// remapSideWallUVs — для БОКОВЫХ стен (ExtrudeGeometry по shape XY,
-// где local-X = мировой Z, local-Y = мировой Y).
-// Тайл текстуры = PANEL_SIZE_M метров по обеим осям.
+// remapSideWallUVs — боковые стены
 // ─────────────────────────────────────────────────────────────────────────
-function remapSideWallUVs(geom) {
+function remapSideWallUVs(geom, orientation) {
     const uv  = geom.attributes.uv;
     const pos = geom.attributes.position;
+    const vert = orientation === 'vertical';
+
     for (let i = 0; i < uv.count; i++) {
-        const x = pos.getX(i); // local X → world Z (ось длины)
-        const y = pos.getY(i); // local Y → world Y (ось высоты)
-        uv.setXY(i, x / PANEL_SIZE_M, y / PANEL_SIZE_M);
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        if (vert) {
+            uv.setXY(i, y / PANEL_SIZE_M, x / PANEL_SIZE_M);
+        } else {
+            uv.setXY(i, x / PANEL_SIZE_M, y / PANEL_SIZE_M);
+        }
     }
     uv.needsUpdate = true;
 }
@@ -1503,14 +1654,13 @@ function init3D() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.maxPolarAngle = Math.PI / 2 - 0.05;
+    controls.enableDamping  = true;
+    controls.maxPolarAngle  = Math.PI / 2 - 0.05;
 
-    // Свет
     const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambLight);
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -1518,47 +1668,52 @@ function init3D() {
     dirLight.castShadow = true;
     scene.add(dirLight);
 
-    // ГЕНЕРАЦИЯ ТЕКСТУР
+    // НОВОЕ: Заполняющий свет для левой и задней теневой стороны, иначе рельефа там не будет видно!
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight.position.set(-30, 40, -20);
+    scene.add(fillLight);
+
     concreteTexture = createConcreteTexture();
 
-    // ── ЗЕМЛЯ — сетка координат ──────────────────────────────────────────
     const grid = new THREE.GridHelper(1000, 200, 0x888888, 0xcccccc);
-    grid.position.y = -0.2; // ← поднять чуть выше бетонного пола
+    grid.position.y = -0.2;
     scene.add(grid);
-    // ─────────────────────────────────────────────────────────────────────
 
-    // Bump-текстура — создаётся один раз, canvas переиспользуется везде
-    const panelBumpMap = createPanelBumpTexture();
-    doorTexture = createDoorTexture(); // Генерируем текстуру ворот
+    panelDefaultMap    = createPanelBumpTexture();
+    panelCorrugatedMap = createCorrugatedTexture();
+    panelRibMap        = createRibPanelTexture();
+    doorTexture        = createDoorTexture();
 
-    // wallMaterial — хранит цвет и исходный bumpMap (canvas).
-    // Сам материал НЕ используется на мешах — только как источник
-    // цвета и canvas для makeSurfaceTexture / стен.
     wallMaterial = new THREE.MeshStandardMaterial({
-        color: DEFAULT_WALL_COLOR,
+        color:     DEFAULT_WALL_COLOR,
         roughness: 0.4,
         metalness: 0.2,
-        bumpMap: panelBumpMap,
+        bumpMap:   panelDefaultMap,
         bumpScale: 0.05,
-        side: THREE.DoubleSide
+        side:      THREE.DoubleSide
     });
 
     frameMaterial = new THREE.MeshStandardMaterial({
-        color: 0x222222,
-        roughness: 0.9
+        color:     DEFAULT_FRAME_COLOR,
+        roughness: 0.75,
+        metalness: 0.35
     });
 
-    // roofMaterial — хранит только цвет
     roofMaterial = new THREE.MeshStandardMaterial({
-        color: DEFAULT_ROOF_COLOR
+        color:     DEFAULT_ROOF_COLOR,
+        roughness: 0.5,
+        metalness: 0.2
     });
 
-    glassMaterial = new THREE.MeshStandardMaterial({
-        color: 0x81D4FA,
-        roughness: 0.1,
-        metalness: 0.9,
+    // --- УЛУЧШЕННОЕ СТЕКЛО (Physical Material) ---
+    glassMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 0.1,
+        roughness: 0.05, // Гладкое стекло
+        transmission: 0.9, // Пропускание света (эффект стекла)
+        ior: 1.5, // Индекс преломления
+        thickness: 0.02,
         transparent: true,
-        opacity: 0.7,
         side: THREE.DoubleSide
     });
 
@@ -1581,12 +1736,11 @@ function animate() {
 }
 
 // ==============================================
-// ОБНОВЛЕНИЕ 3D МОДЕЛИ (СТЕНЫ ВЕРТИКАЛЬНЫЕ)
+// ОБНОВЛЕНИЕ 3D МОДЕЛИ
 // ==============================================
 function update3DModel(width, length, height, windowsCount, doorFrontCount, doorRearCount) {
     if (!hangarGroup) return;
 
-    // Очистка — освобождаем per-surface материалы и геометрии InstancedMesh
     while (hangarGroup.children.length > 0) {
         const obj = hangarGroup.children[0];
         if (obj.isInstancedMesh) {
@@ -1600,63 +1754,54 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
         hangarGroup.remove(obj);
     }
 
-    // Геометрия крыши (угол 12°)
-    const roofAngleDeg = 12;
-    const roofAngleRad = roofAngleDeg * Math.PI / 180;
+    const roofAngleDeg  = 12;
+    const roofAngleRad  = roofAngleDeg * Math.PI / 180;
     const roofHalfWidth = width / 2;
-    const roofHeight = roofHalfWidth * Math.tan(roofAngleRad);
-    const roofSlopeLen = Math.sqrt(roofHalfWidth ** 2 + roofHeight ** 2);
+    const roofHeight    = roofHalfWidth * Math.tan(roofAngleRad);
+    const roofSlopeLen  = Math.sqrt(roofHalfWidth ** 2 + roofHeight ** 2);
 
     const frameStep    = 3;
     const numFrames    = Math.floor(length / frameStep);
     const frameSpacing = length / numFrames;
-
     const wallThickness = 0.1;
 
     const wColor = wallMaterial.color.getHex();
     const rColor = roofMaterial.color.getHex();
 
-    // ── Материал торцевых стен ──
+    const currentWallBump = getCurrentWallBumpMap();
+
     const matEndWall = new THREE.MeshStandardMaterial({
-        color: wColor,
+        color:     wColor,
         roughness: 0.45,
         metalness: 0.15,
-        bumpMap: wallMaterial.bumpMap,
+        bumpMap:   currentWallBump,
         bumpScale: 0.05,
-        side: THREE.DoubleSide
+        side:      THREE.DoubleSide
     });
 
-    // ── Материал крыши ──
     const matRoof = new THREE.MeshStandardMaterial({
-        color: rColor,
+        color:     rColor,
         roughness: 0.5,
-        metalness: 0.2,
-        bumpMap: makeSurfaceTexture(roofSlopeLen, length),
+        metalness: 0.3,
+        bumpMap:   makeSurfaceTexture(roofSlopeLen, length),
         bumpScale: 0.30,
-        side: THREE.DoubleSide
+        side:      THREE.DoubleSide
     });
 
-        // --- ВНУТРЕННИЙ БЕТОННЫЙ ПОЛ ---
-    // Создаем пол чуть-чуть шире самого ангара, чтобы он гарантированно заходил под стены
+    // Пол
     const floorGeo = new THREE.PlaneGeometry(width + 0.5, length + 0.5);
-    
-    // Настраиваем размер зерна бетона пропорционально размеру ангара
     concreteTexture.repeat.set(width / 2, length / 2);
-
     const floorMat = new THREE.MeshStandardMaterial({
-        color: 0x909090, 
+        color:     0x909090,
         roughness: 0.9,
-        map: concreteTexture
+        map:       concreteTexture
     });
-    
     const innerFloor = new THREE.Mesh(floorGeo, floorMat);
     innerFloor.rotation.x = -Math.PI / 2;
-    innerFloor.position.set(0, 0.01, 0); // Лежит ровно на Y = 0 (на 2 см выше травы)
-    innerFloor.receiveShadow = false;
-    hangarGroup.add(innerFloor); // Добавляем пол в группу ангара
+    innerFloor.position.set(0, 0.01, 0);
+    hangarGroup.add(innerFloor);
 
-
-    // --- 1. КАРКАС (фермы) ---
+    // Каркас
     const allSticks = [];
     for (let i = 0; i <= numFrames; i++) {
         const zPos = (i * frameSpacing) - (length / 2);
@@ -1664,7 +1809,7 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
     }
     createDynamicTruss(allSticks);
 
-    // --- 2. БОКОВЫЕ СТЕНЫ С ОТВЕРСТИЯМИ ПОД ОКНА ---
+    // Окна
     const winW       = 1.5;
     const winH       = 1.2;
     const winCenterY = height * 0.55;
@@ -1673,14 +1818,13 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
 
     const maxWinsPerSide = Math.floor(length / 3);
     const maxWinsTotal   = maxWinsPerSide * 2;
-    const effectiveWindowsCount = Math.min(windowsCount, maxWinsTotal); 
-    
-    // Обновляем значение счетчика окон в UI, если он превышает лимит
+    const effectiveWindowsCount = Math.min(windowsCount, maxWinsTotal);
+
     const valWindowsEl = document.getElementById('val-windows');
     if (valWindowsEl && windowsCount > maxWinsTotal) {
         valWindowsEl.textContent = maxWinsTotal;
     }
-    
+
     const windowsPerSide = effectiveWindowsCount > 0 ? Math.ceil(effectiveWindowsCount / 2) : 0;
     const winPositions   = [];
     if (windowsPerSide > 0 && numFrames > 0) {
@@ -1689,7 +1833,7 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
             if (bayIndex >= numFrames) continue;
             winPositions.push({
                 z:        (-length / 2) + bayIndex * frameSpacing + frameSpacing / 2,
-                hasRight: (i * 2 + 1) < effectiveWindowsCount 
+                hasRight: (i * 2 + 1) < effectiveWindowsCount
             });
         }
     }
@@ -1704,9 +1848,8 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
 
         winPositions.forEach(({ z, hasRight }) => {
             if (includeRightHoles && !hasRight) return;
-
             const holeX = includeRightHoles ? z : -z;
-            const hole = new THREE.Path();
+            const hole  = new THREE.Path();
             hole.moveTo(holeX - winW / 2, winBottom);
             hole.lineTo(holeX + winW / 2, winBottom);
             hole.lineTo(holeX + winW / 2, winTop);
@@ -1716,16 +1859,15 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
         });
 
         const geom = new THREE.ExtrudeGeometry(shape, { depth: wallThickness, bevelEnabled: false });
-        remapSideWallUVs(geom);
+        remapSideWallUVs(geom, wallTextureOrientation);
         return geom;
     }
 
-    // ── Материал боковых стен ──
     const matSideWall = new THREE.MeshStandardMaterial({
         color:     wColor,
         roughness: 0.45,
         metalness: 0.15,
-        bumpMap:   wallMaterial.bumpMap,
+        bumpMap:   currentWallBump,
         bumpScale: 0.05,
         side:      THREE.DoubleSide
     });
@@ -1741,62 +1883,53 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
     rightW.rotation.y = -Math.PI / 2;
     rightW.position.set(width / 2 + wallThickness / 2, 0, 0);
     hangarGroup.add(rightW);
-// --- 3. СТЁКЛА И БЕЛЫЕ РАМЫ ---
+
+    // Стёкла и рамы
     const windowFrameMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
+        color:     0xffffff,
         roughness: 0.7,
         metalness: 0.1
     });
-
-    const frameThickness = 0.06; // 6 см толщина рамы
-    const frameDepth = wallThickness + 0.04; // слегка толще стены, чтобы выступала
-
-    // Смещение (нахлёст) в 1 см, чтобы внутренние грани рамы не совпадали с гранями отверстия стены (убирает Z-fighting)
-    const overlap = 0.01; 
-    const inW = (winW / 2) - overlap;
-    const inH = (winH / 2) - overlap;
+    const frameThickness = 0.06;
+    const frameDepth     = wallThickness + 0.04;
+    const overlap = 0.01;
+    const inW  = (winW / 2) - overlap;
+    const inH  = (winH / 2) - overlap;
     const outW = (winW / 2) + frameThickness;
     const outH = (winH / 2) + frameThickness;
 
-    // Внешний контур рамы
     const frameShape = new THREE.Shape();
     frameShape.moveTo(-outW, -outH);
-    frameShape.lineTo(outW, -outH);
-    frameShape.lineTo(outW, outH);
-    frameShape.lineTo(-outW, outH);
+    frameShape.lineTo( outW, -outH);
+    frameShape.lineTo( outW,  outH);
+    frameShape.lineTo(-outW,  outH);
     frameShape.lineTo(-outW, -outH);
-
-    // Внутреннее отверстие рамы (чуть меньше отверстия в стене)
     const frameHole = new THREE.Path();
     frameHole.moveTo(-inW, -inH);
-    frameHole.lineTo(inW, -inH);
-    frameHole.lineTo(inW, inH);
-    frameHole.lineTo(-inW, inH);
+    frameHole.lineTo( inW, -inH);
+    frameHole.lineTo( inW,  inH);
+    frameHole.lineTo(-inW,  inH);
     frameHole.lineTo(-inW, -inH);
     frameShape.holes.push(frameHole);
-
     const frameGeo = new THREE.ExtrudeGeometry(frameShape, { depth: frameDepth, bevelEnabled: false });
-    frameGeo.translate(0, 0, -frameDepth / 2); // Центруем по глубине
+    frameGeo.translate(0, 0, -frameDepth / 2);
 
     winPositions.forEach(({ z, hasRight }) => {
         const glassGeo = new THREE.PlaneGeometry(winW, winH);
 
-        // Левое стекло
         const glassL = new THREE.Mesh(glassGeo, glassMaterial);
-        glassL.rotation.y = Math.PI / 2;          
+        glassL.rotation.y = Math.PI / 2;
         glassL.position.set(-width / 2, winCenterY, z);
         hangarGroup.add(glassL);
 
-        // Левая рама
         const frameL = new THREE.Mesh(frameGeo, windowFrameMat);
         frameL.rotation.y = Math.PI / 2;
         frameL.position.set(-width / 2, winCenterY, z);
         hangarGroup.add(frameL);
 
-        // Правое стекло и рама
         if (hasRight) {
             const glassR = new THREE.Mesh(glassGeo, glassMaterial);
-            glassR.rotation.y = Math.PI / 2;      
+            glassR.rotation.y = Math.PI / 2;
             glassR.position.set(width / 2, winCenterY, z);
             hangarGroup.add(glassR);
 
@@ -1807,11 +1940,11 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
         }
     });
 
-    // --- 4. ТОРЦЕВЫЕ СТЕНЫ И ВОРОТА ---
+    // Торцевые стены и ворота
     createEndWall(-(length / 2 + wallThickness), width, height, roofHeight, doorRearCount,  matEndWall);
     createEndWall( (length / 2 + wallThickness), width, height, roofHeight, doorFrontCount, matEndWall);
 
-    // --- 5. КРЫША ---
+    // Крыша
     const roofGeo = new THREE.BoxGeometry(roofSlopeLen + 0.6, 0.1, length + 0.4);
 
     const roofL = new THREE.Mesh(roofGeo, matRoof);
@@ -1826,25 +1959,21 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
 }
 
 // =====================================================================
-// ФЕРМА — ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ФЕРМА
 // =====================================================================
 
 function v3(x, y, z) { return new THREE.Vector3(x, y, z); }
 
 function collectFrameSticks(sticks, zPos, width, height, roofHeight, roofSlopeLen) {
-    const halfW = width / 2;
-
+    const halfW    = width / 2;
     const colDepth = Math.max(0.30, Math.min(0.80, height       * 0.08));
     const rafDepth = Math.max(0.30, Math.min(0.80, roofSlopeLen * 0.06));
-
     const wallInset = 0.05;
     const roofInset = 0.09;
+    const colPanels  = Math.max(3, Math.round(height       / 1.3));
+    const rafPanels  = Math.max(4, Math.round(roofSlopeLen / 1.4));
+    const colPanelH  = height / colPanels;
 
-    const colPanels = Math.max(3, Math.round(height       / 1.3));
-    const rafPanels = Math.max(4, Math.round(roofSlopeLen / 1.4));
-    const colPanelH = height / colPanels;
-
-    // ── ЛЕВАЯ КОЛОННА ──────────────────────────────────────────────
     {
         const xO = -halfW + wallInset;
         const xI = xO + colDepth;
@@ -1854,16 +1983,12 @@ function collectFrameSticks(sticks, zPos, width, height, roofHeight, roofSlopeLe
             sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xO, y1, zPos) });
             sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xI, y1, zPos) });
             sticks.push({ p1: v3(xO, y1, zPos), p2: v3(xI, y1, zPos) });
-            if (i === 0)
-                sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y0, zPos) });
-            if (i % 2 === 0)
-                sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y1, zPos) });
-            else
-                sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xO, y1, zPos) });
+            if (i === 0) sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y0, zPos) });
+            if (i % 2 === 0) sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y1, zPos) });
+            else              sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xO, y1, zPos) });
         }
     }
 
-    // ── ПРАВАЯ КОЛОННА (зеркало) ───────────────────────────────────
     {
         const xO = halfW - wallInset;
         const xI = xO - colDepth;
@@ -1873,19 +1998,14 @@ function collectFrameSticks(sticks, zPos, width, height, roofHeight, roofSlopeLe
             sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xO, y1, zPos) });
             sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xI, y1, zPos) });
             sticks.push({ p1: v3(xO, y1, zPos), p2: v3(xI, y1, zPos) });
-            if (i === 0)
-                sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y0, zPos) });
-            if (i % 2 === 0)
-                sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y1, zPos) });
-            else
-                sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xO, y1, zPos) });
+            if (i === 0) sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y0, zPos) });
+            if (i % 2 === 0) sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y1, zPos) });
+            else              sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xO, y1, zPos) });
         }
     }
 
-    // ── СТРОПИЛЬНЫЕ ФЕРМЫ ──────────────────────────────────────────
     const sL = v3(halfW, roofHeight, 0).normalize();
     const pL = v3(sL.y, -sL.x, 0);
-
     const sR = v3(-halfW, roofHeight, 0).normalize();
     const pR = v3(-sR.y, sR.x, 0);
 
@@ -1894,45 +2014,34 @@ function collectFrameSticks(sticks, zPos, width, height, roofHeight, roofSlopeLe
     const rafStartR = v3( halfW - wallInset, height, zPos).addScaledVector(pR, roofInset);
     const rafEndR   = v3(0, height + roofHeight,     zPos).addScaledVector(pR, roofInset);
 
-    // Левая полуферма
     for (let i = 0; i < rafPanels; i++) {
         const t0 = i / rafPanels, t1 = (i + 1) / rafPanels;
         const tO0 = new THREE.Vector3().lerpVectors(rafStartL, rafEndL, t0);
         const tO1 = new THREE.Vector3().lerpVectors(rafStartL, rafEndL, t1);
         const tI0 = tO0.clone().addScaledVector(pL, rafDepth);
         const tI1 = tO1.clone().addScaledVector(pL, rafDepth);
-
         sticks.push({ p1: tO0, p2: tO1 });
         sticks.push({ p1: tI0, p2: tI1 });
         sticks.push({ p1: tO1, p2: tI1 });
-        if (i === 0)
-            sticks.push({ p1: tO0, p2: tI0 });
-        if (i % 2 === 0)
-            sticks.push({ p1: tO0, p2: tI1 });
-        else
-            sticks.push({ p1: tI0, p2: tO1 });
+        if (i === 0)     sticks.push({ p1: tO0, p2: tI0 });
+        if (i % 2 === 0) sticks.push({ p1: tO0, p2: tI1 });
+        else             sticks.push({ p1: tI0, p2: tO1 });
     }
 
-    // Правая полуферма
     for (let i = 0; i < rafPanels; i++) {
         const t0 = i / rafPanels, t1 = (i + 1) / rafPanels;
         const tO0 = new THREE.Vector3().lerpVectors(rafStartR, rafEndR, t0);
         const tO1 = new THREE.Vector3().lerpVectors(rafStartR, rafEndR, t1);
         const tI0 = tO0.clone().addScaledVector(pR, rafDepth);
         const tI1 = tO1.clone().addScaledVector(pR, rafDepth);
-
         sticks.push({ p1: tO0, p2: tO1 });
         sticks.push({ p1: tI0, p2: tI1 });
         sticks.push({ p1: tO1, p2: tI1 });
-        if (i === 0)
-            sticks.push({ p1: tO0, p2: tI0 });
-        if (i % 2 === 0)
-            sticks.push({ p1: tO0, p2: tI1 });
-        else
-            sticks.push({ p1: tI0, p2: tO1 });
+        if (i === 0)     sticks.push({ p1: tO0, p2: tI0 });
+        if (i % 2 === 0) sticks.push({ p1: tO0, p2: tI1 });
+        else             sticks.push({ p1: tI0, p2: tO1 });
     }
 
-    // ── КОНЁК ──────────────────────────────────────────────────────
     const ridgeTop = v3(0, height + roofHeight, zPos).addScaledVector(pL, roofInset);
     const ridgeL   = rafEndL.clone().addScaledVector(pL, rafDepth);
     const ridgeR   = rafEndR.clone().addScaledVector(pR, rafDepth);
@@ -1942,8 +2051,7 @@ function collectFrameSticks(sticks, zPos, width, height, roofHeight, roofSlopeLe
 }
 
 function createDynamicTruss(sticks) {
-    const bT = 0.07;
-
+    const bT   = 0.07;
     const geo  = new THREE.BoxGeometry(1, 1, 1);
     const mesh = new THREE.InstancedMesh(geo, frameMaterial, sticks.length);
     mesh.castShadow    = true;
@@ -1980,142 +2088,123 @@ function createDynamicTruss(sticks) {
     hangarGroup.add(mesh);
 }
 
-    // ============= ТОРЦЕВЫЕ СТЕНЫ =============
-    function createEndWall(zPos, width, height, roofHeight, doorsCount, mat) {
-        const shape = new THREE.Shape();
-        const halfW = width / 2;
+// ============= ТОРЦЕВЫЕ СТЕНЫ =============
+function createEndWall(zPos, width, height, roofHeight, doorsCount, mat) {
+    const shape = new THREE.Shape();
+    const halfW = width / 2;
 
-        shape.moveTo(-halfW, 0);
-        shape.lineTo(halfW, 0);
-        shape.lineTo(halfW, height);
-        shape.lineTo(0, height + roofHeight);
-        shape.lineTo(-halfW, height);
-        shape.lineTo(-halfW, 0);
+    shape.moveTo(-halfW, 0);
+    shape.lineTo( halfW, 0);
+    shape.lineTo( halfW, height);
+    shape.lineTo(0, height + roofHeight);
+    shape.lineTo(-halfW, height);
+    shape.lineTo(-halfW, 0);
 
-        const dW = Math.min(4, width * 0.4);
-        const dH = Math.min(4.5, height * 0.85);
+    const dW = Math.min(4, width  * 0.4);
+    const dH = Math.min(4.5, height * 0.85);
 
-        // Добавляем вырезы (отверстия) в стене для ворот
-        if (doorsCount === 1) {
+    if (doorsCount === 1) {
+        const hole = new THREE.Path();
+        hole.moveTo(-dW / 2, 0);
+        hole.lineTo( dW / 2, 0);
+        hole.lineTo( dW / 2, dH);
+        hole.lineTo(-dW / 2, dH);
+        hole.lineTo(-dW / 2, 0);
+        shape.holes.push(hole);
+    } else if (doorsCount === 2) {
+        const offsetX = width / 4;
+        for (let dx of [-offsetX, offsetX]) {
             const hole = new THREE.Path();
-            hole.moveTo(-dW / 2, 0);
-            hole.lineTo(dW / 2, 0);
-            hole.lineTo(dW / 2, dH);
-            hole.lineTo(-dW / 2, dH);
-            hole.lineTo(-dW / 2, 0);
+            hole.moveTo(dx - dW / 2, 0);
+            hole.lineTo(dx + dW / 2, 0);
+            hole.lineTo(dx + dW / 2, dH);
+            hole.lineTo(dx - dW / 2, dH);
+            hole.lineTo(dx - dW / 2, 0);
             shape.holes.push(hole);
-        } else if (doorsCount === 2) {
-            const offsetX = width / 4;
-            for (let dx of [-offsetX, offsetX]) {
-                const hole = new THREE.Path();
-                hole.moveTo(dx - dW / 2, 0);
-                hole.lineTo(dx + dW / 2, 0);
-                hole.lineTo(dx + dW / 2, dH);
-                hole.lineTo(dx - dW / 2, dH);
-                hole.lineTo(dx - dW / 2, 0);
-                shape.holes.push(hole);
-            }
-        }
-
-        const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
-        remapExtrudeUVs(geom, width, height + roofHeight);
-
-        const wall = new THREE.Mesh(geom, mat);
-        const offset = (zPos > 0) ? -0.1 : 0;
-        wall.position.set(0, 0, zPos + offset);
-        hangarGroup.add(wall);
-
-        // Добавление самих ворот
-        if (doorsCount > 0) {
-            const doorDepth = 0.05; // Меньшая толщина, чтобы уместить ворота внутри стены
-            
-            // ЗАЗОР: Уменьшаем ширину на 2 см и высоту на 1 см, чтобы избежать мерцания (Z-fighting)
-            const gap = 0.02; 
-            const doorGeo = new THREE.BoxGeometry(dW - gap, dH - (gap / 2), doorDepth);
-            
-            const doorMat = new THREE.MeshStandardMaterial({ 
-                color: 0xcccccc, 
-                roughness: 0.6,
-                map: doorTexture
-            });
-            
-            // Утапливаем ворота внутрь стены
-            const recess = 0.08; // на сколько метров утопить внутрь
-            let doorZ = 0;
-            
-            // Смещаем ворота в нужную сторону в зависимости от стены (передняя или задняя)
-            if (zPos > 0) {
-                doorZ = zPos - recess - doorDepth / 2;
-            } else {
-                doorZ = zPos + recess + doorDepth / 2;
-            }
-            
-            // Центр ворот по оси Y (чтобы они касались пола ровно, без щели снизу)
-            const doorY = (dH - (gap / 2)) / 2;
-
-            if (doorsCount === 1) {
-                const door = new THREE.Mesh(doorGeo, doorMat);
-                door.position.set(0, doorY, doorZ);
-                hangarGroup.add(door);
-            } else if (doorsCount === 2) {
-                const offsetX = width / 4;
-                const door1   = new THREE.Mesh(doorGeo, doorMat);
-                door1.position.set(-offsetX, doorY, doorZ);
-                hangarGroup.add(door1);
-                
-                const door2 = new THREE.Mesh(doorGeo, doorMat);
-                door2.position.set( offsetX, doorY, doorZ);
-                hangarGroup.add(door2);
-            }
         }
     }
 
+    const geom = new THREE.ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
+    remapExtrudeUVs(geom, width, height + roofHeight, wallTextureOrientation);
+
+    const wall   = new THREE.Mesh(geom, mat);
+    const offset = (zPos > 0) ? -0.1 : 0;
+    wall.position.set(0, 0, zPos + offset);
+    hangarGroup.add(wall);
+
+    if (doorsCount > 0) {
+        const doorDepth = 0.05;
+        const gap       = 0.02;
+        const doorGeo   = new THREE.BoxGeometry(dW - gap, dH - (gap / 2), doorDepth);
+        const doorMat   = new THREE.MeshStandardMaterial({
+            color:     0xcccccc,
+            roughness: 0.6,
+            map:       doorTexture
+        });
+
+        const recess = 0.08;
+        let doorZ = 0;
+        if (zPos > 0) {
+            doorZ = zPos - recess - doorDepth / 2;
+        } else {
+            doorZ = zPos + recess + doorDepth / 2;
+        }
+        const doorY = (dH - (gap / 2)) / 2;
+
+        if (doorsCount === 1) {
+            const door = new THREE.Mesh(doorGeo, doorMat);
+            door.position.set(0, doorY, doorZ);
+            hangarGroup.add(door);
+        } else if (doorsCount === 2) {
+            const offsetX = width / 4;
+            const door1   = new THREE.Mesh(doorGeo, doorMat);
+            door1.position.set(-offsetX, doorY, doorZ);
+            hangarGroup.add(door1);
+            const door2 = new THREE.Mesh(doorGeo, doorMat);
+            door2.position.set( offsetX, doorY, doorZ);
+            hangarGroup.add(door2);
+        }
+    }
+}
+
 // ==============================================
-// КОНСТАНТЫ ЦЕН ПО УМОЛЧАНИЮ
+// ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ МОДЕЛИ
+// ==============================================
+function triggerModelUpdate() {
+    if (typeof window.currentCalculatorParams !== 'undefined') {
+        const p = window.currentCalculatorParams;
+        update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
+    }
+}
+
+// ==============================================
+// ЦЕНОВЫЕ КОНСТАНТЫ
 // ==============================================
 const DEFAULT_PRICE_CONSTANTS = {
-    // Каркас и фундамент
-    FRAME_BASE: 1900,           // ← было 2600
-    
-    // Стены
-    WALL_WARM: 2000,            // ← было 2500
-    WALL_COLD: 1200,             // можно тоже уменьшить (было 1500)
-    WALL_THICK_ADD: 10,
-    
-    // Кровля
-    ROOF_WARM: 2100,            // ← было 2700
-    ROOF_COLD: 1100,             // можно уменьшить (было 1200)
-    ROOF_THICK_ADD: 12,
-    
-    // Базовая толщина
-    BASE_THICKNESS: 100,
-    
-    // Дополнительные элементы
-    DOOR_PRICE: 45000,
-    DOOR_AREA: 9,
-    WINDOW_PRICE_PER_M2: 8500,
-    WINDOW_AREA: 1.8,
-    
-    // Вычет проёмов
-    DEDUCT_OPENINGS: true,
-    
-    // Скидки за объём
-    ENABLE_VOLUME_DISCOUNT: true,
-    DISCOUNT_THRESHOLD_1: 500,
-    DISCOUNT_PERCENT_1: 0.05,
-    DISCOUNT_THRESHOLD_2: 1000,
-    DISCOUNT_PERCENT_2: 0.10,
-    DISCOUNT_FRAME_BONUS: 0.02,
-    
-    // НОВЫЙ ПАРАМЕТР: коэффициент удорожания (монтаж, логистика, накладные)
-    OVERHEAD_COEFF: 0.30          // 0.3 = 30% наценки к материалам
+    FRAME_BASE:              1900,
+    WALL_WARM:               2000,
+    WALL_COLD:               1200,
+    WALL_THICK_ADD:          10,
+    ROOF_WARM:               2100,
+    ROOF_COLD:               1100,
+    ROOF_THICK_ADD:          12,
+    BASE_THICKNESS:          100,
+    DOOR_PRICE:              45000,
+    DOOR_AREA:               9,
+    WINDOW_PRICE_PER_M2:     8500,
+    WINDOW_AREA:             1.8,
+    DEDUCT_OPENINGS:         true,
+    ENABLE_VOLUME_DISCOUNT:  true,
+    DISCOUNT_THRESHOLD_1:    500,
+    DISCOUNT_PERCENT_1:      0.05,
+    DISCOUNT_THRESHOLD_2:    1000,
+    DISCOUNT_PERCENT_2:      0.10,
+    DISCOUNT_FRAME_BONUS:    0.02,
+    OVERHEAD_COEFF:          0.30
 };
 
 let PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS };
 
-// ==============================================
-// ЗАГРУЗКА СОХРАНЁННЫХ КОНСТАНТ
-// ==============================================
 function loadPriceConstants() {
     const saved = localStorage.getItem('angarPriceConstants');
     if (saved) {
@@ -2134,7 +2223,7 @@ function savePriceConstants() {
 }
 
 // ==============================================
-// СКРЫТОЕ ТЕХНИЧЕСКОЕ МЕНЮ (Ctrl+Shift+P + кнопка)
+// ТЕХНИЧЕСКОЕ МЕНЮ (Ctrl+Shift+P)  —  закрытие только Escape / крестик
 // ==============================================
 (function initTechMenu() {
     const menuHtml = `
@@ -2143,87 +2232,75 @@ function savePriceConstants() {
                 <h3 style="margin: 0; color: #0D47A1;">⚙️ Техническое меню</h3>
                 <span style="color: #666; font-size: 0.85rem;">Ctrl+Shift+P</span>
             </div>
-            
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">🏗️ Основные цены</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label data-tooltip="Стоимость каркаса за 1 м² площади пола (без скидок)">Каркас (руб/м² пола) <input type="number" id="tech-FRAME_BASE" value="${PRICE_CONSTANTS.FRAME_BASE}" step="10"></label>
-                <label data-tooltip="Цена 1 м² стеновой сэндвич-панели толщиной 100 мм (тёплый ангар)">Стены тёплые (руб/м²) <input type="number" id="tech-WALL_WARM" value="${PRICE_CONSTANTS.WALL_WARM}" step="10"></label>
-                <label data-tooltip="Цена 1 м² холодной стены (профлист или холодная панель)">Стены холодные (руб/м²) <input type="number" id="tech-WALL_COLD" value="${PRICE_CONSTANTS.WALL_COLD}" step="10"></label>
-                <label data-tooltip="Цена 1 м² кровельной сэндвич-панели толщиной 100 мм">Кровля тёплая (руб/м²) <input type="number" id="tech-ROOF_WARM" value="${PRICE_CONSTANTS.ROOF_WARM}" step="10"></label>
-                <label data-tooltip="Цена 1 м² холодной кровли (профлист)">Кровля холодная (руб/м²) <input type="number" id="tech-ROOF_COLD" value="${PRICE_CONSTANTS.ROOF_COLD}" step="10"></label>
+                <label>Каркас (руб/м² пола) <input type="number" id="tech-FRAME_BASE" value="${PRICE_CONSTANTS.FRAME_BASE}" step="10"></label>
+                <label>Стены тёплые (руб/м²) <input type="number" id="tech-WALL_WARM" value="${PRICE_CONSTANTS.WALL_WARM}" step="10"></label>
+                <label>Стены холодные (руб/м²) <input type="number" id="tech-WALL_COLD" value="${PRICE_CONSTANTS.WALL_COLD}" step="10"></label>
+                <label>Кровля тёплая (руб/м²) <input type="number" id="tech-ROOF_WARM" value="${PRICE_CONSTANTS.ROOF_WARM}" step="10"></label>
+                <label>Кровля холодная (руб/м²) <input type="number" id="tech-ROOF_COLD" value="${PRICE_CONSTANTS.ROOF_COLD}" step="10"></label>
             </div>
-            
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">📏 Добавки за толщину</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label data-tooltip="Добавка к цене стены за каждый мм сверх/ниже базовой толщины (руб/м²)">Добавка за мм стен (руб/м²) <input type="number" id="tech-WALL_THICK_ADD" value="${PRICE_CONSTANTS.WALL_THICK_ADD}" step="0.5"></label>
-                <label data-tooltip="Добавка к цене кровли за каждый мм сверх/ниже базовой толщины (руб/м²)">Добавка за мм кровли (руб/м²) <input type="number" id="tech-ROOF_THICK_ADD" value="${PRICE_CONSTANTS.ROOF_THICK_ADD}" step="0.5"></label>
-                <label data-tooltip="Базовая толщина панелей, от которой считаются добавки (мм)">Базовая толщина (мм) <input type="number" id="tech-BASE_THICKNESS" value="${PRICE_CONSTANTS.BASE_THICKNESS}" step="5"></label>
+                <label>Добавка за мм стен (руб/м²) <input type="number" id="tech-WALL_THICK_ADD" value="${PRICE_CONSTANTS.WALL_THICK_ADD}" step="0.5"></label>
+                <label>Добавка за мм кровли (руб/м²) <input type="number" id="tech-ROOF_THICK_ADD" value="${PRICE_CONSTANTS.ROOF_THICK_ADD}" step="0.5"></label>
+                <label>Базовая толщина (мм) <input type="number" id="tech-BASE_THICKNESS" value="${PRICE_CONSTANTS.BASE_THICKNESS}" step="5"></label>
             </div>
-            
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">🚪 Дополнительные элементы</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label data-tooltip="Стоимость одних секционных ворот (фиксированная)">Цена ворот (руб) <input type="number" id="tech-DOOR_PRICE" value="${PRICE_CONSTANTS.DOOR_PRICE}" step="1000"></label>
-                <label data-tooltip="Площадь одних ворот, используемая для вычета проёмов из площади стен">Площадь ворот (м²) <input type="number" id="tech-DOOR_AREA" value="${PRICE_CONSTANTS.DOOR_AREA}" step="0.5"></label>
-                <label data-tooltip="Цена 1 м² окна ПВХ">Цена окна за м² (руб) <input type="number" id="tech-WINDOW_PRICE_PER_M2" value="${PRICE_CONSTANTS.WINDOW_PRICE_PER_M2}" step="100"></label>
-                <label data-tooltip="Площадь одного окна (используется для расчёта стоимости и вычета проёмов)">Площадь окна (м²) <input type="number" id="tech-WINDOW_AREA" value="${PRICE_CONSTANTS.WINDOW_AREA}" step="0.1"></label>
+                <label>Цена ворот (руб) <input type="number" id="tech-DOOR_PRICE" value="${PRICE_CONSTANTS.DOOR_PRICE}" step="1000"></label>
+                <label>Площадь ворот (м²) <input type="number" id="tech-DOOR_AREA" value="${PRICE_CONSTANTS.DOOR_AREA}" step="0.5"></label>
+                <label>Цена окна за м² (руб) <input type="number" id="tech-WINDOW_PRICE_PER_M2" value="${PRICE_CONSTANTS.WINDOW_PRICE_PER_M2}" step="100"></label>
+                <label>Площадь окна (м²) <input type="number" id="tech-WINDOW_AREA" value="${PRICE_CONSTANTS.WINDOW_AREA}" step="0.1"></label>
             </div>
-            
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">🪟 Проёмы</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 8px;" data-tooltip="Если включено, из площади стен вычитается суммарная площадь ворот и окон">
+                <label style="display: flex; align-items: center; gap: 8px;">
                     <input type="checkbox" id="tech-DEDUCT_OPENINGS" ${PRICE_CONSTANTS.DEDUCT_OPENINGS ? 'checked' : ''}>
                     Вычитать проёмы из площади стен
                 </label>
             </div>
-            
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">💰 Скидки за объём</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 8px;" data-tooltip="Включить/выключить скидки за объём">
+                <label style="display: flex; align-items: center; gap: 8px;">
                     <input type="checkbox" id="tech-ENABLE_VOLUME_DISCOUNT" ${PRICE_CONSTANTS.ENABLE_VOLUME_DISCOUNT ? 'checked' : ''}>
                     Включить скидки за объём
                 </label>
-                <label data-tooltip="Минимальная площадь (м²) для получения первой скидки">Порог скидки 1 (м²) <input type="number" id="tech-DISCOUNT_THRESHOLD_1" value="${PRICE_CONSTANTS.DISCOUNT_THRESHOLD_1}" step="50"></label>
-                <label data-tooltip="Размер первой скидки (в процентах)">Скидка 1 (%) <input type="number" id="tech-DISCOUNT_PERCENT_1" value="${PRICE_CONSTANTS.DISCOUNT_PERCENT_1 * 100}" step="1"></label>
-                <label data-tooltip="Минимальная площадь (м²) для получения второй (большей) скидки">Порог скидки 2 (м²) <input type="number" id="tech-DISCOUNT_THRESHOLD_2" value="${PRICE_CONSTANTS.DISCOUNT_THRESHOLD_2}" step="100"></label>
-                <label data-tooltip="Размер второй скидки (в процентах)">Скидка 2 (%) <input type="number" id="tech-DISCOUNT_PERCENT_2" value="${PRICE_CONSTANTS.DISCOUNT_PERCENT_2 * 100}" step="1"></label>
-                <label data-tooltip="Дополнительная скидка на каркас (в процентах), суммируется с основной">Доп. скидка на каркас (%) <input type="number" id="tech-DISCOUNT_FRAME_BONUS" value="${PRICE_CONSTANTS.DISCOUNT_FRAME_BONUS * 100}" step="0.5"></label>
+                <label>Порог скидки 1 (м²) <input type="number" id="tech-DISCOUNT_THRESHOLD_1" value="${PRICE_CONSTANTS.DISCOUNT_THRESHOLD_1}" step="50"></label>
+                <label>Скидка 1 (%) <input type="number" id="tech-DISCOUNT_PERCENT_1" value="${PRICE_CONSTANTS.DISCOUNT_PERCENT_1 * 100}" step="1"></label>
+                <label>Порог скидки 2 (м²) <input type="number" id="tech-DISCOUNT_THRESHOLD_2" value="${PRICE_CONSTANTS.DISCOUNT_THRESHOLD_2}" step="100"></label>
+                <label>Скидка 2 (%) <input type="number" id="tech-DISCOUNT_PERCENT_2" value="${PRICE_CONSTANTS.DISCOUNT_PERCENT_2 * 100}" step="1"></label>
+                <label>Доп. скидка на каркас (%) <input type="number" id="tech-DISCOUNT_FRAME_BONUS" value="${PRICE_CONSTANTS.DISCOUNT_FRAME_BONUS * 100}" step="0.5"></label>
             </div>
-            
             <h4 style="color: #0D47A1; margin: 15px 0 5px;">📈 Коэффициент удорожания</h4>
             <div style="display: grid; gap: 8px; margin-bottom: 15px;">
-                <label data-tooltip="Процент наценки к стоимости материалов. Итоговая цена = (материалы) × (1 + наценка/100). Например, 30% = 0.3">
-                    Наценка на монтаж, логистику (%) <input type="number" id="tech-OVERHEAD_COEFF" value="${PRICE_CONSTANTS.OVERHEAD_COEFF * 100}" step="1" min="0" max="200">
-                </label>
+                <label>Наценка на монтаж, логистику (%) <input type="number" id="tech-OVERHEAD_COEFF" value="${PRICE_CONSTANTS.OVERHEAD_COEFF * 100}" step="1" min="0" max="200"></label>
                 <div style="font-size: 0.85em; color: #666;">Итоговая цена = (материалы) × (1 + наценка/100)</div>
             </div>
-
             <div style="display: flex; gap: 10px; margin-top: 20px; position: sticky; bottom: 0; background: white; padding: 10px 0;">
-                <button id="tech-save" style="flex: 2; background: #0D47A1; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold;" title="Сохранить изменения и пересчитать стоимость">💾 Сохранить</button>
-                <button id="tech-reset" style="flex: 1; background: #B0BEC5; color: black; border: none; padding: 10px; border-radius: 6px; cursor: pointer;" title="Сбросить все настройки к значениям по умолчанию">↺ Сброс</button>
-                <button id="tech-close" style="flex: 1; background: #EF6C00; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;" title="Закрыть меню">✕ Закрыть</button>
+                <button id="tech-save"  style="flex: 2; background: #0D47A1; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold;">💾 Сохранить</button>
+                <button id="tech-reset" style="flex: 1; background: #B0BEC5; color: black; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">↺ Сброс</button>
+                <button id="tech-close" style="flex: 1; background: #EF6C00; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">✕ Закрыть</button>
             </div>
         </div>
     `;
-    
+
     const div = document.createElement('div');
     div.innerHTML = menuHtml;
     document.body.appendChild(div);
-    
-    const menu = document.getElementById('tech-menu');
-    
-    // Создаём кнопку вызова техменю
+
+    const menu      = document.getElementById('tech-menu');
     const techButton = document.createElement('button');
-    techButton.id = 'tech-menu-button';
+    techButton.id   = 'tech-menu-button';
     techButton.innerHTML = '⚙️ Техническое меню (настройка цен)';
-    techButton.style.cssText = 'width: 100%; margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); border-radius: 4px; color: rgba(255,255,255,0.7); font-size: 0.8rem; cursor: pointer; transition: all 0.2s;';
-    techButton.title = 'Открыть техническое меню для настройки цен (Ctrl+Shift+P)';
-    
-    // Добавляем кнопку после кнопки "Заказать расчёт"
+    techButton.style.cssText = 'width:100%; margin-top:6px; padding:8px; background:rgba(255,255,255,0.1); border:1px dashed rgba(255,255,255,0.3); border-radius:4px; color:rgba(255,255,255,0.7); font-size:0.8rem; cursor:pointer; transition:all .2s;';
+    techButton.title = 'Открыть техническое меню (Ctrl+Shift+P)';
+
     const calcBtn = document.querySelector('.calc-btn');
     if (calcBtn && calcBtn.parentNode) {
         calcBtn.parentNode.insertBefore(techButton, calcBtn.nextSibling);
     }
-    
+
     const inputs = {
         FRAME_BASE: document.getElementById('tech-FRAME_BASE'),
         WALL_WARM: document.getElementById('tech-WALL_WARM'),
@@ -2246,11 +2323,9 @@ function savePriceConstants() {
         DISCOUNT_FRAME_BONUS: document.getElementById('tech-DISCOUNT_FRAME_BONUS'),
         OVERHEAD_COEFF: document.getElementById('tech-OVERHEAD_COEFF'),
     };
-    
-    // Функция показа меню
+
     function showTechMenu() {
         menu.style.display = 'block';
-        // Обновить значения
         for (let key in inputs) {
             if (key === 'DEDUCT_OPENINGS' || key === 'ENABLE_VOLUME_DISCOUNT') {
                 inputs[key].checked = PRICE_CONSTANTS[key];
@@ -2260,36 +2335,19 @@ function savePriceConstants() {
                 inputs[key].value = PRICE_CONSTANTS[key];
             }
         }
-    }   
-    
-    // Закрытие меню
-    function hideTechMenu() {
-        menu.style.display = 'none';
     }
-    
-    // Горячие клавиши
+    function hideTechMenu() { menu.style.display = 'none'; }
+
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.shiftKey && e.code === 'KeyP') {
             e.preventDefault();
-            if (menu.style.display === 'none') {
-                showTechMenu();
-            } else {
-                hideTechMenu();
-            }
+            menu.style.display === 'none' ? showTechMenu() : hideTechMenu();
         }
-        // Escape для закрытия
-        if (e.code === 'Escape' && menu.style.display === 'block') {
-            hideTechMenu();
-        }
+        if (e.code === 'Escape' && menu.style.display === 'block') hideTechMenu();
     });
-    
-    // Кнопка вызова
-    techButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        showTechMenu();
-    });
-    
-    // Сохранить
+
+    techButton.addEventListener('click', (e) => { e.preventDefault(); showTechMenu(); });
+
     document.getElementById('tech-save').addEventListener('click', () => {
         for (let key in inputs) {
             if (key === 'DEDUCT_OPENINGS' || key === 'ENABLE_VOLUME_DISCOUNT') {
@@ -2297,7 +2355,7 @@ function savePriceConstants() {
             } else if (key.includes('PERCENT') || key.includes('BONUS') || key === 'OVERHEAD_COEFF') {
                 PRICE_CONSTANTS[key] = parseFloat(inputs[key].value) / 100;
             } else {
-                let val = parseFloat(inputs[key].value);
+                const val = parseFloat(inputs[key].value);
                 if (!isNaN(val)) PRICE_CONSTANTS[key] = val;
             }
         }
@@ -2305,8 +2363,7 @@ function savePriceConstants() {
         if (typeof window.calculate === 'function') window.calculate();
         hideTechMenu();
     });
-    
-    // Сброс
+
     document.getElementById('tech-reset').addEventListener('click', () => {
         PRICE_CONSTANTS = { ...DEFAULT_PRICE_CONSTANTS };
         for (let key in inputs) {
@@ -2321,23 +2378,386 @@ function savePriceConstants() {
         savePriceConstants();
         if (typeof window.calculate === 'function') window.calculate();
     });
-    
-    // Закрыть
+
     document.getElementById('tech-close').addEventListener('click', hideTechMenu);
-    
-    // Закрытие по клику вне меню
-    document.addEventListener('click', (e) => {
-        if (menu.style.display === 'block' && 
-            !menu.contains(e.target) && 
-            e.target !== techButton &&
-            !techButton.contains(e.target)) {
-            hideTechMenu();
-        }
-    });
+    // ← Клик вне меню НЕ закрывает. Только крестик и Escape.
 })();
 
 // ==============================================
-// ГЕНЕРАЦИЯ ИНТЕРФЕЙСА ВЫБОРА ЦВЕТА
+// МЕНЮ ТЕКСТУР И МАТЕРИАЛОВ  —  только Escape / крестик
+// ==============================================
+(function initTextureMenu() {
+
+    /* ── Мини-превью текстуры ─────────────────────────────────── */
+    function makeThumb(type, isVertical) {
+        const C   = document.createElement('canvas');
+        C.width   = C.height = 60;
+        const ctx = C.getContext('2d');
+        ctx.fillStyle = '#909090';
+        ctx.fillRect(0, 0, 60, 60);
+
+        if (type === 'default') {
+            const step = 10, seam = 1;
+            for (let i = 0; i * step < 60; i++) {
+                const p = i * step;
+                ctx.fillStyle = '#9e9e9e';
+                if (isVertical) ctx.fillRect(p, 0, step - seam, 60);
+                else            ctx.fillRect(0, p, 60, step - seam);
+                ctx.fillStyle = '#4a4a4a';
+                if (isVertical) ctx.fillRect(p + step - seam, 0, seam, 60);
+                else            ctx.fillRect(0, p + step - seam, 60, seam);
+            }
+        } else if (type === 'corrugated') {
+            const step = 8;
+            for (let i = 0; i * step < 60; i++) {
+                const p = i * step;
+                ctx.fillStyle = '#484848';
+                if (isVertical) ctx.fillRect(p,     0, 2, 60); else ctx.fillRect(0, p,     60, 2);
+                ctx.fillStyle = '#888888';
+                if (isVertical) ctx.fillRect(p + 2, 0, 1, 60); else ctx.fillRect(0, p + 2, 60, 1);
+                ctx.fillStyle = '#c0c0c0';
+                if (isVertical) ctx.fillRect(p + 3, 0, 3, 60); else ctx.fillRect(0, p + 3, 60, 3);
+                ctx.fillStyle = '#888888';
+                if (isVertical) ctx.fillRect(p + 6, 0, 1, 60); else ctx.fillRect(0, p + 6, 60, 1);
+                ctx.fillStyle = '#484848';
+                if (isVertical) ctx.fillRect(p + 7, 0, 1, 60); else ctx.fillRect(0, p + 7, 60, 1);
+            }
+        } else if (type === 'ribpanel') {
+            const step = 20;
+            for (let i = 0; i * step < 60; i++) {
+                const p = i * step;
+                ctx.fillStyle = '#676767';
+                if (isVertical) ctx.fillRect(p,      0, 9, 60); else ctx.fillRect(0, p,      60, 9);
+                ctx.fillStyle = '#939393';
+                if (isVertical) ctx.fillRect(p + 9,  0, 2, 60); else ctx.fillRect(0, p + 9,  60, 2);
+                ctx.fillStyle = '#bbbbbb';
+                if (isVertical) ctx.fillRect(p + 11, 0, 7, 60); else ctx.fillRect(0, p + 11, 60, 7);
+                ctx.fillStyle = '#939393';
+                if (isVertical) ctx.fillRect(p + 18, 0, 2, 60); else ctx.fillRect(0, p + 18, 60, 2);
+            }
+        }
+        return C.toDataURL();
+    }
+
+    /* ── CSS ────────────────────────────────────────────────────── */
+    const menuCSS = `
+        #tex-menu {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #ffffff;
+            border: 2px solid #0D47A1;
+            padding: 20px;
+            z-index: 10000;
+            max-width: 370px;
+            width: 90%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+        #tex-menu h3 { margin: 0 0 4px; color: #0D47A1; font-size: 1rem; }
+        #tex-menu h4 {
+            margin: 16px 0 8px;
+            color: #0D47A1;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            border-bottom: 1px solid #e3e8f0;
+            padding-bottom: 4px;
+        }
+        .tex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .tex-card {
+            border: 2px solid #dde3ef;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color .18s, box-shadow .18s;
+            background: #f5f7fc;
+        }
+        .tex-card:hover  { border-color: #5C8FD6; box-shadow: 0 2px 8px rgba(13,71,161,.15); }
+        .tex-card.active { border-color: #0D47A1; box-shadow: 0 2px 10px rgba(13,71,161,.3); }
+        .tex-card img    { display: block; width: 100%; height: 60px; object-fit: cover; }
+        .tex-card-label  { font-size: 0.68rem; text-align: center; padding: 3px 2px 4px; color: #444; font-weight: 600; }
+
+        .orient-row { display: flex; gap: 8px; margin-top: 2px; }
+        .orient-btn {
+            flex: 1; padding: 7px 4px;
+            border: 2px solid #dde3ef; border-radius: 7px;
+            background: #f5f7fc; cursor: pointer;
+            font-size: 0.78rem; font-weight: 600; color: #555;
+            transition: all .18s;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .orient-btn:hover  { border-color: #5C8FD6; color: #0D47A1; }
+        .orient-btn.active { border-color: #0D47A1; background: #e8edf8; color: #0D47A1; }
+
+        /* УДАЛЕНО: все стили для слайдера масштаба, scale-row, scale-presets, scale-hint и т.д. */
+
+        /* Палитра каркаса */
+        .frame-palette { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+        .frame-swatch {
+            width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
+            border: 2px solid transparent; box-sizing: border-box;
+            transition: transform .15s, border-color .15s;
+        }
+        .frame-swatch:hover  { transform: scale(1.18); }
+        .frame-swatch.active { border-color: #fff; outline: 2px solid #0D47A1; }
+        .frame-select-wrap   { position: relative; }
+        .frame-select-wrap select {
+            width: 100%; padding: 7px 10px 7px 36px;
+            border: 1.5px solid #c5cfe0; border-radius: 7px;
+            font-size: 0.8rem; background: #fff; color: #333;
+            appearance: none; cursor: pointer;
+        }
+        .frame-dot {
+            position: absolute; left: 8px; top: 50%;
+            transform: translateY(-50%);
+            width: 20px; height: 20px; border-radius: 4px;
+            pointer-events: none; border: 1px solid rgba(0,0,0,.12);
+        }
+    `;
+
+    const styleEl = document.createElement('style');
+    styleEl.textContent = menuCSS;
+    document.head.appendChild(styleEl);
+
+    /* ── HTML меню (без слайдера масштаба) ─────────────────────────────────────────────── */
+    const menuDiv = document.createElement('div');
+    menuDiv.id = 'tex-menu';
+    menuDiv.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3>🎨 Текстуры и материалы</h3>
+            <button id="tex-close-btn" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888;line-height:1;" title="Закрыть (Escape)">✕</button>
+        </div>
+
+        <h4>Текстура стен</h4>
+        <div class="tex-grid" id="wall-tex-grid"></div>
+
+        <div style="margin-top:10px;">
+            <div style="font-size:0.78rem;color:#666;margin-bottom:5px;font-weight:600;">Ориентация панелей:</div>
+            <div class="orient-row">
+                <button class="orient-btn" id="orient-horiz" title="Горизонтальные панели">
+                    <svg width="18" height="18" viewBox="0 0 18 18"><rect x="1" y="3" width="16" height="3" rx="1" fill="currentColor"/><rect x="1" y="8" width="16" height="3" rx="1" fill="currentColor" opacity=".5"/><rect x="1" y="13" width="16" height="3" rx="1" fill="currentColor" opacity=".25"/></svg>
+                    Горизонтально
+                </button>
+                <button class="orient-btn" id="orient-vert" title="Вертикальные панели">
+                    <svg width="18" height="18" viewBox="0 0 18 18"><rect x="3" y="1" width="3" height="16" rx="1" fill="currentColor"/><rect x="8" y="1" width="3" height="16" rx="1" fill="currentColor" opacity=".5"/><rect x="13" y="1" width="3" height="16" rx="1" fill="currentColor" opacity=".25"/></svg>
+                    Вертикально
+                </button>
+            </div>
+        </div>
+
+        <h4>Текстура кровли <span style="font-size:0.7rem;color:#888;font-weight:400;">(только вдоль ската)</span></h4>
+        <div class="tex-grid" id="roof-tex-grid"></div>
+
+        <h4>Цвет каркаса (фермы)</h4>
+        <div class="frame-palette" id="frame-palette"></div>
+        <div class="frame-select-wrap">
+            <span class="frame-dot" id="frame-dot" style="background:#222222;"></span>
+            <select id="frame-color-select"></select>
+        </div>
+    `;
+    document.body.appendChild(menuDiv);
+
+    /* ── Кнопка открытия ───────────────────────────────────────── */
+    const texButton = document.createElement('button');
+    texButton.id    = 'tex-menu-button';
+    texButton.innerHTML = '🎨 Текстуры и цвет каркаса';
+    texButton.style.cssText = 'width:100%; margin-top:6px; padding:8px; background:rgba(255,255,255,0.1); border:1px dashed rgba(255,255,255,0.3); border-radius:4px; color:rgba(255,255,255,0.7); font-size:0.8rem; cursor:pointer; transition:all .2s;';
+    texButton.title = 'Открыть меню текстур и цвета каркаса';
+
+    setTimeout(() => {
+        const techBtn = document.getElementById('tech-menu-button');
+        if (techBtn) {
+            techBtn.parentNode.insertBefore(texButton, techBtn);
+        } else {
+            const calcBtn = document.querySelector('.calc-btn');
+            if (calcBtn && calcBtn.parentNode) {
+                calcBtn.parentNode.insertBefore(texButton, calcBtn.nextSibling);
+            }
+        }
+    }, 0);
+
+    /* ── Текстурные сетки ──────────────────────────────────────── */
+    const textures = [
+        { id: 'default',    label: 'Гладкая\nпанель' },
+        { id: 'corrugated', label: 'Профнастил' },
+        { id: 'ribpanel',   label: 'Кровельный\nсэндвич' },
+    ];
+
+    function buildTexGrid(gridId, currentType, onSelect) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        grid.innerHTML = '';
+        const isRoof = gridId === 'roof-tex-grid';
+
+        textures.forEach(({ id, label }) => {
+            const card = document.createElement('div');
+            card.className = 'tex-card' + (id === currentType ? ' active' : '');
+            card.dataset.texId = id;
+
+            // ИЗМЕНЕНО: для кровли всегда передаём true (вертикальное превью)
+            const thumbURL = makeThumb(id, isRoof ? true : wallTextureOrientation === 'vertical');
+            card.innerHTML = `
+                <img src="${thumbURL}" alt="${label}" draggable="false">
+                <div class="tex-card-label">${label.replace('\n', '<br>')}</div>
+            `;
+            card.addEventListener('click', () => {
+                grid.querySelectorAll('.tex-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                onSelect(id);
+                saveTextureSettings();
+            });
+            grid.appendChild(card);
+        });
+    }
+
+    function refreshWallGrid() {
+        buildTexGrid('wall-tex-grid', currentWallTextureType, (id) => {
+            currentWallTextureType = id;
+            triggerModelUpdate();
+        });
+    }
+    function refreshRoofGrid() {
+        buildTexGrid('roof-tex-grid', currentRoofTextureType, (id) => {
+            currentRoofTextureType = id;
+            triggerModelUpdate();
+        });
+    }
+
+    refreshWallGrid();
+    refreshRoofGrid();
+
+    /* ── Ориентация ───────────────────────────────────────────── */
+    const btnH = document.getElementById('orient-horiz');
+    const btnV = document.getElementById('orient-vert');
+
+    function applyOrientationUI(dir) {
+        btnH.classList.toggle('active', dir === 'horizontal');
+        btnV.classList.toggle('active', dir === 'vertical');
+    }
+    applyOrientationUI(wallTextureOrientation);
+
+    function setOrientation(dir) {
+        wallTextureOrientation = dir;
+        applyOrientationUI(dir);
+        refreshWallGrid();
+        triggerModelUpdate();
+        saveTextureSettings();
+    }
+
+    btnH.addEventListener('click', () => setOrientation('horizontal'));
+    btnV.addEventListener('click', () => setOrientation('vertical'));
+
+    /* УДАЛЕНО: весь код слайдера масштаба, пресетов, обработчиков и т.д. */
+
+    /* ── Цвет каркаса ─────────────────────────────────────────── */
+    function buildFramePalette() {
+        const palette = document.getElementById('frame-palette');
+        const select  = document.getElementById('frame-color-select');
+        const dot     = document.getElementById('frame-dot');
+        if (!palette || !select) return;
+
+        const savedHex = localStorage.getItem(LS_FRAME_COLOR) || '#222222';
+        dot.style.backgroundColor = savedHex;
+
+        if (typeof quickRalColors !== 'undefined') {
+            palette.innerHTML = '';
+            quickRalColors.forEach(color => {
+                const hexUpper = color.hex.toUpperCase();
+                const sw = document.createElement('div');
+                sw.className = 'frame-swatch' + (hexUpper === savedHex.toUpperCase() ? ' active' : '');
+                sw.style.backgroundColor = hexUpper;
+                sw.dataset.hex = hexUpper;
+                sw.title = color.name;
+
+                sw.addEventListener('click', function () {
+                    palette.querySelectorAll('.frame-swatch').forEach(s => s.classList.remove('active'));
+                    this.classList.add('active');
+                    const hex = parseInt(hexUpper.replace('#', ''), 16);
+                    window.changeFrameColor(hex);
+                    select.value = hexUpper;
+                    dot.style.backgroundColor = hexUpper;
+                });
+                palette.appendChild(sw);
+            });
+        }
+
+        select.innerHTML = '<option value="">— Выберите RAL —</option>';
+        if (typeof ralColors !== 'undefined') {
+            ralColors.forEach(color => {
+                const hexUpper = color.hex.toUpperCase();
+                const opt = document.createElement('option');
+                opt.value = hexUpper;
+                opt.textContent = `● ${color.name} - ${color.desc}`;
+                opt.style.backgroundColor = hexUpper;
+                opt.style.color = getContrastYIQ(hexUpper) ? '#000' : '#fff';
+                if (hexUpper === savedHex.toUpperCase()) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        select.addEventListener('change', function () {
+            if (!this.value) return;
+            const hexUpper = this.value.toUpperCase();
+            const hex = parseInt(hexUpper.replace('#', ''), 16);
+            window.changeFrameColor(hex);
+            dot.style.backgroundColor = hexUpper;
+            palette.querySelectorAll('.frame-swatch').forEach(s => {
+                s.classList.toggle('active', s.dataset.hex === hexUpper);
+            });
+        });
+    }
+
+    if (typeof quickRalColors !== 'undefined') {
+        buildFramePalette();
+    } else {
+        window.addEventListener('load', buildFramePalette);
+    }
+
+    /* ── Показ / скрытие  ─  только Escape и крестик ──────────── */
+    const menu = document.getElementById('tex-menu');
+
+    function showTexMenu() { menu.style.display = 'block'; }
+    function hideTexMenu() { menu.style.display = 'none';  }
+
+    // ИЗМЕНЕНО: теперь проверяем, что display НЕ равен 'block', а не === 'none'
+    texButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (menu.style.display !== 'block') {
+            showTexMenu();
+        } else {
+            hideTexMenu();
+        }
+    });
+
+    document.getElementById('tex-close-btn').addEventListener('click', hideTexMenu);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Escape' && menu.style.display === 'block') hideTexMenu();
+    });
+    // ← Клик вне меню НЕ закрывает. Сделано намеренно.
+})();
+
+// ==============================================
+// СМЕНА ЦВЕТА КАРКАСА
+// ==============================================
+window.changeFrameColor = function (hexNumber) {
+    if (frameMaterial) frameMaterial.color.setHex(hexNumber);
+    const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
+    localStorage.setItem(LS_FRAME_COLOR, hexString);
+    const dot = document.getElementById('frame-dot');
+    if (dot) dot.style.backgroundColor = hexString;
+    // frameMaterial shared → THREE обновляет все меши автоматически
+};
+
+// ==============================================
+// ЦВЕТОВЫЕ СЕЛЕКТОРЫ (СТЕНЫ, КРОВЛЯ)
 // ==============================================
 function initColorSelectors() {
     if (typeof ralColors === 'undefined' || typeof quickRalColors === 'undefined') {
@@ -2345,30 +2765,24 @@ function initColorSelectors() {
         return;
     }
 
-    // ================= СТЕНЫ =================
+    // ── СТЕНЫ ──
     const wallMiniPalette = document.getElementById('wall-mini-palette');
     if (wallMiniPalette) {
         wallMiniPalette.innerHTML = '';
         quickRalColors.forEach(color => {
             const hexUpper = color.hex.toUpperCase();
-            const swatch = document.createElement('div');
+            const swatch   = document.createElement('div');
             swatch.className = 'color-mini-swatch';
             swatch.style.backgroundColor = hexUpper;
             swatch.setAttribute('data-hex', hexUpper);
             swatch.title = color.name;
-
-            swatch.addEventListener('click', function() {
+            swatch.addEventListener('click', function () {
                 document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => el.classList.remove('active'));
                 this.classList.add('active');
-
                 const hexNumber = parseInt(hexUpper.replace('#', '0x'), 16);
                 changeWallColor(hexNumber);
-
                 const select = document.getElementById('wall-color-select');
-                if (select) {
-                    select.value = hexUpper;
-                    updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper));
-                }
+                if (select) { select.value = hexUpper; updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper)); }
             });
             wallMiniPalette.appendChild(swatch);
         });
@@ -2380,63 +2794,49 @@ function initColorSelectors() {
         wallSelect.innerHTML = '<option value="">— Выберите RAL —</option>';
         ralColors.forEach(color => {
             const hexUpper = color.hex.toUpperCase();
-            const option = document.createElement('option');
-            option.value = hexUpper;
+            const option   = document.createElement('option');
+            option.value   = hexUpper;
             option.setAttribute('data-hex', hexUpper);
             option.setAttribute('data-name', color.name);
             option.setAttribute('data-desc', color.desc);
             option.textContent = `● ${color.name} - ${color.desc}`;
             option.style.backgroundColor = hexUpper;
             option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
-            option.style.padding = '8px 12px 8px 32px';
-            option.style.position = 'relative';
             wallSelect.appendChild(option);
         });
         createCustomSelectPreview(wallSelect, 'wall');
-        wallSelect.addEventListener('change', function() {
+        wallSelect.addEventListener('change', function () {
             if (this.value) {
-                const hexNumber = parseInt(this.value.replace('#', '0x'), 16);
+                const hexNumber   = parseInt(this.value.replace('#', '0x'), 16);
                 changeWallColor(hexNumber);
                 const selectedHex = this.value.toUpperCase();
-                const selectedOption = this.options[this.selectedIndex];
-                const colorName = selectedOption.getAttribute('data-name') || '';
-                const colorDesc = selectedOption.getAttribute('data-desc') || '';
-                updateSelectPreview(this, selectedHex, `${colorName} - ${colorDesc}`);
+                const selectedOpt = this.options[this.selectedIndex];
+                updateSelectPreview(this, selectedHex, `${selectedOpt.getAttribute('data-name')} - ${selectedOpt.getAttribute('data-desc')}`);
                 document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
-                    el.classList.remove('active');
-                    const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-                    if (swatchHex === selectedHex || rgbToHex(el.style.backgroundColor).toUpperCase() === selectedHex) {
-                        el.classList.add('active');
-                    }
+                    el.classList.toggle('active', rgbToHex(el.style.backgroundColor).toUpperCase() === selectedHex);
                 });
             }
         });
     }
 
-    // ================= КРОВЛЯ =================
+    // ── КРОВЛЯ ──
     const roofMiniPalette = document.getElementById('roof-mini-palette');
     if (roofMiniPalette) {
         roofMiniPalette.innerHTML = '';
         quickRalColors.forEach(color => {
             const hexUpper = color.hex.toUpperCase();
-            const swatch = document.createElement('div');
+            const swatch   = document.createElement('div');
             swatch.className = 'color-mini-swatch';
             swatch.style.backgroundColor = hexUpper;
             swatch.setAttribute('data-hex', hexUpper);
             swatch.title = color.name;
-
-            swatch.addEventListener('click', function() {
+            swatch.addEventListener('click', function () {
                 document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => el.classList.remove('active'));
                 this.classList.add('active');
-
                 const hexNumber = parseInt(hexUpper.replace('#', '0x'), 16);
                 changeRoofColor(hexNumber);
-
                 const select = document.getElementById('roof-color-select');
-                if (select) {
-                    select.value = hexUpper;
-                    updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper));
-                }
+                if (select) { select.value = hexUpper; updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper)); }
             });
             roofMiniPalette.appendChild(swatch);
         });
@@ -2448,34 +2848,26 @@ function initColorSelectors() {
         roofSelect.innerHTML = '<option value="">— Выберите RAL —</option>';
         ralColors.forEach(color => {
             const hexUpper = color.hex.toUpperCase();
-            const option = document.createElement('option');
-            option.value = hexUpper;
+            const option   = document.createElement('option');
+            option.value   = hexUpper;
             option.setAttribute('data-hex', hexUpper);
             option.setAttribute('data-name', color.name);
             option.setAttribute('data-desc', color.desc);
             option.textContent = `● ${color.name} - ${color.desc}`;
             option.style.backgroundColor = hexUpper;
             option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
-            option.style.padding = '8px 12px 8px 32px';
-            option.style.position = 'relative';
             roofSelect.appendChild(option);
         });
         createCustomSelectPreview(roofSelect, 'roof');
-        roofSelect.addEventListener('change', function() {
+        roofSelect.addEventListener('change', function () {
             if (this.value) {
-                const hexNumber = parseInt(this.value.replace('#', '0x'), 16);
+                const hexNumber   = parseInt(this.value.replace('#', '0x'), 16);
                 changeRoofColor(hexNumber);
                 const selectedHex = this.value.toUpperCase();
-                const selectedOption = this.options[this.selectedIndex];
-                const colorName = selectedOption.getAttribute('data-name') || '';
-                const colorDesc = selectedOption.getAttribute('data-desc') || '';
-                updateSelectPreview(this, selectedHex, `${colorName} - ${colorDesc}`);
+                const selectedOpt = this.options[this.selectedIndex];
+                updateSelectPreview(this, selectedHex, `${selectedOpt.getAttribute('data-name')} - ${selectedOpt.getAttribute('data-desc')}`);
                 document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
-                    el.classList.remove('active');
-                    const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-                    if (swatchHex === selectedHex || rgbToHex(el.style.backgroundColor).toUpperCase() === selectedHex) {
-                        el.classList.add('active');
-                    }
+                    el.classList.toggle('active', rgbToHex(el.style.backgroundColor).toUpperCase() === selectedHex);
                 });
             }
         });
@@ -2500,9 +2892,7 @@ function createCustomSelectPreview(selectElement, type) {
 function updateSelectPreview(selectElement, hexColor, text) {
     if (!selectElement) return;
     selectElement.value = hexColor;
-    if (selectElement.previewDot) {
-        selectElement.previewDot.style.backgroundColor = hexColor;
-    }
+    if (selectElement.previewDot) selectElement.previewDot.style.backgroundColor = hexColor;
     selectElement.style.backgroundColor = '#ffffff';
     selectElement.style.color = '#333333';
 }
@@ -2511,19 +2901,15 @@ function getColorNameByHex(hex) {
     if (typeof ralColors === 'undefined') return '';
     hex = hex.toUpperCase();
     const color = ralColors.find(c => c.hex.toUpperCase() === hex);
-    if (color) {
-        return `${color.name} - ${color.desc}`;
-    }
-    return '';
+    return color ? `${color.name} - ${color.desc}` : '';
 }
 
 function getContrastYIQ(hexcolor) {
     hexcolor = hexcolor.replace('#', '');
-    const r = parseInt(hexcolor.substr(0,2),16);
-    const g = parseInt(hexcolor.substr(2,2),16);
-    const b = parseInt(hexcolor.substr(4,2),16);
-    const yiq = ((r*299)+(g*587)+(b*114))/1000;
-    return yiq >= 128;
+    const r = parseInt(hexcolor.substr(0, 2), 16);
+    const g = parseInt(hexcolor.substr(2, 2), 16);
+    const b = parseInt(hexcolor.substr(4, 2), 16);
+    return ((r * 299) + (g * 587) + (b * 114)) / 1000 >= 128;
 }
 
 function rgbToHex(rgb) {
@@ -2534,108 +2920,55 @@ function rgbToHex(rgb) {
 }
 
 function restoreSavedColors() {
-    const savedWallHex = localStorage.getItem('angarWallColorHex');
-    if (savedWallHex) {
-        const savedHexUpper = savedWallHex.toUpperCase();
-        const hexNumber = parseInt(savedHexUpper.replace('#', '0x'), 16);
-        changeWallColor(hexNumber);
-        document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
-            const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-            if (swatchHex === savedHexUpper || rgbToHex(el.style.backgroundColor).toUpperCase() === savedHexUpper) {
-                el.classList.add('active');
-            }
-        });
-        const wallSelect = document.getElementById('wall-color-select');
-        if (wallSelect) {
-            wallSelect.value = savedHexUpper;
-            updateSelectPreview(wallSelect, savedHexUpper, getColorNameByHex(savedHexUpper));
-        }
-    } else {
-        const defaultHex = '#005387';
-        const hexNumber = parseInt(defaultHex.replace('#', '0x'), 16);
-        changeWallColor(hexNumber);
-        document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
-            const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-            if (swatchHex === defaultHex) {
-                el.classList.add('active');
-            }
-        });
-        const wallSelect = document.getElementById('wall-color-select');
-        if (wallSelect) {
-            wallSelect.value = defaultHex;
-            updateSelectPreview(wallSelect, defaultHex, getColorNameByHex(defaultHex));
-        }
-    }
+    // Стены
+    const savedWallHex = localStorage.getItem(LS_WALL_COLOR);
+    const wallHex = savedWallHex ? savedWallHex.toUpperCase() : '#005387';
+    changeWallColor(parseInt(wallHex.replace('#', ''), 16));
+    document.querySelectorAll('#wall-mini-palette .color-mini-swatch').forEach(el => {
+        el.classList.toggle('active', rgbToHex(el.style.backgroundColor).toUpperCase() === wallHex);
+    });
+    const wallSelect = document.getElementById('wall-color-select');
+    if (wallSelect) { wallSelect.value = wallHex; updateSelectPreview(wallSelect, wallHex, getColorNameByHex(wallHex)); }
 
-    const savedRoofHex = localStorage.getItem('angarRoofColorHex');
-    if (savedRoofHex) {
-        const savedHexUpper = savedRoofHex.toUpperCase();
-        const hexNumber = parseInt(savedHexUpper.replace('#', '0x'), 16);
-        changeRoofColor(hexNumber);
-        document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
-            const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-            if (swatchHex === savedHexUpper || rgbToHex(el.style.backgroundColor).toUpperCase() === savedHexUpper) {
-                el.classList.add('active');
-            }
-        });
-        const roofSelect = document.getElementById('roof-color-select');
-        if (roofSelect) {
-            roofSelect.value = savedHexUpper;
-            updateSelectPreview(roofSelect, savedHexUpper, getColorNameByHex(savedHexUpper));
-        }
-    } else {
-        const defaultHex = '#455A64';
-        const hexNumber = parseInt(defaultHex.replace('#', '0x'), 16);
-        changeRoofColor(hexNumber);
-        document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
-            const swatchHex = (el.style.backgroundColor || el.dataset.hex).toUpperCase();
-            if (swatchHex === defaultHex) {
-                el.classList.add('active');
-            }
-        });
-        const roofSelect = document.getElementById('roof-color-select');
-        if (roofSelect) {
-            roofSelect.value = defaultHex;
-            updateSelectPreview(roofSelect, defaultHex, getColorNameByHex(defaultHex));
-        }
+    // Кровля
+    const savedRoofHex = localStorage.getItem(LS_ROOF_COLOR);
+    const roofHex = savedRoofHex ? savedRoofHex.toUpperCase() : '#455A64';
+    changeRoofColor(parseInt(roofHex.replace('#', ''), 16));
+    document.querySelectorAll('#roof-mini-palette .color-mini-swatch').forEach(el => {
+        el.classList.toggle('active', rgbToHex(el.style.backgroundColor).toUpperCase() === roofHex);
+    });
+    const roofSelect = document.getElementById('roof-color-select');
+    if (roofSelect) { roofSelect.value = roofHex; updateSelectPreview(roofSelect, roofHex, getColorNameByHex(roofHex)); }
+
+    // Каркас
+    const savedFrameHex = localStorage.getItem(LS_FRAME_COLOR);
+    if (savedFrameHex) {
+        window.changeFrameColor(parseInt(savedFrameHex.replace('#', ''), 16));
     }
 }
 
-window.changeWallColor = function(hexNumber) {
-    if (wallMaterial) {
-        wallMaterial.color.setHex(hexNumber);
-    }
+window.changeWallColor = function (hexNumber) {
+    if (wallMaterial) wallMaterial.color.setHex(hexNumber);
     const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-    localStorage.setItem('angarWallColorHex', hexString);
+    localStorage.setItem(LS_WALL_COLOR, hexString);
     const indicator = document.getElementById('wall-color-indicator');
     if (indicator) indicator.style.backgroundColor = hexString;
     const wallSelect = document.getElementById('wall-color-select');
-    if (wallSelect) {
-        updateSelectPreview(wallSelect, hexString, getColorNameByHex(hexString));
-    }
-    if (typeof window.currentCalculatorParams !== 'undefined') {
-        const p = window.currentCalculatorParams;
-        update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-    }
+    if (wallSelect) updateSelectPreview(wallSelect, hexString, getColorNameByHex(hexString));
+    triggerModelUpdate();
 };
 
-window.changeRoofColor = function(hexNumber) {
-    if (roofMaterial) {
-        roofMaterial.color.setHex(hexNumber);
-    }
+window.changeRoofColor = function (hexNumber) {
+    if (roofMaterial) roofMaterial.color.setHex(hexNumber);
     const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
-    localStorage.setItem('angarRoofColorHex', hexString);
+    localStorage.setItem(LS_ROOF_COLOR, hexString);
     const indicator = document.getElementById('roof-color-indicator');
     if (indicator) indicator.style.backgroundColor = hexString;
     const roofSelect = document.getElementById('roof-color-select');
-    if (roofSelect) {
-        updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
-    }
-    if (typeof window.currentCalculatorParams !== 'undefined') {
-        const p = window.currentCalculatorParams;
-        update3DModel(p.w, p.l, p.h, p.windowsCount, p.doorsFront, p.doorsRear);
-    }
+    if (roofSelect) updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
+    triggerModelUpdate();
 };
+
 
 // ==========================================
 // ФУНКЦИИ ДИАГРАММ
