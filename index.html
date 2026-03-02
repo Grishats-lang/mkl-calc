@@ -2758,7 +2758,7 @@ function initColorSelectors() {
             option.setAttribute('data-hex', hexUpper);
             option.setAttribute('data-name', color.name);
             option.setAttribute('data-desc', color.desc);
-            option.textContent = `● ${color.name} - ${color.desc}`;
+            option.textContent = `${color.name} - ${color.desc}`;
             option.style.backgroundColor = hexUpper;
             option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
             wallSelect.appendChild(option);
@@ -2812,7 +2812,7 @@ function initColorSelectors() {
             option.setAttribute('data-hex', hexUpper);
             option.setAttribute('data-name', color.name);
             option.setAttribute('data-desc', color.desc);
-            option.textContent = `● ${color.name} - ${color.desc}`;
+            option.textContent = `${color.name} - ${color.desc}`;
             option.style.backgroundColor = hexUpper;
             option.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
             roofSelect.appendChild(option);
@@ -2981,7 +2981,7 @@ function initFrameColorSelector() {
         opt.setAttribute('data-hex', hexUpper);
         opt.setAttribute('data-name', color.name);
         opt.setAttribute('data-desc', color.desc);
-        opt.textContent = `● ${color.name} - ${color.desc}`;
+        opt.textContent = `${color.name} - ${color.desc}`;
         opt.style.backgroundColor = hexUpper;
         opt.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
         if (hexUpper === savedHexUpper) opt.selected = true;
