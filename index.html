@@ -429,7 +429,7 @@
         • Перемещать — правая кнопка мыши
         • Zoom — колесико мыши
         • Техническое меню — Ctrl+Shift+P">
-            <div style="padding: 20px; background-color: var(--primary-blue); color: white;">
+            <div style="padding: 18px; background-color: var(--primary-blue); color: white;">
                 <h3 style="margin: 0; font-size: 1.2em; color: white;">🏛️ 3D Предпросмотр</h3>
             </div>
         </div>
@@ -1696,7 +1696,7 @@ function init3D() {
     frameMaterial = new THREE.MeshStandardMaterial({
         color:     DEFAULT_FRAME_COLOR,
         roughness: 0.75,
-        metalness: 0.35
+        metalness: 0.55
     });
 
     roofMaterial = new THREE.MeshStandardMaterial({
@@ -1959,99 +1959,112 @@ function update3DModel(width, length, height, windowsCount, doorFrontCount, door
 }
 
 // =====================================================================
-// ФЕРМА
+// ФЕРМА: Динамическое масштабирование от габаритов ангара
 // =====================================================================
 
 function v3(x, y, z) { return new THREE.Vector3(x, y, z); }
 
+// 1. ФУНКЦИЯ СБОРА ОТРЕЗКОВ (Умные формулы масштабирования)
 function collectFrameSticks(sticks, zPos, width, height, roofHeight, roofSlopeLen) {
-    const halfW    = width / 2;
-    const colDepth = Math.max(0.30, Math.min(0.80, height       * 0.08));
-    const rafDepth = Math.max(0.30, Math.min(0.80, roofSlopeLen * 0.06));
-    const wallInset = 0.05;
-    const roofInset = 0.09;
-    const colPanels  = Math.max(3, Math.round(height       / 1.3));
-    const rafPanels  = Math.max(4, Math.round(roofSlopeLen / 1.4));
-    const colPanelH  = height / colPanels;
+    const halfW = width / 2;
+    
+    // --- 1. ДИНАМИЧЕСКАЯ МАССИВНОСТЬ ТРУБ ---
+    // Формула: чем больше ширина и высота, тем толще профиль трубы (от 0.06м до 0.15м)
+    const bT = Math.max(0.04, Math.min(0.1, (width * 0.0025) + (height * 0.0025) + 0.01));
+    sticks.bT = bT; // Сохраняем вычисленную толщину для рендерера
+    const halfBeam = bT / 2;
+    
+    // Зазоры (чтобы ферма не пробивала панели и пол)
+    const wallInset = 0.05 + halfBeam;  
+    const roofDrop  = 0.05 + halfBeam;  
+    const floorInset = 0.00 + halfBeam; 
 
-    {
-        const xO = -halfW + wallInset;
-        const xI = xO + colDepth;
-        for (let i = 0; i < colPanels; i++) {
-            const y0 = i * colPanelH;
-            const y1 = (i + 1) * colPanelH;
-            sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xO, y1, zPos) });
-            sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xI, y1, zPos) });
-            sticks.push({ p1: v3(xO, y1, zPos), p2: v3(xI, y1, zPos) });
-            if (i === 0) sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y0, zPos) });
-            if (i % 2 === 0) sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y1, zPos) });
-            else              sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xO, y1, zPos) });
+    // --- 2. ДИНАМИЧЕСКИЕ ПРОПОРЦИИ ФЕРМЫ ---
+    // Уклон оригинальной крыши
+    const roofSlope = roofHeight / halfW; 
+    const xOutR = halfW - wallInset; 
+    const xOutL = -xOutR;            
+
+    // Низ колонны (зависит от высоты ангара)
+    let baseDepth = Math.max(0.2, height * 0.035); 
+    
+    // Колено / верх колонны (зависит и от высоты, и от ширины)
+    let kneeDepth = Math.max(0.45, (height * 0.05) + (width * 0.025)); 
+    
+    // Толщина конька / ската (зависит в основном от ширины пролета)
+    let kneeDrop = Math.max(0.2, width * 0.025); 
+
+    // Защита "от дурака" (чтобы при экстремальных пропорциях ферма не пересекла центр ангара)
+    kneeDepth = Math.min(kneeDepth, xOutR * 0.7);
+    baseDepth = Math.min(baseDepth, kneeDepth * 0.6);
+
+    // === А. ВНЕШНИЙ КОНТУР ===
+    const kneeY = height - roofDrop;
+    const ridgeOutY = kneeY + (xOutR * roofSlope);
+
+    const baseOutL = v3(xOutL, floorInset, zPos);
+    const kneeOutL = v3(xOutL, kneeY, zPos);
+    const ridgeOut = v3(0, ridgeOutY, zPos);
+    const kneeOutR = v3(xOutR, kneeY, zPos);
+    const baseOutR = v3(xOutR, floorInset, zPos);
+
+    // === Б. ВНУТРЕННИЙ КОНТУР ===
+    const baseInL = v3(xOutL + baseDepth, floorInset, zPos);
+    const kneeInL = v3(xOutL + kneeDepth, kneeY - kneeDrop, zPos);
+    
+    const baseInR = v3(xOutR - baseDepth, floorInset, zPos);
+    const kneeInR = v3(xOutR - kneeDepth, kneeY - kneeDrop, zPos);
+
+    // Внутренний конек (строго параллелен скату)
+    const distToRidge = xOutR - kneeDepth;
+    const ridgeInY = (kneeY - kneeDrop) + (distToRidge * roofSlope);
+    const ridgeIn = v3(0, ridgeInY, zPos);
+
+    // === В. РАЗБИВКА НА ПАНЕЛИ И ЗИГЗАГ ===
+    // Шаг раскосов тоже динамический: чтобы не было частокола на больших ангарах
+    const panelSize = Math.max(1.0, Math.min(2, (height + width) * 0.04));
+    const colPanels = Math.max(3, Math.round(height / panelSize));
+    const rafPanels = Math.max(4, Math.round(roofSlopeLen / panelSize));
+
+    function buildSegment(pOut1, pOut2, pIn1, pIn2, panels) {
+        for (let i = 0; i < panels; i++) {
+            const t0 = i / panels;
+            const t1 = (i + 1) / panels;
+
+            const o0 = new THREE.Vector3().lerpVectors(pOut1, pOut2, t0);
+            const o1 = new THREE.Vector3().lerpVectors(pOut1, pOut2, t1);
+            const i0 = new THREE.Vector3().lerpVectors(pIn1, pIn2, t0);
+            const i1 = new THREE.Vector3().lerpVectors(pIn1, pIn2, t1);
+
+            sticks.push({ p1: o0, p2: o1 });
+            sticks.push({ p1: i0, p2: i1 });
+
+            if (i % 2 === 0) {
+                sticks.push({ p1: o0, p2: i1 }); 
+            } else {
+                sticks.push({ p1: i0, p2: o1 }); 
+            }
         }
     }
 
-    {
-        const xO = halfW - wallInset;
-        const xI = xO - colDepth;
-        for (let i = 0; i < colPanels; i++) {
-            const y0 = i * colPanelH;
-            const y1 = (i + 1) * colPanelH;
-            sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xO, y1, zPos) });
-            sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xI, y1, zPos) });
-            sticks.push({ p1: v3(xO, y1, zPos), p2: v3(xI, y1, zPos) });
-            if (i === 0) sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y0, zPos) });
-            if (i % 2 === 0) sticks.push({ p1: v3(xO, y0, zPos), p2: v3(xI, y1, zPos) });
-            else              sticks.push({ p1: v3(xI, y0, zPos), p2: v3(xO, y1, zPos) });
-        }
-    }
+    buildSegment(baseOutL, kneeOutL, baseInL, kneeInL, colPanels); 
+    buildSegment(baseOutR, kneeOutR, baseInR, kneeInR, colPanels); 
+    buildSegment(kneeOutL, ridgeOut, kneeInL, ridgeIn, rafPanels); 
+    buildSegment(kneeOutR, ridgeOut, kneeInR, ridgeIn, rafPanels); 
 
-    const sL = v3(halfW, roofHeight, 0).normalize();
-    const pL = v3(sL.y, -sL.x, 0);
-    const sR = v3(-halfW, roofHeight, 0).normalize();
-    const pR = v3(-sR.y, sR.x, 0);
-
-    const rafStartL = v3(-halfW + wallInset, height, zPos).addScaledVector(pL, roofInset);
-    const rafEndL   = v3(0, height + roofHeight,     zPos).addScaledVector(pL, roofInset);
-    const rafStartR = v3( halfW - wallInset, height, zPos).addScaledVector(pR, roofInset);
-    const rafEndR   = v3(0, height + roofHeight,     zPos).addScaledVector(pR, roofInset);
-
-    for (let i = 0; i < rafPanels; i++) {
-        const t0 = i / rafPanels, t1 = (i + 1) / rafPanels;
-        const tO0 = new THREE.Vector3().lerpVectors(rafStartL, rafEndL, t0);
-        const tO1 = new THREE.Vector3().lerpVectors(rafStartL, rafEndL, t1);
-        const tI0 = tO0.clone().addScaledVector(pL, rafDepth);
-        const tI1 = tO1.clone().addScaledVector(pL, rafDepth);
-        sticks.push({ p1: tO0, p2: tO1 });
-        sticks.push({ p1: tI0, p2: tI1 });
-        sticks.push({ p1: tO1, p2: tI1 });
-        if (i === 0)     sticks.push({ p1: tO0, p2: tI0 });
-        if (i % 2 === 0) sticks.push({ p1: tO0, p2: tI1 });
-        else             sticks.push({ p1: tI0, p2: tO1 });
-    }
-
-    for (let i = 0; i < rafPanels; i++) {
-        const t0 = i / rafPanels, t1 = (i + 1) / rafPanels;
-        const tO0 = new THREE.Vector3().lerpVectors(rafStartR, rafEndR, t0);
-        const tO1 = new THREE.Vector3().lerpVectors(rafStartR, rafEndR, t1);
-        const tI0 = tO0.clone().addScaledVector(pR, rafDepth);
-        const tI1 = tO1.clone().addScaledVector(pR, rafDepth);
-        sticks.push({ p1: tO0, p2: tO1 });
-        sticks.push({ p1: tI0, p2: tI1 });
-        sticks.push({ p1: tO1, p2: tI1 });
-        if (i === 0)     sticks.push({ p1: tO0, p2: tI0 });
-        if (i % 2 === 0) sticks.push({ p1: tO0, p2: tI1 });
-        else             sticks.push({ p1: tI0, p2: tO1 });
-    }
-
-    const ridgeTop = v3(0, height + roofHeight, zPos).addScaledVector(pL, roofInset);
-    const ridgeL   = rafEndL.clone().addScaledVector(pL, rafDepth);
-    const ridgeR   = rafEndR.clone().addScaledVector(pR, rafDepth);
-    sticks.push({ p1: ridgeL,   p2: ridgeR   });
-    sticks.push({ p1: ridgeTop, p2: ridgeL   });
-    sticks.push({ p1: ridgeTop, p2: ridgeR   });
+    // === Г. ЗАКРЫВАЮЩИЕ СТОЙКИ ===
+    sticks.push({ p1: baseOutL, p2: baseInL }); 
+    sticks.push({ p1: baseOutR, p2: baseInR }); 
+    sticks.push({ p1: kneeOutL, p2: kneeInL }); 
+    sticks.push({ p1: kneeOutR, p2: kneeInR }); 
+    sticks.push({ p1: ridgeOut, p2: ridgeIn }); 
 }
 
+// 2. ФУНКЦИЯ РЕНДЕРИНГА
 function createDynamicTruss(sticks) {
-    const bT   = 0.07;
+    // Получаем динамическую толщину, которую рассчитали в collectFrameSticks
+    const bT = sticks.bT || 0.08; 
+    
     const geo  = new THREE.BoxGeometry(1, 1, 1);
     const mesh = new THREE.InstancedMesh(geo, frameMaterial, sticks.length);
     mesh.castShadow    = true;
@@ -2070,7 +2083,7 @@ function createDynamicTruss(sticks) {
         if (len < 0.001) { mesh.setMatrixAt(idx, new THREE.Matrix4()); return; }
 
         pos.addVectors(p1, p2).multiplyScalar(0.5);
-        scale.set(bT, bT, len);
+        scale.set(bT, bT, len); // Теперь труба автоматически станет толще у больших ангаров
 
         const dirN = dir.clone().normalize();
         const dot  = zAxis.dot(dirN);
@@ -2513,12 +2526,6 @@ function savePriceConstants() {
             font-size: 0.8rem; background: #fff; color: #333;
             appearance: none; cursor: pointer;
         }
-        .frame-dot {
-            position: absolute; left: 8px; top: 50%;
-            transform: translateY(-50%);
-            width: 20px; height: 20px; border-radius: 4px;
-            pointer-events: none; border: 1px solid rgba(0,0,0,.12);
-        }
     `;
 
     const styleEl = document.createElement('style');
@@ -2555,10 +2562,13 @@ function savePriceConstants() {
         <div class="tex-grid" id="roof-tex-grid"></div>
 
         <h4>Цвет каркаса (фермы)</h4>
-        <div class="frame-palette" id="frame-palette"></div>
-        <div class="frame-select-wrap">
-            <span class="frame-dot" id="frame-dot" style="background:#222222;"></span>
-            <select id="frame-color-select"></select>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <div id="frame-palette" class="frame-palette" style="display: flex; gap: 4px;"></div>
+            <div class="color-select-wrapper" style="flex: 1;">
+                <select id="frame-color-select" class="color-select">
+                    <option value="">— Выберите RAL —</option>
+                </select>
+            </div>
         </div>
     `;
     document.body.appendChild(menuDiv);
@@ -2655,69 +2665,7 @@ function savePriceConstants() {
 
     /* УДАЛЕНО: весь код слайдера масштаба, пресетов, обработчиков и т.д. */
 
-    /* ── Цвет каркаса ─────────────────────────────────────────── */
-    function buildFramePalette() {
-        const palette = document.getElementById('frame-palette');
-        const select  = document.getElementById('frame-color-select');
-        const dot     = document.getElementById('frame-dot');
-        if (!palette || !select) return;
 
-        const savedHex = localStorage.getItem(LS_FRAME_COLOR) || '#222222';
-        dot.style.backgroundColor = savedHex;
-
-        if (typeof quickRalColors !== 'undefined') {
-            palette.innerHTML = '';
-            quickRalColors.forEach(color => {
-                const hexUpper = color.hex.toUpperCase();
-                const sw = document.createElement('div');
-                sw.className = 'frame-swatch' + (hexUpper === savedHex.toUpperCase() ? ' active' : '');
-                sw.style.backgroundColor = hexUpper;
-                sw.dataset.hex = hexUpper;
-                sw.title = color.name;
-
-                sw.addEventListener('click', function () {
-                    palette.querySelectorAll('.frame-swatch').forEach(s => s.classList.remove('active'));
-                    this.classList.add('active');
-                    const hex = parseInt(hexUpper.replace('#', ''), 16);
-                    window.changeFrameColor(hex);
-                    select.value = hexUpper;
-                    dot.style.backgroundColor = hexUpper;
-                });
-                palette.appendChild(sw);
-            });
-        }
-
-        select.innerHTML = '<option value="">— Выберите RAL —</option>';
-        if (typeof ralColors !== 'undefined') {
-            ralColors.forEach(color => {
-                const hexUpper = color.hex.toUpperCase();
-                const opt = document.createElement('option');
-                opt.value = hexUpper;
-                opt.textContent = `● ${color.name} - ${color.desc}`;
-                opt.style.backgroundColor = hexUpper;
-                opt.style.color = getContrastYIQ(hexUpper) ? '#000' : '#fff';
-                if (hexUpper === savedHex.toUpperCase()) opt.selected = true;
-                select.appendChild(opt);
-            });
-        }
-
-        select.addEventListener('change', function () {
-            if (!this.value) return;
-            const hexUpper = this.value.toUpperCase();
-            const hex = parseInt(hexUpper.replace('#', ''), 16);
-            window.changeFrameColor(hex);
-            dot.style.backgroundColor = hexUpper;
-            palette.querySelectorAll('.frame-swatch').forEach(s => {
-                s.classList.toggle('active', s.dataset.hex === hexUpper);
-            });
-        });
-    }
-
-    if (typeof quickRalColors !== 'undefined') {
-        buildFramePalette();
-    } else {
-        window.addEventListener('load', buildFramePalette);
-    }
 
     /* ── Показ / скрытие  ─  только Escape и крестик ──────────── */
     const menu = document.getElementById('tex-menu');
@@ -2751,9 +2699,20 @@ window.changeFrameColor = function (hexNumber) {
     if (frameMaterial) frameMaterial.color.setHex(hexNumber);
     const hexString = '#' + hexNumber.toString(16).padStart(6, '0').toUpperCase();
     localStorage.setItem(LS_FRAME_COLOR, hexString);
-    const dot = document.getElementById('frame-dot');
-    if (dot) dot.style.backgroundColor = hexString;
-    // frameMaterial shared → THREE обновляет все меши автоматически
+
+    // Обновляем превью-точку в кастомном селекте
+    const select = document.getElementById('frame-color-select');
+    if (select) {
+        updateSelectPreview(select, hexString, getColorNameByHex(hexString));
+    }
+
+    // Обновляем активный класс в палитре
+    const palette = document.getElementById('frame-palette');
+    if (palette) {
+        palette.querySelectorAll('.frame-swatch').forEach(s => {
+            s.classList.toggle('active', s.dataset.hex === hexString);
+        });
+    }
 };
 
 // ==============================================
@@ -2968,6 +2927,91 @@ window.changeRoofColor = function (hexNumber) {
     if (roofSelect) updateSelectPreview(roofSelect, hexString, getColorNameByHex(hexString));
     triggerModelUpdate();
 };
+
+// ==============================================
+// ИНИЦИАЛИЗАЦИЯ ВЫБОРА ЦВЕТА КАРКАСА (кастомный селект)
+// ==============================================
+function initFrameColorSelector() {
+    if (typeof ralColors === 'undefined' || typeof quickRalColors === 'undefined') {
+        console.error('Массивы ralColors не загружены!');
+        return;
+    }
+
+    const palette = document.getElementById('frame-palette');
+    const select = document.getElementById('frame-color-select');
+    if (!palette || !select) return;
+
+    // Загружаем сохранённый цвет или используем умолчание
+    const savedHex = localStorage.getItem(LS_FRAME_COLOR) || '#222222';
+    const savedHexUpper = savedHex.toUpperCase();
+
+    // --- Заполнение палитры (квадратные сваты) ---
+    palette.innerHTML = '';
+    quickRalColors.forEach(color => {
+        const hexUpper = color.hex.toUpperCase();
+        const sw = document.createElement('div');
+        sw.className = 'frame-swatch' + (hexUpper === savedHexUpper ? ' active' : '');
+        sw.style.backgroundColor = hexUpper;
+        sw.dataset.hex = hexUpper;
+        sw.title = color.name;
+
+        sw.addEventListener('click', function () {
+            // Снимаем активный класс со всех сватов
+            palette.querySelectorAll('.frame-swatch').forEach(s => s.classList.remove('active'));
+            this.classList.add('active');
+
+            // Меняем цвет
+            const hexNumber = parseInt(hexUpper.replace('#', ''), 16);
+            window.changeFrameColor(hexNumber);
+
+            // Обновляем select и превью-точку
+            select.value = hexUpper;
+            updateSelectPreview(select, hexUpper, getColorNameByHex(hexUpper));
+        });
+
+        palette.appendChild(sw);
+    });
+
+    // --- Заполнение select ---
+    select.innerHTML = '<option value="">— Выберите RAL —</option>';
+    ralColors.forEach(color => {
+        const hexUpper = color.hex.toUpperCase();
+        const opt = document.createElement('option');
+        opt.value = hexUpper;
+        opt.setAttribute('data-hex', hexUpper);
+        opt.setAttribute('data-name', color.name);
+        opt.setAttribute('data-desc', color.desc);
+        opt.textContent = `● ${color.name} - ${color.desc}`;
+        opt.style.backgroundColor = hexUpper;
+        opt.style.color = getContrastYIQ(hexUpper) ? '#000000' : '#ffffff';
+        if (hexUpper === savedHexUpper) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    // Добавляем кастомную превью-точку
+    createCustomSelectPreview(select, 'frame');
+
+    // Устанавливаем превью-точку в сохранённый цвет
+    if (savedHexUpper) {
+        updateSelectPreview(select, savedHexUpper, getColorNameByHex(savedHexUpper));
+    }
+
+    // Обработчик изменения select
+    select.addEventListener('change', function () {
+        if (!this.value) return;
+        const hexUpper = this.value.toUpperCase();
+        const hexNumber = parseInt(hexUpper.replace('#', ''), 16);
+        window.changeFrameColor(hexNumber);
+
+        // Обновляем превью-точку
+        updateSelectPreview(this, hexUpper, getColorNameByHex(hexUpper));
+
+        // Синхронизируем палитру
+        palette.querySelectorAll('.frame-swatch').forEach(s => {
+            s.classList.toggle('active', s.dataset.hex === hexUpper);
+        });
+    });
+}
 
 
 // ==========================================
@@ -3471,11 +3515,16 @@ function initCalculator() {
     loadCalculatorState();
     window.calculate();
     
+    // ========== ИНИЦИАЛИЗАЦИЯ ЦВЕТОВЫХ СЕЛЕКТОРОВ ==========
     if (typeof ralColors !== 'undefined') {
-        initColorSelectors();
+        initFrameColorSelector();   // ← ДОБАВЛЕНО: инициализация каркаса
+        initColorSelectors();       // ← стены и кровля
     } else {
         setTimeout(() => {
-            if (typeof ralColors !== 'undefined') initColorSelectors();
+            if (typeof ralColors !== 'undefined') {
+                initFrameColorSelector();   // ← ДОБАВЛЕНО
+                initColorSelectors();
+            }
         }, 300);
     }
 }
@@ -4097,7 +4146,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const optionsList = document.createElement('ul');
             optionsList.className = 'custom-select-options';
 
-            // Переносим все 200 цветов из невидимого селекта
+            // Переносим все цвета из невидимого селекта
             Array.from(select.options).forEach((option, index) => {
                 const li = document.createElement('li');
                 li.className = 'custom-select-option';
@@ -4143,7 +4192,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
-            // 4. Открытие списка и РУЧНАЯ МАТЕМАТИЧЕСКАЯ ПРОКРУТКА
+            // 4. Открытие списка и РУЧНАЯ ПРОКРУТКА (теперь выбранный элемент – вторым снизу)
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isOpen = container.classList.contains('open');
@@ -4156,19 +4205,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!isOpen) {
                     container.classList.add('open'); // Открываем текущий список
                     
-                    // МАГИЯ ПРОКРУТКИ (ВАРИАНТ 2: Отступ сверху)
+                    // Прокрутка, чтобы выбранный элемент оказался вторым снизу
                     const activeIndex = select.selectedIndex;
                     if (activeIndex >= 0) {
                         const activeLi = optionsList.children[activeIndex];
                         if (activeLi) {
                             // Небольшая задержка нужна, чтобы браузер успел применить display: block к списку
-                            // иначе он не сможет вычислить высоту элементов
                             setTimeout(() => {
-                                // НАСТРОЙКА: Сколько строк оставлять видимыми НАД выбранным цветом
-                                const linesAbove = 1; // Можете поменять на 1, 3 или 4
+                                // Сколько строк оставлять видимыми ПОД выбранным цветом
+                                const linesBelow = 1; // 1 = выбранный элемент будет вторым снизу
                                 
-                                // Прокручиваем: Позиция элемента МИНУС (Высота одной строки * Количество строк)
-                                optionsList.scrollTop = activeLi.offsetTop - (activeLi.clientHeight * linesAbove);
+                                const containerHeight = optionsList.clientHeight;
+                                const itemHeight = activeLi.clientHeight;
+                                
+                                // Формула: нижний край элемента должен быть на расстоянии linesBelow * itemHeight от низа контейнера
+                                let targetScrollTop = activeLi.offsetTop + itemHeight - containerHeight + linesBelow * itemHeight;
+                                
+                                // Ограничиваем, чтобы не выйти за пределы прокрутки
+                                const maxScrollTop = optionsList.scrollHeight - containerHeight;
+                                targetScrollTop = Math.max(0, Math.min(targetScrollTop, maxScrollTop));
+                                
+                                optionsList.scrollTop = targetScrollTop;
                             }, 10);
                         }
                     }
@@ -4179,13 +4236,13 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTriggerUI();
             select.addEventListener('change', updateTriggerUI);
 
-            // 6. Синхронизация: Слушаем изменения от 3D модели или Быстрых кнопок
+            // 6. Синхронизация: Слушаем изменения от 3D модели или быстрых кнопок
             setInterval(() => {
                 if (select.value !== lastValue) {
                     lastValue = select.value;
                     updateTriggerUI();
                 }
-            }, 200); // Проверяем 5 раз в секунду
+            }, 200);
         });
 
         // Закрываем список при клике в пустое место экрана
