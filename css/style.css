@@ -513,133 +513,204 @@
     }
 }
 
-        /* ============================================
-           МОБИЛЬНАЯ АДАПТАЦИЯ - ТОЛЬКО ВЫПАДАЮЩИЙ СПИСОК
-           ============================================ */
+/* ============================================
+   МОБИЛЬНАЯ АДАПТАЦИЯ - ТОЛЬКО ВЫПАДАЮЩИЙ СПИСОК
+   ============================================ */
 
-        /* Планшеты */
-        @media (max-width: 1000px) {
-            .colors-wrapper {
-                flex-direction: row;
-            }
-            
-            .color-section {
-                padding: 6px 8px;
-            }
-            
-            .color-label {
-                font-size: 11px;
-            }
-            
-            .color-mini-swatch {
-                width: 20px;
-                height: 20px;
-            }
-            
-            .color-select {
-                padding: 4px 10px 4px 26px !important;
-                height: 28px;
-                font-size: 11px;
-            }
+/* Планшеты */
+@media (max-width: 1000px) {
+    .colors-wrapper {
+        flex-direction: row;
+    }
+    
+    .color-section {
+        padding: 6px 8px;
+    }
+    
+    .color-label {
+        font-size: 11px;
+    }
+    
+    .color-mini-swatch {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .color-select {
+        padding: 4px 10px 4px 26px !important;
+        height: 28px;
+        font-size: 11px;
+    }
+
+    /* Кастомный список на планшетах */
+    .custom-select-trigger {
+        padding: 6px 10px;
+        height: 30px;
+        font-size: 11px;
+    }
+    .custom-color-dot {
+        width: 14px;
+        height: 14px;
+    }
+    .custom-select-options {
+        font-size: 11px;
+        max-height: 35vh;
+    }
+    .custom-select-option {
+        padding: 8px 10px;
+    }
+}
+
+/* Мобильные устройства - убираем всё лишнее, оставляем только select */
+@media (max-width: 768px) {
+    .colors-wrapper {
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+    
+    .color-section {
+        padding: 6px 8px;
+        gap: 0; /* Убираем gap */
+    }
+    
+    /* Прячем label "Стены:" и "Кровля:" */
+    .color-label {
+        display: none;
+    }
+    
+    /* Прячем мини-палитру с 5 цветами */
+    .color-mini-palette {
+        display: none;
+    }
+    
+    /* Контейнер для select занимает всю ширину */
+    .color-select-wrapper {
+        width: 100%;
+    }
+    
+    /* Делаем select на всю ширину */
+    .color-select {
+        padding: 6px 12px 6px 30px !important;
+        height: 36px;
+        font-size: 13px;
+        width: 100%;
+    }
+    
+    .select-preview-dot {
+        width: 16px;
+        height: 16px;
+        left: 10px;
+    }
+
+    /* Кастомный список на мобильных */
+    .custom-select-trigger {
+        padding: 8px 12px;
+        height: 36px;
+        font-size: 13px;
+    }
+    .custom-color-dot {
+        width: 16px;
+        height: 16px;
+    }
+    .custom-select-options {
+        font-size: 13px;
+        max-height: 45vh;
+    }
+    .custom-select-option {
+        padding: 10px 12px;
+    }
+}
+
+/* Маленькие мобильные устройства */
+@media (max-width: 480px) {
+    .color-section {
+        padding: 5px 6px;
+    }
+    
+    .color-select {
+        padding: 5px 10px 5px 28px !important;
+        height: 34px;
+        font-size: 12px;
+    }
+    
+    .select-preview-dot {
+        width: 14px;
+        height: 14px;
+        left: 9px;
+    }
+
+    /* Кастомный список на маленьких экранах */
+    .custom-select-trigger {
+        padding: 6px 10px;
+        height: 34px;
+        font-size: 12px;
+    }
+    .custom-color-dot {
+        width: 14px;
+        height: 14px;
+    }
+    .custom-select-options {
+        font-size: 12px;
+    }
+    .custom-select-option {
+        padding: 8px 10px;
+    }
+
+    /* --- Навигация для очень узких экранов --- */
+    .nav-container a {
+        padding: 8px 10px; /* Еще меньше отступов */
+        font-size: 12px;   /* Минимально читаемый шрифт */
+    }
+    
+    /* Уменьшаем отступ контента сверху, так как шапка стала тоньше */
+    .container {
+        padding-top: 45px; 
+    }
+}
+
+/* Для устройств с тач-интерфейсом */
+@media (hover: none) and (pointer: coarse) {
+    @media (max-width: 768px) {
+        .color-select {
+            padding: 8px 12px 8px 32px !important;
+            height: 44px;
+            font-size: 14px;
+        }
+        
+        .select-preview-dot {
+            width: 18px;
+            height: 18px;
+            left: 10px;
         }
 
-        /* Мобильные устройства - убираем всё лишнее, оставляем только select */
-        @media (max-width: 768px) {
-            .colors-wrapper {
-                flex-direction: row;
-                flex-wrap: nowrap;
-            }
-            
-            .color-section {
-                padding: 6px 8px;
-                gap: 0; /* Убираем gap */
-            }
-            
-            /* Прячем label "Стены:" и "Кровля:" */
-            .color-label {
-                display: none;
-            }
-            
-            /* Прячем мини-палитру с 5 цветами */
-            .color-mini-palette {
-                display: none;
-            }
-            
-            /* Контейнер для select занимает всю ширину */
-            .color-select-wrapper {
-                width: 100%;
-            }
-            
-            /* Делаем select на всю ширину */
-            .color-select {
-                padding: 6px 12px 6px 30px !important;
-                height: 36px;
-                font-size: 13px;
-                width: 100%;
-            }
-            
-            .select-preview-dot {
-                width: 16px;
-                height: 16px;
-                left: 10px;
-            }
+        /* Увеличиваем кастомный триггер для тач-устройств */
+        .custom-select-trigger {
+            padding: 10px 12px;
+            height: 44px;
+            font-size: 14px;
         }
-
-        /* Маленькие мобильные устройства */
-        @media (max-width: 480px) {
-            .color-section {
-                padding: 5px 6px;
-            }
-            
-            .color-select {
-                padding: 5px 10px 5px 28px !important;
-                height: 34px;
-                font-size: 12px;
-            }
-            
-            .select-preview-dot {
-                width: 14px;
-                height: 14px;
-                left: 9px;
-            }
-
-            /* --- Навигация для очень узких экранов --- */
-            .nav-container a {
-                padding: 8px 10px; /* Еще меньше отступов */
-                font-size: 12px;   /* Минимально читаемый шрифт */
-            }
-            
-            /* Уменьшаем отступ контента сверху, так как шапка стала тоньше */
-            .container {
-                padding-top: 45px; 
-            }
+        .custom-color-dot {
+            width: 20px;
+            height: 20px;
         }
-
-        /* Для устройств с тач-интерфейсом */
-        @media (hover: none) and (pointer: coarse) {
-            @media (max-width: 768px) {
-                .color-select {
-                    padding: 8px 12px 8px 32px !important;
-                    height: 44px;
-                    font-size: 14px;
-                }
-                
-                .select-preview-dot {
-                    width: 18px;
-                    height: 18px;
-                    left: 10px;
-                }
-            }
+        .custom-select-options {
+            max-height: 50vh;
         }
-
-        /* Для Firefox на мобильных */
-        @-moz-document url-prefix() {
-            @media (max-width: 768px) {
-                .color-select {
-                    text-indent: 20px;
-                }
-            }
+        .custom-select-option {
+            padding: 12px 14px;
         }
+    }
+}
+
+/* Для Firefox на мобильных */
+@-moz-document url-prefix() {
+    @media (max-width: 768px) {
+        .color-select {
+            text-indent: 20px;
+        }
+    }
+}
+
 /* ============================================
    КАСТОМНЫЙ ВЫПАДАЮЩИЙ СПИСОК ЦВЕТОВ (ДЛЯ МОБИЛЬНЫХ И ПК)
    ============================================ */
@@ -701,17 +772,17 @@
     transform: translateY(3px) rotate(-135deg);
 }
 
-/* Выпадающий список */
+/* Выпадающий список — открывается вверх */
 .custom-select-options {
     position: absolute;
-    top: 100%;
+    bottom: 100%;          /* вместо top: 100% */
     left: 0;
     right: 0;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    margin-top: 5px;
+    margin-bottom: 5px;    /* вместо margin-top */
     max-height: 40vh;
     overflow-y: auto;
     z-index: 9999;
