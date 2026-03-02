@@ -2537,15 +2537,15 @@ function savePriceConstants() {
     menuDiv.id = 'tex-menu';
     menuDiv.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3>🎨 Текстуры и материалы</h3>
+            <h3>🎨 Параметры обшивки</h3>
             <button id="tex-close-btn" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888;line-height:1;" title="Закрыть (Escape)">✕</button>
         </div>
 
-        <h4>Текстура стен</h4>
+        <h4>Профиль стеновых панелей</h4>
         <div class="tex-grid" id="wall-tex-grid"></div>
 
         <div style="margin-top:10px;">
-            <div style="font-size:0.78rem;color:#666;margin-bottom:5px;font-weight:600;">Ориентация панелей:</div>
+            <div style="font-size:0.78rem;color:#666;margin-bottom:5px;font-weight:600;">Раскладка панелей:</div>
             <div class="orient-row">
                 <button class="orient-btn" id="orient-horiz" title="Горизонтальные панели">
                     <svg width="18" height="18" viewBox="0 0 18 18"><rect x="1" y="3" width="16" height="3" rx="1" fill="currentColor"/><rect x="1" y="8" width="16" height="3" rx="1" fill="currentColor" opacity=".5"/><rect x="1" y="13" width="16" height="3" rx="1" fill="currentColor" opacity=".25"/></svg>
@@ -2558,7 +2558,7 @@ function savePriceConstants() {
             </div>
         </div>
 
-        <h4>Текстура кровли <span style="font-size:0.7rem;color:#888;font-weight:400;">(только вдоль ската)</span></h4>
+        <h4>Профиль кровли <span style="font-size:0.7rem;color:#888;font-weight:400;">(Высокое ребро)</span></h4>
         <div class="tex-grid" id="roof-tex-grid"></div>
 
         <h4>Цвет каркаса (фермы)</h4>
@@ -2576,7 +2576,7 @@ function savePriceConstants() {
     /* ── Кнопка открытия ───────────────────────────────────────── */
     const texButton = document.createElement('button');
     texButton.id    = 'tex-menu-button';
-    texButton.innerHTML = '🎨 Текстуры и цвет каркаса';
+    texButton.innerHTML = '🎨 Параметры обшивки (цвет каркаса)';
     texButton.style.cssText = 'width:100%; margin-top:6px; padding:8px; background:rgba(255,255,255,0.1); border:1px dashed rgba(255,255,255,0.3); border-radius:4px; color:rgba(255,255,255,0.7); font-size:0.8rem; cursor:pointer; transition:all .2s;';
     texButton.title = 'Открыть меню текстур и цвета каркаса';
 
@@ -2594,9 +2594,9 @@ function savePriceConstants() {
 
     /* ── Текстурные сетки ──────────────────────────────────────── */
     const textures = [
-        { id: 'default',    label: 'Гладкая\nпанель' },
-        { id: 'corrugated', label: 'Профнастил' },
-        { id: 'ribpanel',   label: 'Кровельный\nсэндвич' },
+        { id: 'default',    label: 'Фальцевая' },
+        { id: 'corrugated', label: 'Микроволна' },
+        { id: 'ribpanel',   label: 'Трапеция\n(Кровельный)' },
     ];
 
     function buildTexGrid(gridId, currentType, onSelect) {
