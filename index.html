@@ -421,32 +421,40 @@
     <h2>Онлайн Калькулятор</h2>
     <p>Рассчитайте предварительную стоимость строительства вашего здания. Изменяйте параметры, чтобы увидеть, как меняется цена.</p>
 
-    <!-- 3D ВИЗУАЛИЗАЦИЯ -->
+<!-- 3D ВИЗУАЛИЗАЦИЯ -->
     <div style="margin: 30px 0; background-color: white; border-radius: 8px; overflow: visible; border: none;">
 
-        <div class="tooltip-container" data-tooltip="Интерактивная модель вашего здания
-        • Вращать — левая кнопка мыши
-        • Перемещать — правая кнопка мыши
-        • Zoom — колесико мыши
-        • Техническое меню — Ctrl+Shift+P">
-            <div style="padding: 18px; background-color: var(--primary-blue); color: white;">
-                <h3 style="margin: 0; font-size: 1.2em; color: white;">🏛️ 3D Предпросмотр</h3>
+        <div>
+            <!-- Добавили id="scene-header" и box-sizing: border-box -->
+            <div id="scene-header" style="padding: 18px; background-color: var(--primary-blue, #0056b3); color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0; box-sizing: border-box;">
+                
+                <!-- 1. ПОДСКАЗКА ТОЛЬКО ДЛЯ ЗАГОЛОВКА -->
+                <div class="tooltip-container" data-tooltip="Интерактивная модель вашего здания
+• Вращать — левая кнопка мыши
+• Перемещать — правая кнопка мыши
+• Zoom — колесико мыши
+• Техническое меню — Ctrl+Shift+P" style="cursor: help;">
+                    <h3 style="margin: 0; font-size: 1.2em; color: white;">🏛️ 3D Предпросмотр</h3>
+                </div>
+                
+                <!-- 2. ПОДСКАЗКА ТОЛЬКО ДЛЯ КНОПКИ -->
+                <div class="tooltip-container" data-tooltip="Внимание: полноэкранный режим может увеличить нагрузку на видеокарту и производительность ПК">
+                    <button id="toggle-3d-size" style="background: transparent; border: 1px solid white; color: white; border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+                        <span id="toggle-icon">⛶</span> <span id="toggle-text">На весь экран</span>
+                    </button>
+                </div>
+
             </div>
         </div>
+        
+        <!-- Контейнер сцены -->
         <div id="scene3d" style="width: 100%; height: 500px; background: linear-gradient(to bottom, #e0e0e0, #90A4AE);"></div>
         
-        <!-- РАЗДЕЛЬНЫЙ ВЫБОР ЦВЕТА: СТЕНЫ И КРОВЛЯ В ОДНУ СТРОКУ -->
         <!-- КОМПАКТНЫЙ БЛОК ВЫБОРА ЦВЕТОВ -->
         <div class="colors-wrapper">
-            
-            <!-- ЛЕВАЯ ЧАСТЬ: СТЕНЫ -->
             <div class="color-section">
                 <span class="color-label">Стены:</span>
-                
-                <!-- Палитра 5 цветов -->
                 <div id="wall-mini-palette" class="color-mini-palette"></div>
-                
-                <!-- Выпадающий список -->
                 <div class="color-select-wrapper">
                     <select id="wall-color-select" class="color-select">
                         <option value="">— RAL —</option>
@@ -454,14 +462,9 @@
                 </div>
             </div>
             
-            <!-- ПРАВАЯ ЧАСТЬ: КРОВЛЯ -->
             <div class="color-section">
                 <span class="color-label">Кровля:</span>
-                
-                <!-- Палитра 5 цветов (ВЕРНУЛИ) -->
                 <div id="roof-mini-palette" class="color-mini-palette"></div>
-                
-                <!-- Выпадающий список -->
                 <div class="color-select-wrapper">
                     <select id="roof-color-select" class="color-select">
                         <option value="">— RAL —</option>
@@ -470,6 +473,47 @@
             </div>      
         </div>
     </div>
+
+    <!-- Скрипт для переключения размера 3D сцены -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const toggleBtn = document.getElementById('toggle-3d-size');
+            const toggleIcon = document.getElementById('toggle-icon');
+            const toggleText = document.getElementById('toggle-text');
+            const scene3d = document.getElementById('scene3d');
+            const sceneHeader = document.getElementById('scene-header'); // Получаем шапку
+            
+            let isExpanded = false;
+
+            toggleBtn.addEventListener('click', function() {
+                isExpanded = !isExpanded;
+                
+                if (isExpanded) {
+                    // Расширяем сцену
+                    scene3d.style.cssText = "width: 100vw; height: 90vh; position: relative; left: 50%; transform: translateX(-50%); background: linear-gradient(to bottom, #e0e0e0, #90A4AE); z-index: 100;";
+                    
+                    // Расширяем шапку (скругление углов убираем border-radius: 0)
+                    sceneHeader.style.cssText = "padding: 18px; background-color: var(--primary-blue, #0056b3); color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 0; width: 100vw; position: relative; left: 50%; transform: translateX(-50%); z-index: 100; box-sizing: border-box;";
+                    
+                    toggleIcon.textContent = "✖";
+                    toggleText.textContent = "Свернуть";
+                } else {
+                    // Компактная сцена
+                    scene3d.style.cssText = "width: 100%; height: 500px; background: linear-gradient(to bottom, #e0e0e0, #90A4AE);";
+                    
+                    // Компактная шапка (возвращаем скругление border-radius: 8px 8px 0 0)
+                    sceneHeader.style.cssText = "padding: 18px; background-color: var(--primary-blue, #0056b3); color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0; box-sizing: border-box;";
+                    
+                    toggleIcon.textContent = "⛶";
+                    toggleText.textContent = "На весь экран";
+                }
+
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 50); 
+            });
+        });
+    </script>
 
     <div class="calc-wrapper">
         <!-- БЛОК УПРАВЛЕНИЯ -->
