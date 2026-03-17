@@ -2011,7 +2011,11 @@ input:checked + .cookie-slider:before {
     font-size: 14px;
     font-weight: 500;
     line-height: 1.5;
-    white-space: pre-line; /* позволяет переносить строки из data-tooltip */
+    
+    white-space: pre-line; /* Сохраняет ваши ручные переносы строк (Enter) */
+    width: max-content;    /* НОВОЕ: Заставляет подсказку быть шириной с самую длинную строчку! */
+    max-width: 450px;      /* Защита, чтобы текст не растянулся на весь монитор */
+    
     border-radius: 8px;
     z-index: 10001;
     box-shadow: 0 6px 16px rgba(0,0,0,0.25);
@@ -2022,7 +2026,7 @@ input:checked + .cookie-slider:before {
     pointer-events: none;
 }
 
-/* Стрелочка снизу */
+/* Стрелочка снизу (по умолчанию слева) */
 .tooltip-container:hover::before {
     content: '';
     position: absolute;
@@ -2036,15 +2040,44 @@ input:checked + .cookie-slider:before {
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
 }
 
+/* === МОДИФИКАТОР ДЛЯ ПОДСКАЗОК СПРАВА (кнопка "На весь экран") === */
+.tooltip-container.tooltip-right:hover::after {
+    left: auto; 
+    right: 0;   
+    width: auto;           /* Сбрасываем max-content для этой конкретной кнопки */
+    max-width: 280px;      /* Ограничиваем ширину */
+    white-space: normal;   /* Разрешаем браузеру переносить длинный текст предупреждения */
+    border-left: none; 
+    border-right: 4px solid var(--accent-orange); 
+}
+
+/* Двигаем стрелочку вправо */
+.tooltip-container.tooltip-right:hover::before {
+    left: auto;
+    right: 25px; 
+}
+
 /* Адаптация для мобильных устройств */
 @media (max-width: 768px) {
     .tooltip-container:hover::after {
         font-size: 13px;
         padding: 10px 14px;
         min-width: 200px;
-        left: 10px;
+        width: max-content;
+        max-width: 90vw; /* На мобилках ограничиваем ширину экраном */
+        left: 0;
     }
     .tooltip-container:hover::before {
         left: 20px;
+    }
+
+    /* Адаптация для правых подсказок на мобилках */
+    .tooltip-container.tooltip-right:hover::after {
+        left: auto;
+        right: 0;
+    }
+    .tooltip-container.tooltip-right:hover::before {
+        left: auto;
+        right: 20px;
     }
 }
