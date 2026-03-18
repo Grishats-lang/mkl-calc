@@ -2060,16 +2060,9 @@ input:checked + .cookie-slider:before {
 
 /* Адаптация для мобильных устройств (ширина экрана до 768px) */
 @media (max-width: 768px) {
-    /* Компактная кнопка "На весь экран" */
-    #toggle-3d-size {
-        padding: 4px 8px;
-    }
-    #toggle-text {
-        display: none;          /* скрываем текст */
-    }
-    #toggle-icon {
-        font-size: 20px;
-        line-height: 1;
+    /* Скрываем кнопку "На весь экран" */
+    #scene-header .tooltip-container:last-child {
+        display: none;
     }
 
     /* Полностью скрываем подсказки на мобильных – они неудобны из-за отсутствия hover */
