@@ -2007,7 +2007,7 @@ input:checked + .cookie-slider:before {
     bottom: 100%;
     margin-bottom: 10px;
     padding: 12px 18px;
-    background-color: var(--primary-blue);
+    background-color: var(--primary-blue, #0056b3);
     color: white;
     font-size: 14px;
     font-weight: 500;
@@ -2021,7 +2021,7 @@ input:checked + .cookie-slider:before {
     z-index: 10001;
     box-shadow: 0 6px 16px rgba(0,0,0,0.25);
     font-family: 'Inter', sans-serif;
-    border-left: 4px solid var(--accent-orange);
+    border-left: 4px solid var(--accent-orange, #ff9800);
     min-width: 240px;
     text-align: left;
     pointer-events: none;
@@ -2036,24 +2036,25 @@ input:checked + .cookie-slider:before {
     margin-bottom: 4px;
     border-width: 8px;
     border-style: solid;
-    border-color: var(--primary-blue) transparent transparent transparent;
+    border-color: var(--primary-blue, #0056b3) transparent transparent transparent;
     z-index: 10001;
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
 }
 
-/* === МОДИФИКАТОР ДЛЯ ПОДСКАЗОК СПРАВА (если нужно показать подсказку слева от контейнера) === */
-/* Примечание: не используйте этот класс для кнопки «На весь экран», чтобы избежать вылезания за левый край. */
-.tooltip-container.tooltip-right:hover::after {
+/* === МОДИФИКАТОР ДЛЯ ПОДСКАЗОК СПРАВА (Кнопка "На весь экран") === */
+/* Привязывает подсказку к правому краю, чтобы она росла влево и не вылезала за пределы экрана */
+.tooltip-container.tooltip-align-right:hover::after {
     left: auto; 
-    right: 0;                  /* подсказка слева от контейнера */
-    width: auto;
-    max-width: min(280px, calc(100vw - 20px)); /* защита от выхода за левый край */
-    white-space: normal;
+    right: 0;                  /* Привязка к правому краю контейнера */
+    width: 280px;              /* Фиксированная ширина для длинного текста */
+    max-width: calc(100vw - 40px); 
+    white-space: normal;       /* Разрешаем автоматический перенос текста */
     border-left: none; 
-    border-right: 4px solid var(--accent-orange); 
+    border-right: 4px solid var(--accent-orange, #ff9800); /* Полоска теперь справа */
 }
 
-.tooltip-container.tooltip-right:hover::before {
+/* Смещаем стрелочку к правой стороне */
+.tooltip-container.tooltip-align-right:hover::before {
     left: auto;
     right: 25px; 
 }
