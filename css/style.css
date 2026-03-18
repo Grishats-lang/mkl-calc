@@ -1999,10 +1999,11 @@ input:checked + .cookie-slider:before {
     cursor: help;
 }
 
+/* Подсказка по умолчанию – появляется справа от контейнера */
 .tooltip-container:hover::after {
     content: attr(data-tooltip);
     position: absolute;
-    left: 20px;
+    left: 20px;               /* отступ от левого края контейнера – подсказка справа */
     bottom: 100%;
     margin-bottom: 10px;
     padding: 12px 18px;
@@ -2012,9 +2013,9 @@ input:checked + .cookie-slider:before {
     font-weight: 500;
     line-height: 1.5;
     
-    white-space: pre-line; /* Сохраняет ваши ручные переносы строк (Enter) */
-    width: max-content;    /* НОВОЕ: Заставляет подсказку быть шириной с самую длинную строчку! */
-    max-width: 450px;      /* Защита, чтобы текст не растянулся на весь монитор */
+    white-space: pre-line;          /* сохраняем ручные переносы */
+    width: max-content;              /* ширина по самой длинной строке */
+    max-width: min(450px, calc(100vw - 40px)); /* не шире 450px и не шире окна с отступами 20px слева и справа */
     
     border-radius: 8px;
     z-index: 10001;
@@ -2026,11 +2027,11 @@ input:checked + .cookie-slider:before {
     pointer-events: none;
 }
 
-/* Стрелочка снизу (по умолчанию слева) */
+/* Стрелочка снизу (слева) */
 .tooltip-container:hover::before {
     content: '';
     position: absolute;
-    left: 30px;
+    left: 30px;               /* стрелочка под левой частью подсказки */
     bottom: 100%;
     margin-bottom: 4px;
     border-width: 8px;
@@ -2040,44 +2041,40 @@ input:checked + .cookie-slider:before {
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
 }
 
-/* === МОДИФИКАТОР ДЛЯ ПОДСКАЗОК СПРАВА (кнопка "На весь экран") === */
+/* === МОДИФИКАТОР ДЛЯ ПОДСКАЗОК СПРАВА (если нужно показать подсказку слева от контейнера) === */
+/* Примечание: не используйте этот класс для кнопки «На весь экран», чтобы избежать вылезания за левый край. */
 .tooltip-container.tooltip-right:hover::after {
     left: auto; 
-    right: 0;   
-    width: auto;           /* Сбрасываем max-content для этой конкретной кнопки */
-    max-width: 280px;      /* Ограничиваем ширину */
-    white-space: normal;   /* Разрешаем браузеру переносить длинный текст предупреждения */
+    right: 0;                  /* подсказка слева от контейнера */
+    width: auto;
+    max-width: min(280px, calc(100vw - 20px)); /* защита от выхода за левый край */
+    white-space: normal;
     border-left: none; 
     border-right: 4px solid var(--accent-orange); 
 }
 
-/* Двигаем стрелочку вправо */
 .tooltip-container.tooltip-right:hover::before {
     left: auto;
     right: 25px; 
 }
 
-/* Адаптация для мобильных устройств */
+/* Адаптация для мобильных устройств (ширина экрана до 768px) */
 @media (max-width: 768px) {
-    .tooltip-container:hover::after {
-        font-size: 13px;
-        padding: 10px 14px;
-        min-width: 200px;
-        width: max-content;
-        max-width: 90vw; /* На мобилках ограничиваем ширину экраном */
-        left: 0;
+    /* Компактная кнопка "На весь экран" */
+    #toggle-3d-size {
+        padding: 4px 8px;
     }
-    .tooltip-container:hover::before {
-        left: 20px;
+    #toggle-text {
+        display: none;          /* скрываем текст */
+    }
+    #toggle-icon {
+        font-size: 20px;
+        line-height: 1;
     }
 
-    /* Адаптация для правых подсказок на мобилках */
-    .tooltip-container.tooltip-right:hover::after {
-        left: auto;
-        right: 0;
-    }
-    .tooltip-container.tooltip-right:hover::before {
-        left: auto;
-        right: 20px;
+    /* Полностью скрываем подсказки на мобильных – они неудобны из-за отсутствия hover */
+    .tooltip-container:hover::after,
+    .tooltip-container:hover::before {
+        display: none;
     }
 }
